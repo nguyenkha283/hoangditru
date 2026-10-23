@@ -1,6 +1,6 @@
 /* ── Trang Chủ Settings – Admin CSS ── */
 :root {
-    --tc-orange: #ff7200;
+    --tc-orange: #1e3a73;  /* Giữ tên biến: s3_title_orange/s4_title_orange là khoá meta trong DB, đổi tên sẽ hỏng dữ liệu. Giá trị nay là xanh navy. */
     --tc-border: #e5e7eb;
     --tc-bg:     #f9fafb;
     --tc-text:   #1f2937;
@@ -74,7 +74,7 @@
 .tcs-field textarea.large-text:focus {
     border-color: var(--tc-orange);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(255,114,0,.12);
+    box-shadow: 0 0 0 3px rgba(30,58,115,.12);
 }
 .tcs-note { font-weight: 400; color: var(--tc-muted); font-size: 12px; margin-left: 4px; }
 
@@ -174,7 +174,7 @@
     display: flex; align-items: center; justify-content: center;
     transition: background .2s;
 }
-.tcs-add-btn:hover { background: #e06500; }
+.tcs-add-btn:hover { background: #182e5b; }
 .tcs-add-btn:disabled { background: #d1d5db; cursor: not-allowed; }
 
 .tcs-drag-handle {

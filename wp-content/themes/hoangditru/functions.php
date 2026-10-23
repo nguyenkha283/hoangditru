@@ -7,7 +7,7 @@
  * và các template WordPress chuẩn.
  */
 
-define( 'HDT_VERSION', '2.0.0' );
+define( 'HDT_VERSION', '2.1.0' );
 
 // ------------------------------------------------------------------
 // 1. Khai báo tính năng theme
@@ -38,12 +38,41 @@ function hdt_setup() {
 // ------------------------------------------------------------------
 add_action( 'wp_enqueue_scripts', 'hdt_enqueue_styles' );
 function hdt_enqueue_styles() {
+    // Google Fonts: Roboto cho body, Roboto Condensed cho tiêu đề.
+    // Version để null: Google không nhận tham số ?ver= và WordPress sẽ tự thêm
+    // nếu truyền chuỗi version.
+    wp_enqueue_style(
+        'hoangditru-fonts',
+        'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Condensed:wght@400;600;700&display=swap',
+        array(),
+        null
+    );
+
     wp_enqueue_style(
         'hoangditru-style',
         get_stylesheet_uri(),
-        array(),
+        array( 'hoangditru-fonts' ),
         HDT_VERSION
     );
+}
+
+/**
+ * Mở sẵn kết nối tới Google Fonts để font về sớm hơn.
+ *
+ * @param array  $urls          Danh sách URL.
+ * @param string $relation_type Loại resource hint.
+ * @return array
+ */
+add_filter( 'wp_resource_hints', 'hdt_resource_hints', 10, 2 );
+function hdt_resource_hints( $urls, $relation_type ) {
+    if ( 'preconnect' === $relation_type ) {
+        $urls[] = array(
+            'href' => 'https://fonts.gstatic.com',
+            'crossorigin',
+        );
+    }
+
+    return $urls;
 }
 
 // ------------------------------------------------------------------

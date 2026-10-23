@@ -35,7 +35,7 @@
     border: 2px solid transparent; transition: border-color .2s;
 }
 .bds-slider-nav .slick-current .bds-slide-thumb img,
-.bds-slider-nav .bds-slide-thumb:hover img { border-color: #ff7200; }
+.bds-slider-nav .bds-slide-thumb:hover img { border-color: #1e3a73; }
 
 /* Slick arrows override — scoped */
 .bds-wrapper .bds-slider-main .slick-prev,
@@ -50,7 +50,7 @@
 
 /* ===== GIÁ & LOẠI HÌNH ===== */
 .bds-price-type-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0 32px; }
-.bds-price { font-size: 20px; font-weight: 700; color: #ff7200; text-align: left; }
+.bds-price { font-size: 20px; font-weight: 700; color: #1e3a73; text-align: left; }
 .bds-loai-hinh { font-size: 13px; font-weight: 600; color: #555; letter-spacing: 1.5px; text-align: right; text-transform: uppercase; }
 
 /* ===== SECTIONS ===== */

@@ -3,7 +3,7 @@
    Dùng cho: taxonomy archive, CPT archive /bat-dong-san
    ========================================================= */
 :root {
-    --bds-orange:     #ff7200;
+    --bds-orange:     #1e3a73;  /* Giữ tên biến: s3_title_orange/s4_title_orange là khoá meta trong DB, đổi tên sẽ hỏng dữ liệu. Giá trị nay là xanh navy. */
     --bds-text:       #111;
     --bds-muted:      #6b7280;
     --bds-border:     #e5e7eb;

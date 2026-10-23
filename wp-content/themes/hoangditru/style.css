@@ -3,20 +3,21 @@
  Theme URI:
  Description:  Theme độc lập cho site Khải Di trú. Tách khỏi Flatsome: header do plugin trang-chu dựng, footer do plugin cim-footer dựng.
  Author:
- Version:      2.0.0
+ Version:      2.1.0
  Requires at least: 6.0
  Requires PHP: 7.4
  Text Domain:  hoangditru
 */
 
 /* ============================================================
-   1. GOOGLE FONTS IMPORT
+   1. FONT
+   Roboto cho body, Roboto Condensed cho tiêu đề.
+   Google Fonts được nạp bằng wp_enqueue_style trong functions.php, không dùng
+   @import: @import chặn render vì trình duyệt phải tải style.css xong mới biết
+   có font cần tải, trong khi thẻ <link> tải song song.
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Phudu:wght@300;400;500;600;700;800;900&display=swap');
 
-/* ============================================================
-   2. LOCAL FONT FACE — UTMAptima
-   ============================================================ */
+/* Font cũ của site, không còn dùng. File vẫn nằm ở assets/fonts/ nếu cần quay lại. */
 @font-face {
     font-family: 'UTMAptima';
     src: url('assets/fonts/UTMAptima.woff') format('woff');
@@ -26,27 +27,31 @@
 }
 
 /* ============================================================
-   3. ROOT — BASE UNIT
+   2. ROOT — BASE UNIT
    ============================================================ */
 :root {
     font-size: 18px; /* 1em = 18px */
+
+    /* Màu nhấn của site. Các plugin tự khai biến riêng (--tc-*, --lpb-*,
+       --bds-*) nên biến này chỉ dùng cho phần thuộc theme. */
+    --hdt-accent: #1e3a73;
 }
 
 /* ============================================================
-   4. BODY — UTMAptima
+   3. BODY — Roboto
    ============================================================ */
 body {
-    font-family: 'UTMAptima', Arial, sans-serif !important;
+    font-family: 'Roboto', Arial, sans-serif !important;
     font-size: 1em;
 	color: #000;
 }
 
 /* ============================================================
-   5. HEADINGS — Phudu
+   4. HEADINGS — Roboto Condensed
    ============================================================ */
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
-    font-family: 'Phudu', sans-serif;
+    font-family: 'Roboto Condensed', Arial, sans-serif;
 	font-weight: 700;
 	color: #000;
 }
@@ -83,7 +88,7 @@ body {
 img, svg, video, iframe { max-width: 100%; height: auto; }
 img { border: 0; vertical-align: middle; }
 
-a { color: #0b4da2; text-decoration: none; }
+a { color: var(--hdt-accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 h1, h2, h3, h4, h5, h6 { margin: 0 0 .5em; line-height: 1.25; }
@@ -183,8 +188,8 @@ hr { height: 0; border: 0; border-top: 1px solid #e3e6ea; margin: 2em 0; }
     color: #000;
 }
 
-.hdt-pagination .page-numbers:hover { border-color: #0b4da2; text-decoration: none; }
-.hdt-pagination .page-numbers.current { background: #0b4da2; border-color: #0b4da2; color: #fff; }
+.hdt-pagination .page-numbers:hover { border-color: var(--hdt-accent); text-decoration: none; }
+.hdt-pagination .page-numbers.current { background: var(--hdt-accent); border-color: var(--hdt-accent); color: #fff; }
 
 /* Ô tìm kiếm của 404 / search */
 .hdt-searchform { display: flex; gap: 8px; max-width: 420px; }
@@ -202,7 +207,7 @@ hr { height: 0; border: 0; border-top: 1px solid #e3e6ea; margin: 2em 0; }
     padding: .6em 1.1em;
     border: 0;
     border-radius: 6px;
-    background: #0b4da2;
+    background: var(--hdt-accent);
     color: #fff;
     font: inherit;
     cursor: pointer;
