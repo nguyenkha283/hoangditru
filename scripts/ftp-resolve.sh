@@ -31,7 +31,19 @@ list_dir() {
        "ftp://${FTP_HOST}$1" 2>&1 | awk 'NF {print $NF}'
 }
 
-# ── Chứng chỉ FTPS của Hostinger cấp cho tên máy chủ, không cấp cho IP ───────
+# ── Chứng chỉ FTPS của máy chủ này không khớp được với tên nào ta có ─────────
+#
+# Đã kiểm ngày 2026-10-23 trên 145.223.108.128:21:
+#   - chứng chỉ là CN=*.hstgr.io, SAN chỉ có *.hstgr.io và hstgr.io
+#   - hPanel chỉ công bố địa chỉ IP, không công bố hostname nào
+#   - ftp.hoangditru.com và hoangditru.com trỏ đúng IP nhưng vẫn mismatch (62)
+#   - srv1760.hstgr.io trỏ sang 153.92.15.39, không phải máy chủ FTP
+#   - banner FTP là "220 FTP Server ready.", không lộ tên máy
+#
+# Nên không có cách nào để TLS xác thực đúng. Kết nối vẫn được MÃ HOÁ (FTPS),
+# chỉ là không chứng thực được danh tính máy chủ. Giảm thiệt hại bằng cách dùng
+# một tài khoản FTP riêng chỉ có quyền vào thư mục của site, thay vì tài khoản
+# FTP chính của gói hosting.
 detect_tls() {
   [ -n "${FTP_FAKE_TREE:-}" ] && return 0
 
@@ -42,7 +54,7 @@ detect_tls() {
 
   if printf '%s' "$err" | grep -qiE "certificate|ssl"; then
     TLS_OPT="--insecure"
-    warn "Chứng chỉ FTPS không khớp FTP_HOST — nhiều khả năng FTP_HOST đang là địa chỉ IP. Tạm bỏ qua kiểm tra chứng chỉ. Nên đổi FTP_HOST sang tên máy chủ (dạng srvNNNN.hstgr.io) để TLS xác thực được đúng."
+    note "Chứng chỉ FTPS không xác thực được (đã biết trước, xem ghi chú trong script). Kết nối vẫn mã hoá, chạy tiếp."
   fi
 }
 

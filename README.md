@@ -118,24 +118,37 @@ GitHub repo → **Settings → Secrets and variables → Actions → New reposit
 
 | Secret | Giá trị |
 |---|---|
-| `FTP_HOST` | FTP host từ bước 2 (vd `ftp.domain-cua-ban.com` hoặc IP) |
+| `FTP_HOST` | IP máy chủ FTP, đúng như hPanel hiện (xem ghi chú về TLS bên dưới) |
 | `FTP_USER` | username FTP |
 | `FTP_PASSWORD` | password FTP |
 | `FTP_PATH` | *(tuỳ chọn)* — site này là domain chính nên để trống là đúng |
 
 Secret chỉ GitHub Actions đọc được, không hiện lại trong giao diện và không có trong code.
 
-**`FTP_PATH`.** Site chạy trên **domain chính của gói**, nên mặc định `/public_html/wp-content/`
-đã đúng — không cần đặt secret này. Chỉ đặt khi tài khoản FTP có thư mục gốc khác thường:
+**`FTP_PATH` không bắt buộc.** Bước *Dò wp-content trên server* tự tìm: thử
+`/public_html/wp-content/`, `/wp-content/`, rồi từng `/domains/<d>/public_html/wp-content/`. Chỉ
+chấp nhận thư mục có đủ `themes/`, `plugins/` **và** `wp-includes/` nằm cạnh. Khớp nhiều hơn một
+thì dừng và bắt đặt `FTP_PATH`, để không deploy nhầm site. Logic nằm ở
+[`scripts/ftp-resolve.sh`](scripts/ftp-resolve.sh), chạy thử ở máy được bằng `FTP_FAKE_TREE`.
 
-| Gốc đăng nhập của tài khoản FTP | `FTP_PATH` |
-|---|---|
-| home directory (`/`, thấy `domains`, `public_html`, …) — mặc định của Hostinger | để trống |
-| đã là `public_html` (FTP account tạo riêng cho thư mục đó) | `/wp-content/` |
+### Về TLS của FTPS
 
-Không chắc thì cứ chạy workflow: bước **Kiểm tra FTP_PATH trên server** liệt kê thư mục đích và
-**dừng với lỗi đỏ** nếu không thấy `themes/` và `plugins/` trong đó. Path sai thì không file nào
-được đẩy lên, không làm hỏng gì trên server.
+Kết nối được mã hoá, nhưng **không chứng thực được danh tính máy chủ**. Đã kiểm 2026-10-23 trên
+`145.223.108.128:21`:
+
+- chứng chỉ là `CN=*.hstgr.io`, SAN chỉ có `*.hstgr.io` và `hstgr.io`
+- hPanel chỉ công bố IP, không công bố hostname nào
+- `ftp.hoangditru.com` và `hoangditru.com` trỏ đúng IP nhưng vẫn mismatch (mã 62)
+- `srv1760.hstgr.io` trỏ sang `153.92.15.39`, không phải máy chủ FTP
+- banner FTP là `220 FTP Server ready.`, không lộ tên máy
+
+Nên không có tên nào để TLS xác thực đúng — đổi `FTP_HOST` sang tên miền **không** giải quyết được,
+chỉ làm config trông đẹp hơn. Script tự nhận ra và chạy tiếp ở chế độ bỏ qua kiểm tra chứng chỉ.
+
+Cách giảm thiệt hại thiết thực: tạo **một tài khoản FTP riêng** trong hPanel → Files → FTP Accounts,
+giới hạn vào đúng thư mục của site, và dùng tài khoản đó cho `FTP_USER`/`FTP_PASSWORD` thay vì tài
+khoản FTP chính của gói hosting. Mật khẩu đi qua kênh không chứng thực được thì ít nhất nó không
+phải chìa khoá của cả gói.
 
 ### 4. Chạy deploy
 

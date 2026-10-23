@@ -8,9 +8,11 @@
 #   job ftp    dò wp-content trên server rồi đẩy wp-content/ qua FTPS.
 #
 # Secret cần đặt ở GitHub repo → Settings → Secrets and variables → Actions:
-#   FTP_HOST      máy chủ FTP (hPanel → Files → FTP Accounts). Nên dùng TÊN MÁY
-#                 CHỦ dạng srvNNNN.hstgr.io, không dùng IP — chứng chỉ FTPS
-#                 không cấp cho IP nên TLS sẽ không xác thực được.
+#   FTP_HOST      IP máy chủ FTP, đúng như hPanel → Files → FTP Accounts hiện.
+#                 Hostinger chỉ công bố IP; chứng chỉ FTPS của máy này là
+#                 *.hstgr.io nên không tên nào ta có xác thực được. Kết nối vẫn
+#                 mã hoá, chỉ không chứng thực được danh tính máy chủ. Chi tiết
+#                 trong scripts/ftp-resolve.sh.
 #   FTP_USER      username FTP
 #   FTP_PASSWORD  password FTP
 #   FTP_PATH      (tuỳ chọn) đường dẫn wp-content. Bỏ trống thì workflow tự dò.
@@ -70,6 +72,11 @@ jobs:
           set -euo pipefail
           find wp-content -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
           echo "Đã kiểm $(find wp-content -name '*.php' | wc -l) file PHP."
+
+      # Script dò wp-content quyết định file được đẩy đi đâu, nên nó phải có
+      # test và test phải chạy trước mỗi lần deploy.
+      - name: Test scripts/ftp-resolve.sh
+        run: bash scripts/ftp-resolve.test.sh
 
   ftp:
     name: Đẩy lên Hostinger qua FTPS
