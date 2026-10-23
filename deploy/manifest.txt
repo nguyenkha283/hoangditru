@@ -4,7 +4,7 @@
 # CHỈ code tự viết. Theme flatsome (bản trả phí) và plugin của bên thứ ba
 # không nằm ở đây — xem README.
 
-themes/flatsome-child
+themes/hoangditru
 
 plugins/bat-dong-san-plugin
 plugins/cim-footer

@@ -1,15 +1,94 @@
 <?php
-add_action( 'wp_enqueue_scripts', 'flatsome_child_enqueue_styles' );
-function flatsome_child_enqueue_styles() {
+/**
+ * Theme Hoangditru — độc lập, không còn là theme con của Flatsome.
+ *
+ * Header hiển thị do plugin trang-chu dựng (hook wp_body_open), footer do plugin
+ * cim-footer dựng (hook wp_footer). Theme chỉ lo khung HTML, khai báo tính năng
+ * và các template WordPress chuẩn.
+ */
+
+define( 'HDT_VERSION', '2.0.0' );
+
+// ------------------------------------------------------------------
+// 1. Khai báo tính năng theme
+// ------------------------------------------------------------------
+add_action( 'after_setup_theme', 'hdt_setup' );
+function hdt_setup() {
+    load_theme_textdomain( 'hoangditru', get_template_directory() . '/languages' );
+
+    add_theme_support( 'title-tag' );
+    add_theme_support( 'post-thumbnails' );   // plugin dùng has_post_thumbnail()
+    add_theme_support( 'automatic-feed-links' );
+    add_theme_support( 'custom-logo' );
+    add_theme_support( 'responsive-embeds' );
+    add_theme_support( 'html5', array(
+        'search-form', 'gallery', 'caption', 'style', 'script',
+    ) );
+
+    // Plugin trang-chu gọi wp_nav_menu( 'theme_location' => 'primary' ) ở 2 chỗ.
+    // Không khai báo thì menu rơi vào fallback và chỉ còn link "Trang chủ".
+    register_nav_menus( array(
+        'primary' => __( 'Menu chính', 'hoangditru' ),
+        'footer'  => __( 'Menu chân trang', 'hoangditru' ),
+    ) );
+}
+
+// ------------------------------------------------------------------
+// 2. CSS
+// ------------------------------------------------------------------
+add_action( 'wp_enqueue_scripts', 'hdt_enqueue_styles' );
+function hdt_enqueue_styles() {
     wp_enqueue_style(
-        'flatsome-parent-style',
-        get_template_directory_uri() . '/style.css'
+        'hoangditru-style',
+        get_stylesheet_uri(),
+        array(),
+        HDT_VERSION
     );
-    wp_enqueue_style(
-        'flatsome-child-style',
-        get_stylesheet_directory_uri() . '/style.css',
-        array( 'flatsome-parent-style' )
-    );
+}
+
+// ------------------------------------------------------------------
+// 3. Shim shortcode của Flatsome
+//
+// Nội dung cũ còn sót vài shortcode UX Builder (trong DB: 1 [ux_image],
+// 5 [ux_text], 5 [section]). Không có Flatsome thì WordPress in nguyên chuỗi
+// "[ux_text ...]" ra trang. Các shim dưới đây chỉ nhả phần nội dung bên trong
+// để trang không bị lộ shortcode thô.
+// ------------------------------------------------------------------
+add_action( 'init', 'hdt_register_legacy_shortcodes' );
+function hdt_register_legacy_shortcodes() {
+    foreach ( array( 'ux_text', 'section', 'row', 'col', 'ux_banner' ) as $tag ) {
+        if ( ! shortcode_exists( $tag ) ) {
+            add_shortcode( $tag, 'hdt_legacy_shortcode_passthrough' );
+        }
+    }
+
+    if ( ! shortcode_exists( 'ux_image' ) ) {
+        add_shortcode( 'ux_image', 'hdt_legacy_ux_image' );
+    }
+}
+
+/**
+ * Nhả nội dung bên trong, bỏ thẻ bao.
+ *
+ * @param array       $atts    Thuộc tính shortcode (không dùng).
+ * @param string|null $content Nội dung bên trong.
+ * @return string
+ */
+function hdt_legacy_shortcode_passthrough( $atts, $content = null ) {
+    return null === $content ? '' : do_shortcode( $content );
+}
+
+/**
+ * [ux_image id="123"] → thẻ img.
+ *
+ * @param array $atts Thuộc tính shortcode.
+ * @return string
+ */
+function hdt_legacy_ux_image( $atts ) {
+    $atts = shortcode_atts( array( 'id' => 0 ), $atts, 'ux_image' );
+    $id   = absint( $atts['id'] );
+
+    return $id ? wp_get_attachment_image( $id, 'large' ) : '';
 }
 
 

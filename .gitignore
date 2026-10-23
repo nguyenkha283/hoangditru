@@ -10,9 +10,11 @@ wp-content/maintenance/
 wp-config.php
 *-config.php
 
-# ─── Theme trả phí: KHÔNG đưa lên repo công khai ───────────────────────────
-# flatsome mua trên ThemeForest, tải lên Hostinger bằng tay (xem README).
+# ─── Theme trả phí ────────────────────────────────────────────────────────
+# Từ v2.0.0 site không còn cần flatsome (theme hoangditru đã độc lập).
+# Giữ dòng này làm chốt an toàn: đừng bao giờ commit code ThemeForest.
 wp-content/themes/flatsome/
+wp-content/themes/flatsome-child/
 
 # ─── Plugin bên thứ ba: cài bằng `wp plugin install` ──────────────────────
 wp-content/plugins/advanced-custom-fields/
