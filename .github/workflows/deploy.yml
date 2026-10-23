@@ -12,10 +12,10 @@
 #   FTP_HOST      máy chủ FTP của Hostinger (hPanel → Files → FTP Accounts)
 #   FTP_USER      username FTP
 #   FTP_PASSWORD  password FTP
-#   FTP_PATH      đường dẫn wp-content trên server. Mặc định
-#                 /public_html/wp-content/ (domain chính). Site này chạy trên
-#                 DOMAIN PHỤ nên BẮT BUỘC phải đặt, dạng
-#                 /domains/<domain>/public_html/wp-content/
+#   FTP_PATH      (tuỳ chọn) đường dẫn wp-content trên server. Mặc định
+#                 /public_html/wp-content/ — đúng cho domain chính của gói,
+#                 là trường hợp của site này. Chỉ cần đặt khi tài khoản FTP có
+#                 thư mục gốc khác (vd gốc đã là public_html → /wp-content/).
 #
 # Thiếu 3 secret đầu thì job ftp chỉ in cảnh báo rồi bỏ qua, workflow vẫn xanh.
 # FTP_PATH sai thì job ftp ĐỎ ở bước kiểm tra, không đẩy file nào.
