@@ -109,13 +109,31 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_PATH: ${{ secrets.FTP_PATH || '/public_html/wp-content/' }}
         run: |
-          set -uo pipefail
+          set -u
+          set -o pipefail
+          # GitHub chạy step bằng `bash -e`. Phần chẩn đoán bên dưới CỐ TÌNH gọi
+          # những lệnh có thể hỏng, nên phải tắt -e, nếu không nó chết ngay ở
+          # probe đầu tiên và không in được gì.
+          set +e
+
+          # Chứng chỉ FTPS của Hostinger cấp cho tên máy chủ, không cấp cho IP.
+          # Nếu FTP_HOST là IP thì TLS không xác thực được (curl lỗi 60).
+          # Thử xác thực đầy đủ trước; chỉ khi đúng lỗi chứng chỉ mới hạ xuống
+          # --insecure, và nói rõ cách sửa cho đúng.
+          TLS_OPT=""
+          probe_err=$(curl -sS --ssl-reqd --max-time 30 \
+                        --user "$FTP_USER:$FTP_PASSWORD" \
+                        "ftp://${FTP_HOST}/" 2>&1 >/dev/null)
+          if printf '%s' "$probe_err" | grep -qiE "certificate|SSL|\(60\)"; then
+            TLS_OPT="--insecure"
+            echo "::warning::Chứng chỉ FTPS không khớp FTP_HOST — nhiều khả năng FTP_HOST đang là địa chỉ IP. Tạm bỏ qua kiểm tra chứng chỉ để chạy tiếp. Nên đổi FTP_HOST sang tên máy chủ (dạng srvNNNN.hstgr.io) để TLS xác thực được đúng."
+          fi
 
           # Liệt kê một thư mục qua FTPS. In ra tên, mỗi dòng một cái.
           # Không bao giờ in $FTP_PASSWORD — curl nhận nó qua --user, và thông
           # báo lỗi của curl không chứa mật khẩu.
           list_dir() {
-            curl -sS --ssl-reqd --max-time 45 \
+            curl -sS $TLS_OPT --ssl-reqd --max-time 45 \
                  --user "$FTP_USER:$FTP_PASSWORD" \
                  "ftp://${FTP_HOST}$1" 2>&1 | awk 'NF {print $NF}'
           }
@@ -139,7 +157,7 @@ jobs:
           case "$path" in */) ;; *) path="$path/" ;; esac
           echo "Đường dẫn kiểm tra: $path"
 
-          if ! listing=$(curl -sS --ssl-reqd --max-time 60 \
+          if ! listing=$(curl -sS $TLS_OPT --ssl-reqd --max-time 60 \
                            --user "$FTP_USER:$FTP_PASSWORD" \
                            "ftp://${FTP_HOST}${path}"); then
             echo "Lỗi curl: $listing"
