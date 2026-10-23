@@ -12,10 +12,13 @@
 #   FTP_HOST      máy chủ FTP của Hostinger (hPanel → Files → FTP Accounts)
 #   FTP_USER      username FTP
 #   FTP_PASSWORD  password FTP
-#   FTP_PATH      (tuỳ chọn) đường dẫn wp-content trên server, mặc định
-#                 /public_html/wp-content/
+#   FTP_PATH      đường dẫn wp-content trên server. Mặc định
+#                 /public_html/wp-content/ (domain chính). Site này chạy trên
+#                 DOMAIN PHỤ nên BẮT BUỘC phải đặt, dạng
+#                 /domains/<domain>/public_html/wp-content/
 #
-# Thiếu secret thì job ftp chỉ in cảnh báo rồi bỏ qua, workflow vẫn xanh.
+# Thiếu 3 secret đầu thì job ftp chỉ in cảnh báo rồi bỏ qua, workflow vẫn xanh.
+# FTP_PATH sai thì job ftp ĐỎ ở bước kiểm tra, không đẩy file nào.
 
 name: Deploy
 
@@ -87,6 +90,45 @@ jobs:
           else
             echo "ok=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # Chốt an toàn: FTP_PATH sai thì FTP-Deploy-Action sẽ lặng lẽ TẠO thư mục
+      # mới và đẩy code vào chỗ không ai dùng. Liệt kê thư mục đích trước, bắt
+      # buộc phải thấy themes/ và plugins/ — tức đó đúng là wp-content của một
+      # bản WordPress đã cài.
+      - name: Kiểm tra FTP_PATH trên server
+        if: steps.check.outputs.ok == 'true'
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH: ${{ secrets.FTP_PATH || '/public_html/wp-content/' }}
+        run: |
+          set -uo pipefail
+
+          path="$FTP_PATH"
+          case "$path" in /*) ;; *) path="/$path" ;; esac
+          case "$path" in */) ;; *) path="$path/" ;; esac
+          echo "Đường dẫn kiểm tra: $path"
+
+          if ! listing=$(curl -sS --ssl-reqd --max-time 60 \
+                           --user "$FTP_USER:$FTP_PASSWORD" \
+                           "ftp://${FTP_HOST}${path}"); then
+            echo "::error::Không liệt kê được ${path} trên ${FTP_HOST}. Kiểm tra FTP_HOST, FTP_USER, FTP_PASSWORD và FTP_PATH."
+            exit 1
+          fi
+
+          names=$(printf '%s\n' "$listing" | awk 'NF {print $NF}')
+          echo "Thư mục đích đang có:"
+          printf '%s\n' "$names" | sed 's/^/  /' | head -30
+
+          for d in themes plugins; do
+            if ! printf '%s\n' "$names" | grep -qx "$d"; then
+              echo "::error::Không thấy '${d}' trong ${path}. FTP_PATH sai, hoặc WordPress chưa được cài ở domain đó. Dừng lại để không tạo thư mục rác trên server."
+              exit 1
+            fi
+          done
+
+          echo "OK — ${path} đúng là wp-content của một bản WordPress."
 
       - name: FTPS deploy
         if: steps.check.outputs.ok == 'true'

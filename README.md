@@ -96,10 +96,15 @@ chủ, một bài viết, một category, một trang tĩnh, một landing page,
 
 ## Cài trên Hostinger (không cần SSH)
 
-### 1. Cài WordPress bằng Auto Installer
+### 1. Thêm domain phụ, rồi cài WordPress bằng Auto Installer
 
-hPanel → site → **Website → Auto Installer** → WordPress. Điền domain, tên site, user/password
-admin, email. Auto Installer tự tạo database và `wp-config.php`.
+Domain mới là **addon domain**, nên phải thêm nó vào gói trước: hPanel → **Domains → Add domain**.
+Trỏ DNS/nameserver về Hostinger và đợi domain báo active. Hostinger sẽ tạo thư mục
+`domains/<domain-moi>/public_html`.
+
+Sau đó: hPanel → **Website → Auto Installer** → WordPress, **chọn đúng domain phụ** ở mục domain
+(đừng để mặc định domain chính), điền tên site, user/password admin, email. Auto Installer tự tạo
+database và `wp-config.php`.
 
 Xong thì vào WP admin dọn những thứ Hostinger cài kèm: **Plugin** → xoá plugin của Hostinger nếu
 không dùng; **Giao diện** → để nguyên theme mặc định, bước 4 sẽ đổi.
@@ -118,13 +123,27 @@ GitHub repo → **Settings → Secrets and variables → Actions → New reposit
 | `FTP_HOST` | FTP host từ bước 2 (vd `ftp.domain-cua-ban.com` hoặc IP) |
 | `FTP_USER` | username FTP |
 | `FTP_PASSWORD` | password FTP |
-| `FTP_PATH` | *(tuỳ chọn)* đường dẫn tới `wp-content` nếu khác mặc định `/public_html/wp-content/` |
+| `FTP_PATH` | **bắt buộc với site này** — xem bên dưới |
 
 Secret chỉ GitHub Actions đọc được, không hiện lại trong giao diện và không có trong code.
 
-`FTP_PATH` phụ thuộc cấu trúc tài khoản FTP. Nếu domain mới là domain phụ thì thường là
-`/domains/<domain>/public_html/wp-content/`. Chưa chắc thì mở FileZilla bằng tài khoản FTP đó, xem
-đường dẫn thật tới `wp-content`, rồi điền.
+**`FTP_PATH` cho domain phụ.** Site này chạy trên **addon domain**, không phải domain chính của
+gói, nên đường dẫn mặc định `/public_html/wp-content/` là **sai** — đó là domain chính. Dùng:
+
+```
+/domains/<domain-moi>/public_html/wp-content/
+```
+
+Thay `<domain-moi>` bằng tên domain thật, giữ dấu `/` ở cả đầu và cuối.
+
+Nếu tài khoản FTP được tạo riêng cho thư mục của domain phụ (hPanel cho chọn thư mục gốc khi tạo
+FTP account), thì gốc đăng nhập đã là `public_html` của domain đó và đường dẫn chỉ còn
+`/wp-content/`.
+
+Không chắc thì mở FileZilla bằng tài khoản FTP đó và xem đường dẫn thật tới `wp-content` — hoặc cứ
+điền rồi chạy workflow: bước **Kiểm tra FTP_PATH trên server** sẽ liệt kê thư mục đích và **dừng
+với lỗi đỏ** nếu không thấy `themes/` và `plugins/` trong đó, nên path sai không làm hỏng gì trên
+server.
 
 ### 4. Chạy deploy
 
@@ -202,7 +221,9 @@ Không đặt trong Git. Tạo file `wp-content/app-config.php` bằng File Mana
 | Triệu chứng | Nguyên nhân | Xử lý |
 |---|---|---|
 | Actions xanh nhưng server không có file mới | Chưa đặt secret → job `ftp` bị bỏ qua | Xem log job `ftp`, đặt 3 secret |
-| FTP báo sai đường dẫn | `FTP_PATH` không khớp cấu trúc tài khoản | Mở FileZilla xem đường dẫn thật tới `wp-content` |
+| Job `ftp` đỏ: *Không thấy 'themes' trong …* | `FTP_PATH` trỏ sai chỗ, hoặc chưa cài WordPress ở domain phụ | Log in ra danh sách thư mục đích — đối chiếu rồi sửa `FTP_PATH`. Không file nào bị đẩy lên |
+| Job `ftp` đỏ: *Không liệt kê được …* | Sai `FTP_HOST`/`FTP_USER`/`FTP_PASSWORD`, hoặc host chặn FTPS | Thử đăng nhập bằng FileZilla với đúng 3 giá trị đó |
+| Code lên domain chính thay vì domain phụ | `FTP_PATH` để mặc định `/public_html/wp-content/` | Đổi thành `/domains/<domain-moi>/public_html/wp-content/` |
 | Nav chỉ có "Trang chủ" | Chưa gán menu vào vị trí `primary` | Bước 6 |
 | Footer trống | Chưa nhập dữ liệu `contact-info-manager`, hoặc `cim-footer` chưa bật | Kiểm tra trang Plugin |
 | Deploy xong vẫn thấy trang cũ | LiteSpeed cache (`X-LiteSpeed-Cache: hit`) | WP admin → LiteSpeed Cache → Purge All; hoặc xoá khối `# BEGIN LSCACHE` trong `.htaccess` |
