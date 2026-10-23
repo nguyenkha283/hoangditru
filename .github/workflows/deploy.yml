@@ -1,42 +1,48 @@
-# Dựng nhánh "deploy" cho Hostinger (hPanel -> Nâng cao -> Git chỉ cho 1 kho / 1 nhánh / 1 thư mục).
+# Deploy code lên Hostinger.
 #
-# Mỗi lần push lên main: kiểm tra cú pháp PHP, rồi cập nhật nhánh deploy với cấu trúc
-#   loader.php      nạp theme + plugin
-#   mu-plugin.php   mẫu mu-plugin (chép lên server 1 lần)
-#   autoload.txt    danh sách plugin luôn bật
-#   themes/...      các theme ghi trong deploy/manifest.txt
-#   plugins/...     các plugin ghi trong deploy/manifest.txt
+# Gói hosting không có SSH, nên không dùng được symlink hay wp-cli. Thay vào đó
+# đẩy file trực tiếp qua FTPS vào đúng wp-content/themes và wp-content/plugins —
+# WordPress thấy theme và plugin ở vị trí chuẩn, không cần loader hay thủ thuật gì.
 #
-# Nhánh deploy được commit NỐI TIẾP (không force-push) để `git pull` của Hostinger luôn chạy được.
-# KHÔNG sửa tay nhánh deploy.
+#   job lint          php -l mọi file. Lỗi cú pháp thì dừng, không deploy.
+#   job ftp           đẩy wp-content/ qua FTPS (cần 3 secret, xem bên dưới).
+#   job deploy-branch dựng nhánh "deploy" cho hPanel → Git, nếu gói có Git.
+#
+# Secret cần đặt ở GitHub repo → Settings → Secrets and variables → Actions:
+#   FTP_HOST      máy chủ FTP của Hostinger (hPanel → Files → FTP Accounts)
+#   FTP_USER      username FTP
+#   FTP_PASSWORD  password FTP
+#   FTP_PATH      (tuỳ chọn) đường dẫn wp-content trên server, mặc định
+#                 /public_html/wp-content/
+#
+# Thiếu secret thì job ftp chỉ in cảnh báo rồi bỏ qua, workflow vẫn xanh.
 
-name: Build deploy branch
+name: Deploy
 
 on:
   push:
     branches: [main]
-  workflow_dispatch: # bấm chạy tay trong tab Actions
+  workflow_dispatch:
 
 permissions:
-  contents: write # đẩy nhánh deploy
+  contents: write
 
 concurrency:
-  group: deploy-branch
+  group: deploy
   cancel-in-progress: false
 
 jobs:
-  build:
+  lint:
+    name: Kiểm tra cú pháp PHP
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Đọc deploy/manifest.txt
         run: |
           set -euo pipefail
-          sed -e 's/\r$//' deploy/manifest.txt | grep -vE '^[[:space:]]*(#|$)' > /tmp/paths.txt || true
-          if [ ! -s /tmp/paths.txt ]; then
+          sed -e 's/\r$//' deploy/manifest.txt | grep -vE '^[[:space:]]*(#|$)' > paths.txt || true
+          if [ ! -s paths.txt ]; then
             echo "::error::deploy/manifest.txt không có dòng nào."
             exit 1
           fi
@@ -52,20 +58,70 @@ jobs:
               echo "::error::Không tìm thấy wp-content/$p"
               exit 1
             fi
-          done < /tmp/paths.txt
-          echo "Sẽ deploy:"; cat /tmp/paths.txt
+          done < paths.txt
+          echo "Sẽ deploy:"; cat paths.txt
 
-      - name: Kiểm tra cú pháp PHP (lỗi thì dừng, không cập nhật nhánh deploy)
+      - name: php -l
         run: |
           set -euo pipefail
-          while IFS= read -r p; do
-            find "wp-content/$p" -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
-          done < /tmp/paths.txt
-          find deploy -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
+          find wp-content -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
+          echo "Đã kiểm $(find wp-content -name '*.php' | wc -l) file PHP."
+
+  ftp:
+    name: Đẩy lên Hostinger qua FTPS
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kiểm tra secret
+        id: check
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          if [ -z "$FTP_HOST" ] || [ -z "$FTP_USER" ] || [ -z "$FTP_PASSWORD" ]; then
+            echo "::warning::Chưa đặt FTP_HOST / FTP_USER / FTP_PASSWORD — bỏ qua bước deploy."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: FTPS deploy
+        if: steps.check.outputs.ok == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./wp-content/
+          server-dir: ${{ secrets.FTP_PATH || '/public_html/wp-content/' }}
+          # Chỉ đẩy code. uploads/ và mọi thứ khác trên server không nằm trong
+          # local-dir nên không bị đụng tới.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.DS_Store
+            **/*.map
+
+  deploy-branch:
+    name: Dựng nhánh deploy (cho hPanel Git, nếu gói có)
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Cập nhật nhánh deploy
         run: |
           set -euo pipefail
+          sed -e 's/\r$//' deploy/manifest.txt | grep -vE '^[[:space:]]*(#|$)' > /tmp/paths.txt
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           SRC_SHA=$(git rev-parse --short HEAD)
@@ -79,7 +135,6 @@ jobs:
             git -C "$OUT" checkout --orphan deploy
           fi
 
-          # Thay toàn bộ nội dung nhánh deploy (giữ .git của worktree)
           find "$OUT" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           mkdir -p "$OUT/themes" "$OUT/plugins"
 
@@ -87,8 +142,6 @@ jobs:
             cp -R "wp-content/$p" "$OUT/$p"
           done < /tmp/paths.txt
 
-
-          # Không mang rác lên server
           find "$OUT" -name '.DS_Store' -delete
           find "$OUT" -type d -name node_modules -prune -exec rm -rf {} +
 
