@@ -145,10 +145,14 @@ Kết nối được mã hoá, nhưng **không chứng thực được danh tín
 Nên không có tên nào để TLS xác thực đúng — đổi `FTP_HOST` sang tên miền **không** giải quyết được,
 chỉ làm config trông đẹp hơn. Script tự nhận ra và chạy tiếp ở chế độ bỏ qua kiểm tra chứng chỉ.
 
-Cách giảm thiệt hại thiết thực: tạo **một tài khoản FTP riêng** trong hPanel → Files → FTP Accounts,
-giới hạn vào đúng thư mục của site, và dùng tài khoản đó cho `FTP_USER`/`FTP_PASSWORD` thay vì tài
-khoản FTP chính của gói hosting. Mật khẩu đi qua kênh không chứng thực được thì ít nhất nó không
-phải chìa khoá của cả gói.
+Cách giảm thiệt hại nếu muốn chặt hơn: tạo **một tài khoản FTP riêng** trong hPanel → Files →
+FTP Accounts, giới hạn vào đúng thư mục của site, và dùng tài khoản đó cho
+`FTP_USER`/`FTP_PASSWORD`. Mật khẩu đi qua kênh không chứng thực được thì ít nhất nó không phải
+chìa khoá của cả gói.
+
+**Dự án này đã cân nhắc và chọn dùng tài khoản FTP chính** (`u133340861`) — đây là quyết định có ý
+thức, không phải thiếu sót. Nếu sau này site có dữ liệu thật hoặc gói hosting chứa thêm website
+khác thì nên xem lại.
 
 ### 4. Chạy deploy
 
