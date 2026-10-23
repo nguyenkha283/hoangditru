@@ -321,6 +321,30 @@ Sau bước này hoangditru.com và khaiditru.com có **nội dung trùng nhau h
 chưa định cho công khai, bật Cài đặt → Đọc → *Ngăn các công cụ tìm kiếm đánh chỉ mục trang này*
 cho tới khi chốt phương án chuyển domain.
 
+## Màu và font của site
+
+| | |
+|---|---|
+| Màu nhấn | `#1e3a73` |
+| Font body | Roboto |
+| Font tiêu đề | Roboto Condensed |
+
+Google Fonts nạp bằng `wp_enqueue_style` trong `functions.php` với dải
+`wght@400..800` — cả hai họ là variable font nên một dải trả về một file cho mỗi tập ký tự, thay vì
+một file cho mỗi weight. Site dùng weight 400, 500, 600, 700, 800.
+
+Màu nhấn nằm ở bốn nơi, đổi màu phải đụng cả bốn:
+
+| Nơi | Cách đổi |
+|---|---|
+| `--hdt-accent` trong `themes/hoangditru/style.css` | phần thuộc theme, kể cả CSS inline trong `category.php` / `single.php` |
+| `--tc-orange`, `--lpb-orange`, `--bds-orange` trong CSS plugin | tên biến giữ nguyên vì `s3_title_orange`/`s4_title_orange` là khoá post meta trong DB |
+| Mã màu viết thẳng cho hover và nền alpha | `rgba(30,58,115,α)`, các sắc tối/sáng hơn tính từ màu gốc bằng cách giữ H và S, dịch L |
+| Option `smart_breadcrumb_options` trong **database** | plugin lưu màu dạng serialize; sửa code không đổi được site đã có dữ liệu — xem mục 5 trong [`scripts/import-fixes.sql`](scripts/import-fixes.sql) |
+
+Khi đổi màu, dò bằng **sắc độ HSL** thay vì đoán mã màu — cách đó bắt được cả các biến thể hover và
+gradient mà tìm chuỗi thường bỏ sót.
+
 ## Khôi phục khi nhân WordPress bị xoá
 
 Dấu hiệu: site trả **403**, `https://domain/index.php` trả 404, nhưng `wp-admin/` và `wp-includes/`

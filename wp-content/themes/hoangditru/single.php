@@ -148,7 +148,7 @@ while ( have_posts() ) :
 .single-meta-date-row svg {
     width: 13px;
     height: 13px;
-    color: #c8a951;
+    color: var(--hdt-accent);
     flex-shrink: 0;
 }
 .single-meta-date-row strong {
@@ -163,7 +163,7 @@ while ( have_posts() ) :
     line-height: 1.75;
     margin: 0 0 32px;
     padding: 16px 20px;
-    border-left: 3px solid #c8a951;
+    border-left: 3px solid var(--hdt-accent);
     background: #fafafa;
 }
 
@@ -197,7 +197,7 @@ while ( have_posts() ) :
 .single-toc-title svg {
     width: 15px;
     height: 15px;
-    color: #c8a951;
+    color: var(--hdt-accent);
 }
 .single-toc-toggle {
     font-size: 18px;
@@ -236,7 +236,7 @@ while ( have_posts() ) :
     text-decoration: none;
     transition: color 0.2s;
 }
-.single-toc-list li a:hover { color: #c8a951; }
+.single-toc-list li a:hover { color: var(--hdt-accent); }
 /* Level indentation */
 .toc-level-2 { padding-left: 0; }
 .toc-level-3 { padding-left: 18px; }
@@ -245,7 +245,7 @@ while ( have_posts() ) :
 .toc-level-2 > a::before {
     content: counter(toc-h2) ". ";
     counter-increment: toc-h2;
-    color: #c8a951;
+    color: var(--hdt-accent);
     font-weight: 700;
 }
 .single-toc-list { counter-reset: toc-h2; }
@@ -271,7 +271,7 @@ while ( have_posts() ) :
     border-radius: 2px;
 }
 .single-post-content a {
-    color: #c8a951;
+    color: var(--hdt-accent);
     text-decoration: underline;
 }
 .single-post-content ul,
@@ -280,7 +280,7 @@ while ( have_posts() ) :
     margin-bottom: 1.2em;
 }
 .single-post-content blockquote {
-    border-left: 3px solid #c8a951;
+    border-left: 3px solid var(--hdt-accent);
     margin: 1.5em 0;
     padding: 12px 20px;
     background: #fafafa;

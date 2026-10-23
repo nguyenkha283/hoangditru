@@ -22,7 +22,7 @@ function sbc_defaults() {
     return [
         'enabled'       => '1',      // '1' | '0'
         'style'         => 'dark',   // 'dark' | 'light'
-        'primary_color' => '#c8a951',
+        'primary_color' => '#1e3a73',
         'separator'     => '›',
         'boxed_width'   => '1280px',
     ];
@@ -59,7 +59,7 @@ function sbc_save_settings() {
         'enabled'       => isset( $_POST['sbc_enabled'] ) ? '1' : '0',
         'style'         => in_array( $_POST['sbc_style'] ?? '', ['dark', 'light'], true )
                            ? $_POST['sbc_style'] : 'dark',
-        'primary_color' => sanitize_hex_color( $_POST['sbc_primary_color'] ?? '#c8a951' ) ?: '#c8a951',
+        'primary_color' => sanitize_hex_color( $_POST['sbc_primary_color'] ?? '#1e3a73' ) ?: '#1e3a73',
         'separator'     => sanitize_text_field( $_POST['sbc_separator'] ?? '›' ) ?: '›',
         'boxed_width'   => sanitize_text_field( $_POST['sbc_boxed_width'] ?? '1280px' ) ?: '1280px',
     ];
@@ -198,7 +198,7 @@ function sbc_settings_page() {
         // ── Preview ──
         function updatePreview() {
             var style   = $('input[name="sbc_style"]:checked').val();
-            var color   = $('#sbc_primary_color').val() || '#c8a951';
+            var color   = $('#sbc_primary_color').val() || '#1e3a73';
             var sep     = $('#sbc_separator').val() || '›';
 
             var bg, linkColor, currentColor, sepColor;

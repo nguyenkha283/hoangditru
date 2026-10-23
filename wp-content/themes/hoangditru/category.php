@@ -98,7 +98,7 @@ $latest_posts_query = new WP_Query( array(
     color: inherit;
     text-decoration: none;
 }
-.featured-content-col h3 a:hover { color: #c8a951; }
+.featured-content-col h3 a:hover { color: var(--hdt-accent); }
 
 .post-meta-date {
     display: flex;
@@ -110,7 +110,7 @@ $latest_posts_query = new WP_Query( array(
 .post-meta-date svg {
     width: 14px;
     height: 14px;
-    color: #c8a951;
+    color: var(--hdt-accent);
     flex-shrink: 0;
 }
 
@@ -131,7 +131,7 @@ $latest_posts_query = new WP_Query( array(
     gap: 6px;
     font-size: 13px;
     font-weight: 600;
-    color: #c8a951;
+    color: var(--hdt-accent);
     text-decoration: none;
     width: fit-content;
     transition: gap 0.2s;
@@ -191,7 +191,7 @@ $latest_posts_query = new WP_Query( array(
     text-decoration: none;
     font-size: 1em !important;
 }
-.post-card-body h3 a:hover { color: #c8a951; }
+.post-card-body h3 a:hover { color: var(--hdt-accent); }
 
 .post-card-desc {
     font-size: 1em !important;
