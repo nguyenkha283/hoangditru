@@ -111,6 +111,29 @@ jobs:
         run: |
           set -uo pipefail
 
+          # Liệt kê một thư mục qua FTPS. In ra tên, mỗi dòng một cái.
+          # Không bao giờ in $FTP_PASSWORD — curl nhận nó qua --user, và thông
+          # báo lỗi của curl không chứa mật khẩu.
+          list_dir() {
+            curl -sS --ssl-reqd --max-time 45 \
+                 --user "$FTP_USER:$FTP_PASSWORD" \
+                 "ftp://${FTP_HOST}$1" 2>&1 | awk 'NF {print $NF}'
+          }
+
+          # Khi hỏng thì in luôn bản đồ thư mục để biết FTP_PATH đúng là gì,
+          # khỏi phải chạy lại lần nữa.
+          diagnose() {
+            echo
+            echo "─── Chẩn đoán: cây thư mục trên server ───"
+            for probe in / /public_html/ /public_html/wp-content/ /domains/; do
+              echo "  [$probe]"
+              list_dir "$probe" | sed 's/^/      /' | head -25
+              echo
+            done
+            echo "Tìm thư mục nào chứa cả 'themes' và 'plugins' — đó là wp-content."
+            echo "FTP_PATH = đường dẫn tới thư mục đó, có dấu / ở đầu và cuối."
+          }
+
           path="$FTP_PATH"
           case "$path" in /*) ;; *) path="/$path" ;; esac
           case "$path" in */) ;; *) path="$path/" ;; esac
@@ -119,7 +142,9 @@ jobs:
           if ! listing=$(curl -sS --ssl-reqd --max-time 60 \
                            --user "$FTP_USER:$FTP_PASSWORD" \
                            "ftp://${FTP_HOST}${path}"); then
-            echo "::error::Không liệt kê được ${path} trên ${FTP_HOST}. Kiểm tra FTP_HOST, FTP_USER, FTP_PASSWORD và FTP_PATH."
+            echo "Lỗi curl: $listing"
+            diagnose
+            echo "::error::Không liệt kê được ${path} trên ${FTP_HOST}. Xem phần chẩn đoán ở trên."
             exit 1
           fi
 
@@ -129,10 +154,20 @@ jobs:
 
           for d in themes plugins; do
             if ! printf '%s\n' "$names" | grep -qx "$d"; then
-              echo "::error::Không thấy '${d}' trong ${path}. FTP_PATH sai, hoặc WordPress chưa được cài ở domain đó. Dừng lại để không tạo thư mục rác trên server."
+              diagnose
+              echo "::error::Không thấy '${d}' trong ${path}. Dừng lại để không tạo thư mục rác trên server."
               exit 1
             fi
           done
+
+          # wp-content thật phải nằm cạnh wp-includes. Nếu không, rất có thể
+          # đang trỏ vào một thư mục chỉ tình cờ có themes/ và plugins/.
+          parent="${path%wp-content/}"
+          if [ "$parent" != "$path" ]; then
+            if ! list_dir "$parent" | grep -qx "wp-includes"; then
+              echo "::warning::Không thấy 'wp-includes' cạnh ${path} — kiểm tra lại WordPress có đầy đủ không."
+            fi
+          fi
 
           echo "OK — ${path} đúng là wp-content của một bản WordPress."
 

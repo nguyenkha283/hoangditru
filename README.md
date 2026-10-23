@@ -214,6 +214,28 @@ Khi đó dùng được `wp-cli`: `wp theme activate hoangditru`, `wp plugin act
 `wp rewrite flush`, và `mysqldump` để backup. Lưu ý Hostinger tắt `proc_open` nên
 `wp db export|import|query` không chạy — phải gọi `mysql`/`mysqldump` trực tiếp với file `.cnf` tạm.
 
+## Khôi phục khi nhân WordPress bị xoá
+
+Dấu hiệu: site trả **403**, `https://domain/index.php` trả 404, nhưng `wp-admin/` và `wp-includes/`
+vẫn còn. Nghĩa là các file PHP ở gốc đã bị xoá, không còn gì để LiteSpeed serve.
+
+1. **hPanel → Advanced → GIT → xoá repository đang cấu hình.** Làm trước tiên, nếu không mọi thứ
+   sửa sau đó sẽ bị ghi đè ở lần deploy kế tiếp.
+2. **Dọn rác repo khỏi docroot:** `.git`, `.github`, `deploy`, `scripts`, `README.md`,
+   `.gitignore`, `.gitattributes`. Giữ `wp-admin`, `wp-includes`, `wp-content`, `wp-config.php`,
+   `.htaccess`.
+3. **hPanel → Files → Backups** — có bản trước lúc hỏng thì restore, xong luôn. Không có thì làm tiếp:
+4. Tải `https://vi.wordpress.org/latest-vi.zip`, upload vào docroot qua File Manager, giải nén →
+   thư mục `wordpress/`.
+5. Từ `wordpress/wp-content/` copy `index.php` và `themes/twentytwentyfive` sang `wp-content/` của
+   site (theme dự phòng, phòng khi theme chính lỗi). Rồi xoá `wordpress/wp-content/`.
+6. Xoá `wp-admin/` và `wp-includes/` cũ trong docroot — tránh trộn file hai phiên bản.
+7. Chuyển toàn bộ nội dung còn lại của `wordpress/` ra docroot. Xoá `wordpress/` và file zip.
+
+Bản zip không chứa `wp-config.php` (chỉ có `wp-config-sample.php`) nên không đè config, database
+giữ nguyên. Xong bước 7 là site lên lại; đăng nhập `/wp-admin` rồi làm tiếp từ mục *Bật theme và
+plugin trong WP admin*.
+
 ## Secret / token của site
 
 Không đặt trong Git. Tạo file `wp-content/app-config.php` bằng File Manager rồi `require` từ
