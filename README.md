@@ -231,6 +231,96 @@ Khi đó dùng được `wp-cli`: `wp theme activate hoangditru`, `wp plugin act
 `wp rewrite flush`, và `mysqldump` để backup. Lưu ý Hostinger tắt `proc_open` nên
 `wp db export|import|query` không chạy — phải gọi `mysql`/`mysqldump` trực tiếp với file `.cnf` tạm.
 
+## Import dữ liệu và uploads của site cũ
+
+Làm khi muốn site mới có sẵn nội dung thật thay vì dựng dữ liệu mẫu bằng tay. Không cần SSH.
+
+**Backup trước.** hPanel → Files → Backups, và phpMyAdmin → Export database hiện tại.
+
+### 1. Đổi table prefix
+
+File Manager → `public_html/wp-config.php` → sửa thành:
+
+```php
+$table_prefix = 'tuC1OPNu_';
+```
+
+Dump dùng prefix đó. Giữ nguyên prefix của dump đơn giản hơn nhiều so với đổi tên 34 bảng.
+
+### 2. Import dump
+
+hPanel → **Databases → phpMyAdmin** → chọn database của hoangditru.com → tab **Import** → chọn
+file `.sql` của site cũ → Thực hiện.
+
+- File 6,3 MB, nằm dưới giới hạn upload của phpMyAdmin.
+- Dump có 34 `CREATE TABLE`, 135 `INSERT`, 64 `ALTER TABLE`, **không có** `DROP TABLE` và không
+  dùng `IF NOT EXISTS`. Nghĩa là nếu bảng `tuC1OPNu_*` đã tồn tại từ một lần thử trước thì phải
+  xoá chúng đi rồi mới import lại, không thì báo lỗi trùng bảng.
+- Bảng do Auto Installer tạo (prefix khác) vẫn nằm đó, vô hại. Xoá sau cùng.
+- Collation trong dump là `utf8mb4_unicode_520_ci`, MariaDB của Hostinger nhận được.
+
+### 3. Chạy `scripts/import-fixes.sql`
+
+phpMyAdmin → tab **SQL** → dán toàn bộ nội dung [`scripts/import-fixes.sql`](scripts/import-fixes.sql)
+→ Thực hiện. Nó đưa `siteurl`/`home` về domain mới (phải làm trước, nếu không mở `/wp-admin` sẽ bị
+đá sang domain cũ), đặt theme về `hoangditru`, đổi tên `theme_mods_flatsome-child` thành
+`theme_mods_hoangditru` để giữ **vị trí menu** đã gán, và dọn transient.
+
+### 4. Đăng nhập lại
+
+Dump mang theo bảng users của site cũ, nên tài khoản admin do Auto Installer tạo **biến mất**.
+Từ giờ đăng nhập bằng `admin_zp3m9y06`. Không nhớ mật khẩu thì bỏ comment khối cuối trong
+`import-fixes.sql`, đổi mật khẩu rồi chạy.
+
+### 5. Thay URL còn lại — bằng plugin, không bằng SQL
+
+Plugin → Cài mới → **Better Search Replace** → Tools → Better Search Replace:
+
+| | |
+|---|---|
+| Search for | `khaiditru.com` |
+| Replace with | `hoangditru.com` |
+| Select tables | chọn **tất cả** |
+
+Chạy **Run as dry run** trước để xem số lượng, rồi bỏ tick chạy thật. Trong dump có khoảng **2193**
+chỗ chứa `khaiditru.com`.
+
+⚠️ **Đừng dùng `REPLACE()` trong SQL.** Rất nhiều giá trị là dữ liệu PHP serialize dạng
+`s:25:"https://khaiditru.com/..."`. Đổi chuỗi mà không sửa số độ dài `s:N:` là hỏng toàn bộ widget,
+cài đặt plugin và post meta. Better Search Replace giải serialize rồi đóng gói lại nên an toàn.
+
+### 6. Upload uploads
+
+`wp-content/uploads` của site cũ nặng **393 MB / 3635 file**. Dùng FileZilla với tài khoản FTP,
+upload thư mục `uploads/2026/` vào `public_html/wp-content/uploads/`.
+
+| Tháng | Dung lượng | | Tháng | Dung lượng |
+|---|---|---|---|---|
+| 04 | 151 MB | | 09 | 19 MB |
+| 05 | 130 MB | | 07 | 13 MB |
+| 10 | 73 MB | | 06 | 5 MB |
+| | | | 08 | 2 MB |
+
+Bỏ `jetbackup-d4dda5424e05` (backup của host cũ, không liên quan). `rank-math`, `rsssl`,
+`wpforms`, `wpcf7_uploads` nhỏ, tuỳ bạn.
+
+⚠️ File `uploads.zip` trong Downloads chỉ có 621 mục, **không đủ** — dùng thư mục `uploads` trong
+bản `public_html` đã tải về.
+
+### 7. Dọn và kiểm tra
+
+- Cài lại plugin bên thứ ba. Dump mang theo `active_plugins` cũ; plugin nào không có trên server
+  thì WordPress tự tắt và báo trong trang Plugin.
+- Cài đặt → Đường dẫn tĩnh → Lưu (flush rewrite; dump dùng `/%postname%/`).
+- `bash scripts/check-site.sh https://hoangditru.com`
+- Xoá các bảng thừa mang prefix của Auto Installer trong phpMyAdmin.
+
+### Lưu ý về SEO
+
+Sau bước này hoangditru.com và khaiditru.com có **nội dung trùng nhau hoàn toàn**. Nếu site mới
+chưa định cho công khai, bật Cài đặt → Đọc → *Ngăn các công cụ tìm kiếm đánh chỉ mục trang này*
+cho tới khi chốt phương án chuyển domain.
+
 ## Khôi phục khi nhân WordPress bị xoá
 
 Dấu hiệu: site trả **403**, `https://domain/index.php` trả 404, nhưng `wp-admin/` và `wp-includes/`
