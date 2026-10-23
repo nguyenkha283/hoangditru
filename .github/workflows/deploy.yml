@@ -4,9 +4,13 @@
 # đẩy file trực tiếp qua FTPS vào đúng wp-content/themes và wp-content/plugins —
 # WordPress thấy theme và plugin ở vị trí chuẩn, không cần loader hay thủ thuật gì.
 #
-#   job lint          php -l mọi file. Lỗi cú pháp thì dừng, không deploy.
-#   job ftp           đẩy wp-content/ qua FTPS (cần 3 secret, xem bên dưới).
-#   job deploy-branch dựng nhánh "deploy" cho hPanel → Git, nếu gói có Git.
+#   job lint   php -l mọi file. Lỗi cú pháp thì dừng, không deploy.
+#   job ftp    đẩy wp-content/ qua FTPS (cần 3 secret, xem bên dưới).
+#
+# ⚠️ TUYỆT ĐỐI KHÔNG dùng hPanel → Git cho site này. hPanel Git XOÁ SẠCH thư mục
+# đích trước mỗi lần kéo code. Trỏ nó vào wp-content là mất theme mặc định,
+# mất plugin, mất uploads. Nhánh "deploy" trước đây dành cho cách đó đã bị xoá,
+# và job dựng nhánh đó cũng đã bỏ. Chỉ deploy bằng FTPS qua job ftp.
 #
 # Secret cần đặt ở GitHub repo → Settings → Secrets and variables → Actions:
 #   FTP_HOST      máy chủ FTP của Hostinger (hPanel → Files → FTP Accounts)
@@ -27,8 +31,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Chỉ đọc. Không job nào còn đẩy nhánh, nên workflow không cần quyền ghi repo —
+# và không thể dựng lại nhánh deploy dù có sửa nhầm.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: deploy
@@ -149,49 +155,3 @@ jobs:
             **/node_modules/**
             **/.DS_Store
             **/*.map
-
-  deploy-branch:
-    name: Dựng nhánh deploy (cho hPanel Git, nếu gói có)
-    needs: lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Cập nhật nhánh deploy
-        run: |
-          set -euo pipefail
-          sed -e 's/\r$//' deploy/manifest.txt | grep -vE '^[[:space:]]*(#|$)' > /tmp/paths.txt
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          SRC_SHA=$(git rev-parse --short HEAD)
-
-          OUT=$(mktemp -d)
-          if git ls-remote --exit-code --heads origin deploy > /dev/null 2>&1; then
-            git fetch origin deploy
-            git worktree add "$OUT" -B deploy origin/deploy
-          else
-            git worktree add --detach "$OUT"
-            git -C "$OUT" checkout --orphan deploy
-          fi
-
-          find "$OUT" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-          mkdir -p "$OUT/themes" "$OUT/plugins"
-
-          while IFS= read -r p; do
-            cp -R "wp-content/$p" "$OUT/$p"
-          done < /tmp/paths.txt
-
-          find "$OUT" -name '.DS_Store' -delete
-          find "$OUT" -type d -name node_modules -prune -exec rm -rf {} +
-
-          cd "$OUT"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "Không có thay đổi, bỏ qua."
-          else
-            git commit -q -m "Deploy từ main @ $SRC_SHA"
-            git push origin deploy
-          fi

@@ -9,7 +9,7 @@ loader hay symlink.
 push main ──▶ GitHub Actions
                  ├─ lint          php -l mọi file; lỗi cú pháp thì DỪNG, không deploy
                  ├─ ftp           FTPS → /public_html/wp-content/
-                 └─ deploy-branch dựng nhánh "deploy" (chỉ dùng nếu gói có hPanel Git)
+                 └─ ftp           FTPS → /public_html/wp-content/
 ```
 
 **Không cần theme Flatsome nữa.** Site chạy bằng theme `hoangditru` độc lập.
@@ -188,14 +188,25 @@ Actions lint rồi đẩy FTPS. Lỗi cú pháp PHP → job `lint` đỏ, job `f
 nguyên bản cũ.
 
 Thêm theme/plugin tự viết mới → thêm một dòng vào [`deploy/manifest.txt`](deploy/manifest.txt) rồi
-push. (`manifest.txt` dùng cho bước lint và cho nhánh `deploy`; job FTP đẩy cả `wp-content/`.)
+push. (`manifest.txt` dùng cho bước lint; job `ftp` đẩy cả `wp-content/`.)
 
-## Nếu gói hosting có hPanel Git
+## ⚠️ KHÔNG dùng hPanel → Git cho site này
 
-Job `deploy-branch` vẫn dựng nhánh `deploy` (chỉ có `themes/` và `plugins/` ở gốc). Nhưng hPanel Git
-cài vào **một thư mục duy nhất** và **xoá sạch thư mục đó** mỗi lần deploy, nên nó phải là
-`wp-content/app` — rồi cần symlink sang `wp-content/themes|plugins`, mà symlink thì **phải có SSH**.
-Không SSH thì dùng FTP như trên; nhánh `deploy` để dành cho sau này nếu nâng gói.
+**hPanel Git xoá sạch thư mục đích trước mỗi lần kéo code.** Trỏ nó vào `wp-content` là mất theme
+mặc định, mất plugin của Hostinger, mất `uploads/` — chỉ còn đúng nội dung của nhánh được cài.
+
+Chuyện này đã xảy ra với site `hoangditru.com` ngày 2026-10-23: `wp-content` chỉ còn
+`themes/hoangditru` và `plugins/*` của repo, `themes/twentytwentyfive` và `plugins/hostinger` biến
+mất, và site trả 403.
+
+Vì vậy:
+
+- Nhánh `deploy` **đã bị xoá**, và job dựng nhánh đó đã bỏ khỏi workflow.
+- Workflow chỉ còn quyền `contents: read`, không thể đẩy nhánh nào nữa.
+- Nếu trong hPanel → **Advanced → GIT** còn repository nào được cấu hình, **xoá nó đi**.
+- Deploy duy nhất được dùng: job `ftp` trong workflow này.
+
+Kiến trúc `wp-content/app` + symlink (để dùng được hPanel Git an toàn) cần SSH, mà gói này không có.
 
 ## Nếu sau này có SSH
 
