@@ -1,0 +1,27 @@
+/* Khung nhúng YouTube responsive 16:9 */
+.snera-yt-embed {
+	position: relative;
+	width: 100%;
+	max-width: 100%;
+	margin: 1em 0;
+	aspect-ratio: 16 / 9;
+	background: #000;
+}
+
+/* Fallback cho trình duyệt cũ không hỗ trợ aspect-ratio */
+@supports not (aspect-ratio: 16 / 9) {
+	.snera-yt-embed {
+		height: 0;
+		padding-bottom: 56.25%;
+	}
+}
+
+.snera-yt-embed iframe {
+	position: absolute;
+	inset: 0;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}

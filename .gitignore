@@ -1,0 +1,53 @@
+# ─── Dữ liệu site: không bao giờ đưa vào Git ───────────────────────────────
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/upgrade-temp-backup/
+wp-content/litespeed/
+wp-content/languages/
+wp-content/fonts/
+wp-content/maintenance/
+wp-config.php
+*-config.php
+
+# ─── Theme trả phí: KHÔNG đưa lên repo công khai ───────────────────────────
+# flatsome mua trên ThemeForest, tải lên Hostinger bằng tay (xem README).
+wp-content/themes/flatsome/
+
+# ─── Plugin bên thứ ba: cài bằng `wp plugin install` ──────────────────────
+wp-content/plugins/advanced-custom-fields/
+wp-content/plugins/backup/
+wp-content/plugins/classic-editor/
+wp-content/plugins/contact-form-7/
+wp-content/plugins/litespeed-cache/
+wp-content/plugins/really-simple-ssl/
+wp-content/plugins/seo-by-rank-math/
+wp-content/plugins/wp-mail-smtp/
+wp-content/plugins/wpforms-lite/
+
+# ─── Dump DB, bản nén tải từ cPanel ───────────────────────────────────────
+*.sql
+*.sql.gz
+*.tar
+*.tar.gz
+*.zip
+
+# ─── Log, backup, file tạm ────────────────────────────────────────────────
+*.log
+error_log
+debug.log
+*.bak
+*.bak-*
+*.bk
+*_back_*
+*.old
+*.orig
+*~
+.htaccess.bak*
+.htaccess_back_*
+
+# ─── Hệ điều hành / build ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+node_modules/

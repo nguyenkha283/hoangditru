@@ -1,0 +1,171 @@
+/* ── Contact Info Manager – Frontend Styles ── */
+
+/* Avatar */
+.cim-avatar {
+    border-radius: 50%;
+    object-fit: cover;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Text fields */
+.cim-full-name { font-weight: 700; }
+.cim-bio       { line-height: 1.7; }
+.cim-email,
+.cim-phone     { font-size: inherit; }
+
+/* Social links (plain) */
+.cim-social-link {
+    color: inherit;
+    text-decoration: underline;
+    word-break: break-all;
+}
+
+/* Social buttons */
+.cim-social-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 24px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: opacity .2s, transform .15s;
+    color: #ffffff !important;
+}
+.cim-social-btn:hover { opacity: .85; transform: translateY(-1px); }
+
+/* Custom icon image inside button */
+.cim-social-icon-img,
+.cim-card-btn-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    border-radius: 3px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+/* Plain icon link (no label, has custom icon) */
+.cim-social-icon-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+.cim-social-icon-link .cim-social-icon-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    transition: opacity .2s, transform .15s;
+}
+.cim-social-icon-link:hover .cim-social-icon-img { opacity: .8; transform: scale(1.08); }
+
+.cim-youtube  { background: #ff0000; }
+.cim-facebook { background: #1877f2; }
+.cim-tiktok   { background: #010101; }
+
+/* ── [cim_card] widget ── */
+.cim-card-widget {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    max-width: 520px;
+    font-family: inherit;
+}
+
+.cim-card-avatar-wrap { flex-shrink: 0; }
+
+.cim-card-avatar {
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #6366f1;
+    display: block;
+}
+
+.cim-card-body { flex: 1; min-width: 0; }
+
+.cim-card-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+}
+
+.cim-card-bio {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.65;
+    margin-bottom: 12px;
+}
+
+.cim-card-contact {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 6px;
+}
+.cim-card-contact a {
+    color: #6366f1;
+    text-decoration: none;
+}
+.cim-card-contact a:hover { text-decoration: underline; }
+.cim-icon { font-size: 16px; flex-shrink: 0; }
+
+.cim-card-social {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+
+.cim-card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    color: #ffffff !important;
+    transition: opacity .2s, transform .15s;
+}
+.cim-card-btn:hover { opacity: .85; transform: translateY(-1px); }
+
+.cim-btn-yt { background: #ff0000; }
+.cim-btn-fb { background: #1877f2; }
+.cim-btn-tt { background: #333333; }
+
+/* Responsive */
+@media (max-width: 480px) {
+    .cim-card-widget { flex-direction: column; align-items: center; text-align: center; }
+    .cim-card-contact { justify-content: center; }
+    .cim-card-social  { justify-content: center; }
+}
+
+/* ── Signature ── */
+.cim-signature {
+    margin: 1.5em 0;
+    padding: 1em 1.25em;
+    border-left: 4px solid currentColor;
+    opacity: .85;
+    font-size: .95em;
+    line-height: 1.7;
+}
+
+/* ── Footer section ── */
+.cim-footer-section {
+    position: relative;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}

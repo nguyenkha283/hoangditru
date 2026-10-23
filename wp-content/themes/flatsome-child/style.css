@@ -1,0 +1,66 @@
+/*
+ Theme Name:   Flatsome Child
+ Theme URI:    
+ Description:  Flatsome Child Theme
+ Author:       
+ Template:     flatsome
+ Version:      1.0.0
+ Text Domain:  flatsome-child
+*/
+
+/* ============================================================
+   1. GOOGLE FONTS IMPORT
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Phudu:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ============================================================
+   2. LOCAL FONT FACE — UTMAptima
+   ============================================================ */
+@font-face {
+    font-family: 'UTMAptima';
+    src: url('assets/fonts/UTMAptima.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ============================================================
+   3. ROOT — BASE UNIT
+   ============================================================ */
+:root {
+    font-size: 18px; /* 1em = 16px */
+}
+
+/* ============================================================
+   4. BODY — UTMAptima
+   ============================================================ */
+body {
+    font-family: 'UTMAptima', Arial, sans-serif !important;
+    font-size: 1em; /* 16px */
+	color: #000;
+}
+
+/* ============================================================
+   5. HEADINGS — Phudu
+   ============================================================ */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Phudu', sans-serif;
+	font-weight: 700;
+	color: #000;
+}
+
+h1, .h1 {
+    font-size: 3em;
+}
+
+h2, .h2 {
+    font-size: 2.5em;
+}
+
+h3, .h3 {
+    font-size: 2em;
+}
+
+/* Header */
+.header-main{display: none;}

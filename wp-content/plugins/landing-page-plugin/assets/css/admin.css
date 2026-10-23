@@ -1,0 +1,109 @@
+/* Landing Page Builder — Admin Styles */
+
+.lpb-table { width: 100%; border-collapse: collapse; }
+.lpb-table th {
+    width: 160px; padding: 10px 12px 10px 0;
+    vertical-align: top; font-weight: 600;
+    font-size: 13px; color: #1d2327;
+    text-align: left;
+}
+.lpb-table td { padding: 8px 0; vertical-align: top; }
+
+/* ── Repeater ── */
+.lpb-repeater { margin-top: 4px; }
+.lpb-rows { margin-bottom: 10px; }
+
+.lpb-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #f9f9f9; border: 1px solid #ddd;
+    border-radius: 4px; padding: 10px 12px;
+    margin-bottom: 8px;
+    cursor: default;
+}
+
+.lpb-row-block {
+    flex-direction: column; align-items: stretch; gap: 0;
+}
+
+.lpb-row-top {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+}
+
+.lpb-row-body { padding-left: 28px; }
+
+.lpb-row-handle {
+    cursor: grab; color: #aaa; font-size: 16px;
+    flex-shrink: 0; user-select: none;
+}
+
+.lpb-row-fields {
+    display: flex; align-items: center;
+    gap: 10px; flex: 1;
+}
+
+.lpb-row-fields.lpb-vertical {
+    flex-direction: column; align-items: stretch;
+}
+
+.lpb-step-num {
+    flex-shrink: 0; font-size: 12px;
+    font-weight: 600; color: #2271b1;
+    background: #e8f0fe; padding: 2px 8px;
+    border-radius: 3px;
+}
+
+.lpb-remove-row {
+    flex-shrink: 0; color: #cc1818 !important;
+    border-color: #cc1818 !important;
+    padding: 2px 8px !important; font-size: 12px !important;
+}
+
+.lpb-add-row {
+    margin-top: 4px;
+    border-style: dashed !important;
+    color: #2271b1 !important;
+}
+
+/* ── Image picker ── */
+.lpb-image-picker { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.lpb-image-picker.lpb-inline { align-items: center; }
+
+.lpb-img-preview {
+    width: 80px; height: 60px;
+    border: 1px solid #ddd; border-radius: 3px;
+    overflow: hidden; background: #f0f0f0;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.lpb-img-preview.lpb-sm { width: 50px; height: 40px; }
+
+.lpb-img-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+.lpb-upload-btn { flex-shrink: 0; }
+
+/* ── Tin tức checkboxes ── */
+.lpb-news-list {
+    max-height: 280px; overflow-y: auto;
+    border: 1px solid #ddd; border-radius: 4px;
+    padding: 4px 8px;
+}
+
+.lpb-news-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 4px; border-bottom: 1px solid #f0f0f0;
+    cursor: pointer; font-size: 13px;
+}
+
+.lpb-news-item:last-child { border-bottom: none; }
+.lpb-news-item:hover { background: #f6f7f7; }
+.lpb-news-item input { flex-shrink: 0; }
+.lpb-news-item span { flex: 1; }
+.lpb-news-item small { color: #888; font-size: 11px; }
+
+/* Drag sortable placeholder */
+.lpb-row.ui-sortable-helper { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.lpb-row.ui-sortable-placeholder {
+    visibility: visible !important;
+    background: #e8f0fe; border: 1px dashed #2271b1;
+}

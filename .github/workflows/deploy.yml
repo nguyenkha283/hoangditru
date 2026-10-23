@@ -1,0 +1,102 @@
+# Dựng nhánh "deploy" cho Hostinger (hPanel -> Nâng cao -> Git chỉ cho 1 kho / 1 nhánh / 1 thư mục).
+#
+# Mỗi lần push lên main: kiểm tra cú pháp PHP, rồi cập nhật nhánh deploy với cấu trúc
+#   loader.php      nạp theme + plugin
+#   mu-plugin.php   mẫu mu-plugin (chép lên server 1 lần)
+#   autoload.txt    danh sách plugin luôn bật
+#   themes/...      các theme ghi trong deploy/manifest.txt
+#   plugins/...     các plugin ghi trong deploy/manifest.txt
+#
+# Nhánh deploy được commit NỐI TIẾP (không force-push) để `git pull` của Hostinger luôn chạy được.
+# KHÔNG sửa tay nhánh deploy.
+
+name: Build deploy branch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # bấm chạy tay trong tab Actions
+
+permissions:
+  contents: write # đẩy nhánh deploy
+
+concurrency:
+  group: deploy-branch
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Đọc deploy/manifest.txt
+        run: |
+          set -euo pipefail
+          sed -e 's/\r$//' deploy/manifest.txt | grep -vE '^[[:space:]]*(#|$)' > /tmp/paths.txt || true
+          if [ ! -s /tmp/paths.txt ]; then
+            echo "::error::deploy/manifest.txt không có dòng nào."
+            exit 1
+          fi
+          while IFS= read -r p; do
+            case "$p" in
+              themes/*|plugins/*) ;;
+              *) echo "::error::Dòng '$p' phải bắt đầu bằng themes/ hoặc plugins/"; exit 1 ;;
+            esac
+            case "$p" in
+              *..*) echo "::error::Dòng '$p' không hợp lệ"; exit 1 ;;
+            esac
+            if [ ! -d "wp-content/$p" ]; then
+              echo "::error::Không tìm thấy wp-content/$p"
+              exit 1
+            fi
+          done < /tmp/paths.txt
+          echo "Sẽ deploy:"; cat /tmp/paths.txt
+
+      - name: Kiểm tra cú pháp PHP (lỗi thì dừng, không cập nhật nhánh deploy)
+        run: |
+          set -euo pipefail
+          while IFS= read -r p; do
+            find "wp-content/$p" -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
+          done < /tmp/paths.txt
+          find deploy -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
+
+      - name: Cập nhật nhánh deploy
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          SRC_SHA=$(git rev-parse --short HEAD)
+
+          OUT=$(mktemp -d)
+          if git ls-remote --exit-code --heads origin deploy > /dev/null 2>&1; then
+            git fetch origin deploy
+            git worktree add "$OUT" -B deploy origin/deploy
+          else
+            git worktree add --detach "$OUT"
+            git -C "$OUT" checkout --orphan deploy
+          fi
+
+          # Thay toàn bộ nội dung nhánh deploy (giữ .git của worktree)
+          find "$OUT" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          mkdir -p "$OUT/themes" "$OUT/plugins"
+
+          while IFS= read -r p; do
+            cp -R "wp-content/$p" "$OUT/$p"
+          done < /tmp/paths.txt
+
+
+          # Không mang rác lên server
+          find "$OUT" -name '.DS_Store' -delete
+          find "$OUT" -type d -name node_modules -prune -exec rm -rf {} +
+
+          cd "$OUT"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Không có thay đổi, bỏ qua."
+          else
+            git commit -q -m "Deploy từ main @ $SRC_SHA"
+            git push origin deploy
+          fi
