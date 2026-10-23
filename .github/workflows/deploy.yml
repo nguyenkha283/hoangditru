@@ -73,6 +73,35 @@ jobs:
           find wp-content -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
           echo "Đã kiểm $(find wp-content -name '*.php' | wc -l) file PHP."
 
+      # php -l KHÔNG bắt được file rỗng: file 0 byte không có lỗi cú pháp.
+      # Ngày 2026-10-23 một lệnh sửa file viết sai đã cắt functions.php và
+      # style.css về 0 byte, lint vẫn xanh, và suýt deploy lên server.
+      - name: Không file nào được rỗng hoặc mất header
+        run: |
+          set -euo pipefail
+
+          empty=$(find wp-content -type f -size 0 ! -name '.gitkeep' || true)
+          if [ -n "$empty" ]; then
+            echo "::error::Có file rỗng trong wp-content:"
+            printf '%s\n' "$empty" | sed 's/^/  /'
+            exit 1
+          fi
+
+          # Theme hỏng header là WordPress không nhận ra theme nữa.
+          grep -q '^ Theme Name:' wp-content/themes/hoangditru/style.css \
+            || { echo "::error::style.css mất header 'Theme Name:'"; exit 1; }
+          grep -q "define( 'HDT_VERSION'" wp-content/themes/hoangditru/functions.php \
+            || { echo "::error::functions.php mất define HDT_VERSION"; exit 1; }
+
+          # Mỗi plugin phải còn file chính cùng tên thư mục.
+          for d in wp-content/plugins/*/; do
+            n=$(basename "$d")
+            [ -f "$d$n.php" ] || ls "$d"*.php >/dev/null 2>&1 \
+              || { echo "::error::Plugin $n không có file PHP nào"; exit 1; }
+          done
+
+          echo "OK — $(find wp-content -type f | wc -l) file, không có file rỗng."
+
       # Script dò wp-content quyết định file được đẩy đi đâu, nên nó phải có
       # test và test phải chạy trước mỗi lần deploy.
       - name: Test scripts/ftp-resolve.sh
