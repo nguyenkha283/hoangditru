@@ -7,7 +7,7 @@
  * và các template WordPress chuẩn.
  */
 
-define( 'HDT_VERSION', '2.1.3' );
+define( 'HDT_VERSION', '2.1.4' );
 
 // ------------------------------------------------------------------
 // 1. Khai báo tính năng theme
@@ -39,20 +39,20 @@ function hdt_setup() {
 add_action( 'wp_enqueue_scripts', 'hdt_enqueue_styles' );
 function hdt_enqueue_styles() {
     /*
-     * Google Fonts: Roboto cho body, Roboto Condensed cho tiêu đề.
+     * Google Fonts: chỉ Phudu, dùng cho tiêu đề. Font body là UTMAptima, file
+     * local khai bằng @font-face trong style.css nên không nạp ở đây.
      *
-     * Dải wght@400..800 thay vì liệt kê từng weight: cả hai họ này đều là
-     * variable font trên Google Fonts, nên một dải trả về MỘT file cho mỗi họ,
-     * thay vì một file cho mỗi weight. Site đang dùng 400, 500, 600, 700, 800
-     * (đếm trong CSS của theme và plugin), dải này phủ hết — không còn chỗ nào
-     * phải bôi đậm giả.
+     * Dải wght@300..900 thay vì liệt kê từng weight: Phudu là variable font
+     * trên Google Fonts nên một dải trả về MỘT file cho mỗi tập ký tự, thay vì
+     * một file cho mỗi weight. Dải này là toàn bộ khoảng Phudu có; theme dùng
+     * 700, CSS của plugin dùng thêm 400–800, dải này phủ hết.
      *
      * Version để null: Google không nhận tham số ?ver=, mà WordPress sẽ tự
      * thêm nếu truyền chuỗi version.
      */
     wp_enqueue_style(
         'hoangditru-fonts',
-        'https://fonts.googleapis.com/css2?family=Roboto:wght@400..800&family=Roboto+Condensed:wght@400..800&display=swap',
+        'https://fonts.googleapis.com/css2?family=Phudu:wght@300..900&display=swap',
         array(),
         null
     );
