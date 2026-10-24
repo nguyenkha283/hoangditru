@@ -199,22 +199,12 @@
     line-height: 1;
 }
 
+/* Nút cỡ thường như mọi nút chọn ảnh khác (theo trang Trang chủ). Hai nút
+   xếp dọc để cột icon không chiếm mất chỗ của ô URL. */
 .cim-icon-btns {
     display: flex;
+    flex-direction: column;
     gap: 4px;
-}
-
-.cim-icon-btns .button {
-    padding: 2px 6px !important;
-    min-height: 26px;
-    display: inline-flex;
-    align-items: center;
-}
-
-.cim-icon-btns .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
 }
 .cim-social-icon {
     display: inline-flex;
@@ -293,20 +283,6 @@
 .cim-btn-yt { background: var(--cim-yt); }
 .cim-btn-fb { background: var(--cim-fb); }
 .cim-btn-tt { background: #555; }
-
-/* ── Signature / TinyMCE field ── */
-.cim-field .wp-editor-container {
-    border: 1px solid var(--cim-border);
-    border-radius: 6px;
-    overflow: hidden;
-}
-.cim-field .wp-editor-tabs {
-    background: var(--cim-code-bg);
-    border-bottom: 1px solid var(--cim-border);
-}
-.cim-field #wp-cim_signature-editor-tools {
-    background: var(--cim-code-bg);
-}
 
 /* ── Chi nhánh động ── */
 .cim-branch-row {

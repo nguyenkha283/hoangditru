@@ -33,12 +33,11 @@ function lpb_mb_hero_icon( $post ) {
         <div class="lpb-img-preview" id="lpb_hero_icon_preview">
             <?php if ( $icon ) echo '<img src="' . esc_url( $icon ) . '">'; ?>
         </div>
-        <button type="button" class="button lpb-upload-btn"
-                data-target="lpb_hero_icon" data-preview="lpb_hero_icon_preview">Chọn icon</button>
-        <?php if ( $icon ) : ?>
-            <button type="button" class="button lpb-remove-btn"
-                    data-target="lpb_hero_icon" data-preview="lpb_hero_icon_preview">Xóa</button>
-        <?php endif; ?>
+        <button type="button" class="button button-secondary lpb-upload-btn"
+                data-target="lpb_hero_icon" data-preview="lpb_hero_icon_preview"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>
+        <button type="button" class="button lpb-remove-btn"
+                data-target="lpb_hero_icon" data-preview="lpb_hero_icon_preview"
+                <?php echo $icon ? '' : 'style="display:none"'; ?>><span class="dashicons dashicons-trash"></span> Xoá</button>
     </div>
     <?php
 }
@@ -62,7 +61,7 @@ function lpb_mb_advantages( $post ) {
                         <div class="lpb-img-preview lpb-sm">
                             <?php if ( $icon ) echo '<img src="' . esc_url( $icon ) . '">'; ?>
                         </div>
-                        <button type="button" class="button lpb-upload-btn">Icon</button>
+                        <button type="button" class="button button-secondary lpb-upload-btn"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>
                     </div>
                     <input type="text" name="lpb_advantages[<?php echo $i; ?>][text]"
                            value="<?php echo esc_attr( $text ); ?>"
@@ -97,7 +96,7 @@ function lpb_mb_benefits( $post ) {
                         <div class="lpb-img-preview">
                             <?php if ( $img ) echo '<img src="' . esc_url( $img ) . '">'; ?>
                         </div>
-                        <button type="button" class="button lpb-upload-btn">Chọn hình</button>
+                        <button type="button" class="button button-secondary lpb-upload-btn"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>
                     </div>
                     <textarea name="lpb_benefits[<?php echo $i; ?>][desc]" rows="2"
                               placeholder="Mô tả quyền lợi" class="widefat"><?php echo esc_textarea( $desc ); ?></textarea>
