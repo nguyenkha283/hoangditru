@@ -9,12 +9,9 @@ if ( empty( $feats ) ) return;
             <?php foreach ( $feats as $f ) :
                 if ( empty( $f['text'] ) ) continue;
                 $att_id  = (int) ( $f['icon'] ?? 0 );
-                $img_url = $att_id ? wp_get_attachment_image_url( $att_id, 'thumbnail' ) : '';
             ?>
                 <div class="ci-feat-item">
-                    <?php if ( $img_url ) : ?>
-                        <img class="ci-feat-icon" src="<?php echo esc_url( $img_url ); ?>" alt="">
-                    <?php endif; ?>
+                    <?php echo hdtc_img( $att_id, 'thumbnail', array( 'class' => 'ci-feat-icon', 'alt' => '', 'sizes' => '36px' ) ); ?>
                     <span class="ci-feat-text"><?php echo esc_html( $f['text'] ); ?></span>
                 </div>
             <?php endforeach; ?>

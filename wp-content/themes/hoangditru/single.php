@@ -14,7 +14,6 @@ while ( have_posts() ) :
     $author_id    = get_the_author_meta( 'ID' );
     $author_name  = get_the_author_meta( 'display_name' );
     $author_url   = get_author_posts_url( $author_id );
-    $author_avatar= get_avatar_url( $author_id, array( 'size' => 36 ) );
     $date_publish = get_the_date( 'd/m/Y' );
     $date_modify  = get_the_modified_date( 'd/m/Y' );
     $excerpt      = get_the_excerpt();
@@ -329,8 +328,11 @@ while ( have_posts() ) :
         <!-- META -->
         <div class="single-post-meta">
             <a class="single-meta-author" href="<?php echo esc_url( $author_url ); ?>">
-                <img src="<?php echo esc_url( $author_avatar ); ?>"
-                     alt="<?php echo esc_attr( $author_name ); ?>">
+                <?php
+                // get_avatar() có sẵn srcset 2x cho màn hình nét cao. Avatar là
+                // ảnh Gravatar ở máy chủ ngoài nên không đổi WebP được.
+                echo get_avatar( $author_id, 36, '', $author_name );
+                ?>
                 <div>
                     <div class="single-meta-author-label">Người đăng</div>
                     <div class="single-meta-author-name"><?php echo esc_html( $author_name ); ?></div>

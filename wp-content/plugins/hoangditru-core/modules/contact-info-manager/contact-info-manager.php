@@ -469,8 +469,12 @@ add_shortcode( 'cim_avatar', function( $atts ) {
     if ( ! $id ) return '';
     $size   = absint( $atts['size'] );
     $class  = 'cim-avatar ' . sanitize_html_class( $atts['class'] );
-    $url    = wp_get_attachment_image_url( $id, 'full' );
-    return '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $atts['alt'] ) . '" class="' . esc_attr( trim( $class ) ) . '" width="' . $size . '" height="' . $size . '" style="width:' . $size . 'px;height:' . $size . 'px;object-fit:cover;border-radius:50%;">';
+    return hdtc_img( $id, 'full', array(
+        'alt'   => $atts['alt'],
+        'class' => trim( $class ),
+        'style' => 'width:' . $size . 'px;height:' . $size . 'px;object-fit:cover;border-radius:50%;',
+        'sizes' => $size . 'px',
+    ) );
 } );
 
 // [cim_cover_image width="" height="" class="" alt=""]
@@ -478,11 +482,14 @@ add_shortcode( 'cim_cover_image', function( $atts ) {
     $atts = shortcode_atts( [ 'width' => '100%', 'height' => '', 'class' => '', 'alt' => 'Cover' ], $atts );
     $id   = cim_get( 'cover_image' );
     if ( ! $id ) return '';
-    $url    = wp_get_attachment_image_url( $id, 'full' );
     $class  = trim( 'cim-cover-image ' . sanitize_html_class( $atts['class'] ) );
-    $style  = 'width:' . esc_attr( $atts['width'] ) . ';object-fit:cover;display:block;';
-    if ( $atts['height'] ) $style .= 'height:' . esc_attr( $atts['height'] ) . ';';
-    return '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $atts['alt'] ) . '" class="' . esc_attr( $class ) . '" style="' . $style . '">';
+    $style  = 'width:' . $atts['width'] . ';object-fit:cover;display:block;';
+    if ( $atts['height'] ) $style .= 'height:' . $atts['height'] . ';';
+    return hdtc_img( $id, 'full', array(
+        'alt'   => $atts['alt'],
+        'class' => $class,
+        'style' => $style,
+    ) );
 } );
 
 
@@ -546,9 +553,12 @@ function cim_social_shortcode( $atts, $key, $default_label, $css_class ) {
     if ( 'yes' === $atts['show_icon'] ) {
         $icon_id = cim_get( $key . '_icon' );
         if ( $icon_id ) {
-            $icon_url  = wp_get_attachment_image_url( $icon_id, 'thumbnail' );
             $icon_size = absint( $atts['icon_size'] );
-            $icon_html = '<img src="' . esc_url( $icon_url ) . '" alt="" class="cim-social-icon-img" width="' . $icon_size . '" height="' . $icon_size . '">';
+            $icon_html = hdtc_img( $icon_id, 'thumbnail', array(
+                'alt'   => '',
+                'class' => 'cim-social-icon-img', // cỡ hiển thị do CSS quyết định
+                'sizes' => $icon_size . 'px',
+            ) );
         }
     }
 
@@ -655,8 +665,14 @@ add_shortcode( 'cim_card', function( $atts ) {
 
     $avatar_html = '';
     if ( $data['avatar'] ) {
-        $url         = wp_get_attachment_image_url( $data['avatar'], 'full' );
-        $avatar_html = '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $data['full_name'] ) . '" class="cim-card-avatar" width="' . $size . '" height="' . $size . '">';
+        // width/height của thẻ img là kích thước ảnh gốc, nên cỡ hiển thị
+        // phải đặt bằng style.
+        $avatar_html = hdtc_img( $data['avatar'], 'full', array(
+            'alt'   => $data['full_name'],
+            'class' => 'cim-card-avatar',
+            'style' => 'width:' . $size . 'px;height:' . $size . 'px;',
+            'sizes' => $size . 'px',
+        ) );
     }
 
     $social = '';
@@ -669,8 +685,11 @@ add_shortcode( 'cim_card', function( $atts ) {
         $icon_id  = $data[ $key . '_icon' ] ?? 0;
         $icon_html = '';
         if ( $icon_id ) {
-            $icon_url  = wp_get_attachment_image_url( $icon_id, 'thumbnail' );
-            $icon_html = '<img src="' . esc_url( $icon_url ) . '" alt="" class="cim-card-btn-icon" width="18" height="18">';
+            $icon_html = hdtc_img( $icon_id, 'thumbnail', array(
+                'alt'   => '',
+                'class' => 'cim-card-btn-icon', // cỡ hiển thị do CSS quyết định
+                'sizes' => '20px',
+            ) );
         } else {
             $icon_html = '<span class="cim-card-btn-default-icon">' . $default_icon . '</span>';
         }

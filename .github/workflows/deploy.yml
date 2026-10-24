@@ -82,11 +82,13 @@ jobs:
           done < paths.txt
           echo "Sẽ deploy:"; cat paths.txt
 
+      # plugins-khac/ không deploy nhưng vẫn phải đúng cú pháp: đó là bản plugin
+      # WebP đem cài cho site khác.
       - name: php -l
         run: |
           set -euo pipefail
-          find wp-content -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
-          echo "Đã kiểm $(find wp-content -name '*.php' | wc -l) file PHP."
+          find wp-content plugins-khac -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
+          echo "Đã kiểm $(find wp-content plugins-khac -name '*.php' | wc -l) file PHP."
 
       # php -l KHONG bắt được file rỗng: file 0 byte không có lỗi cú pháp.
       # Ngày 2026-10-23 một lệnh sửa file viết sai đã cắt functions.php và
@@ -124,6 +126,11 @@ jobs:
       # Sai một dấu gạch chéo là vỡ toàn bộ CSS/JS.
       - name: Test filter URL của loader
         run: php scripts/loader-url.test.php
+
+      # Plugin WebP đổi URL của mọi ảnh trên site. Hai bản của nó phải giống
+      # hệt nhau ở phần dùng chung, và bộ lọc HTML không được làm hỏng thẻ.
+      - name: Test plugin WebP
+        run: php scripts/webp.test.php
 
       # Script dò wp-content quyết định file được đẩy đi đâu, nên nó phải có
       # test và test phải chạy trước mỗi lần deploy.

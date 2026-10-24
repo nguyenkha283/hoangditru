@@ -7,7 +7,7 @@ loader hay symlink.
 
 ```
 pull request ──▶ GitHub Actions
-                 └─ lint          php -l + 4 test script; CHỈ kiểm tra, không deploy
+                 └─ lint          php -l + 5 test script; CHỈ kiểm tra, không deploy
 
 push main ─────▶ GitHub Actions
                  ├─ lint          php -l mọi file; lỗi cú pháp thì DỪNG, không deploy
@@ -48,6 +48,12 @@ module `phan-quyen` viết mới
 | `smart-breadcrumb` | breadcrumb |
 | `snera-youtube-embed` | nút nhúng YouTube cho TinyMCE |
 
+**Plugin `hoangditru-webp`** — chuyển ảnh sang WebP, srcset, lightbox. Plugin riêng, tắt được mà
+site không hỏng. Xem [*Ảnh: WebP, srcset, lightbox*](#ảnh-webp-srcset-lightbox).
+
+**`plugins-khac/webp-srcset-lightbox`** — bản thứ hai của plugin trên, dùng cho **site khác**. Nằm
+ngoài `wp-content/` nên **không** bị deploy lên hoangditru.
+
 Gộp vì đây là **code của site, không phải tiện ích thêm vào**: tắt bất kỳ cái nào là site hỏng —
 mất nav, mất footer, mất trang chủ, mất CPT. Gộp lại thì không ai tắt nhầm, và deploy chỉ còn một
 thư mục.
@@ -65,6 +71,8 @@ Những thứ này đang nằm trong database. Đổi là mất dữ liệu đan
 | page template | `tct-trang-chu` và `landing-page-plugin/page-templates/template-landing.php` |
 | shortcode | 16 cái: `cim_*`, `youtube_embed` |
 | post meta | `_bds_*`, `s3_title_orange`, `s4_title_orange`, … |
+| post meta (plugin WebP) | `_wsl_webp` — danh sách file đã có WebP của từng ảnh |
+| tên file WebP | `ảnh.jpg.webp` nằm cạnh `ảnh.jpg` trong `uploads/` — đổi quy ước là mọi file đã chuyển thành rác |
 
 Chuỗi template của landing page **còn giữ tên thư mục cũ** `landing-page-plugin/…`. Đó là cố ý: nó
 là khoá lưu trong `_wp_page_template` của các post `golden_visa`, không phải đường dẫn file. Đường
@@ -290,7 +298,7 @@ Thiếu secret thì job `ftp` chỉ in cảnh báo rồi bỏ qua — workflow v
 ### 5. Bật theme và plugin trong WP admin
 
 1. **Giao diện → Giao diện** → kích hoạt **Hoangditru**
-2. **Plugin** → kích hoạt cả 8 plugin tự viết
+2. **Plugin** → kích hoạt *Hoàng Di Trú Core* và *Hoàng Di Trú WebP* (xem mục WebP để chuyển ảnh cũ)
 3. **Plugin → Cài mới** → cài và bật: Advanced Custom Fields, Classic Editor, Contact Form 7,
    LiteSpeed Cache, Really Simple SSL, Rank Math SEO, WP Mail SMTP, WPForms Lite
 4. **Cài đặt → Đường dẫn tĩnh** → chọn lại cấu trúc rồi Lưu (để flush rewrite)
@@ -525,6 +533,109 @@ Sau bước này hoangditru.com và khaiditru.com có **nội dung trùng nhau h
 chưa định cho công khai, bật Cài đặt → Đọc → *Ngăn các công cụ tìm kiếm đánh chỉ mục trang này*
 cho tới khi chốt phương án chuyển domain.
 
+## Ảnh: WebP, srcset, lightbox
+
+Ba việc, một plugin:
+
+| | |
+|---|---|
+| **WebP** | Mỗi ảnh JPEG/PNG trong thư viện Media, và **mọi size** của nó, có thêm một bản `ảnh.jpg.webp` nằm cạnh. **Ảnh gốc giữ nguyên.** Ảnh upload từ giờ được chuyển ngay lúc upload; ảnh đang có thì chuyển một lần ở *Media → Chuyển WebP*. Bản WebP nào không nhỏ hơn ảnh gốc (hay gặp ở PNG ít màu) thì bị bỏ, trang dùng ảnh gốc |
+| **srcset** | Trình duyệt chọn size vừa với khung hiển thị thay vì luôn tải `large`/`full`. Thẻ BĐS rộng 290px trên điện thoại không còn tải ảnh 1024px |
+| **Lightbox** | Trang chỉ tải bản vừa khung. Bản lớn nằm ở `data-full` và **chỉ tải khi người dùng bấm**; trong lúc chờ, lightbox hiện ngay bản nhỏ đã có trong cache. Áp dụng toàn site, **trừ** phần mặt bằng của trang BĐS (đã có `#bds-lightbox` riêng) và thumbnail điều hướng của slider BĐS |
+
+Lightbox chỉ mở cho ảnh có bản lớn hơn rõ rệt (rộng ≥ 600px và ≥ 1,25 lần cỡ đang hiện), không nằm
+trong link tới trang khác (thẻ bài, thẻ dự án vẫn là link), và đang hiển thị rộng từ 120px (bỏ icon,
+avatar). Có prev/next, phím ← → Esc, vuốt trên điện thoại, không cần jQuery. Thêm class
+`no-lightbox` hoặc thuộc tính `data-no-lightbox` vào một vùng để loại trừ.
+
+### Hai bản
+
+| | `wp-content/plugins/hoangditru-webp` | `plugins-khac/webp-srcset-lightbox` |
+|---|---|---|
+| Dùng cho | **hoangditru** | site khác, theme không sửa được |
+| Cách đổi URL | bám vào API ảnh của WordPress (`wp_get_attachment_image_src`, `wp_calculate_image_srcset`) | output buffer lọc **toàn bộ HTML** của trang |
+| Điều kiện | template in ảnh bằng `wp_get_attachment_image()`/`hdtc_img()` — đã sửa tay, xem dưới | không có |
+| Chi phí mỗi trang | gần như không | một lượt regex trên HTML + tối đa 2 truy vấn DB; LiteSpeed cache lại HTML đã lọc nên chỉ trả một lần |
+| Deploy | có, theo `deploy/manifest.txt` | **không** — nằm ngoài `wp-content/`. Zip thư mục đó rồi *Plugin → Cài mới → Tải plugin lên* trên site kia |
+
+Phần chuyển đổi, lightbox, trang admin, phần tắt WebP của LiteSpeed **giống hệt từng byte** giữa hai
+bản (danh sách ở [`scripts/webp-shared.txt`](scripts/webp-shared.txt)). Sửa ở bản hoangditru rồi
+`bash scripts/webp-sync.sh`; [`scripts/webp.test.php`](scripts/webp.test.php) đỏ nếu hai bản lệch
+nhau. Bật cả hai trên cùng site thì bản bật sau tự đứng ngoài và báo trong admin.
+
+### 52 thẻ `<img>` tự viết
+
+Trước đây template tự viết `<img src="<?php echo $url ?>">` — một file duy nhất, không srcset. Bản
+hoangditru sửa tay từng thẻ sang `hdtc_img()` ([`hoangditru-core/includes/img.php`](wp-content/plugins/hoangditru-core/includes/img.php))
+hoặc `wp_get_attachment_image()` (trong theme, để theme không phụ thuộc plugin). Hàm đó **không phụ
+thuộc plugin WebP**: tắt plugin thì vẫn có srcset, chỉ là JPEG.
+
+| | Số thẻ | Xử lý |
+|---|---|---|
+| Frontend, ảnh thư viện Media | 23 | sang `hdtc_img()`/`wp_get_attachment_image()`, kèm `sizes` theo lưới CSS thật (thẻ BĐS 4→3→2→1 cột, carousel 100vw, icon 36–90px…) |
+| Thẻ BĐS lazy-load bằng `data-src` | 1 | thêm `data-srcset`/`data-sizes`; `category.js` gắn chúng trước `src` |
+| Avatar tác giả trong `single.php` | 1 | sang `get_avatar()` (có srcset 2x). Ảnh Gravatar ở máy chủ ngoài nên **không** đổi WebP được |
+| `placeholder.jpg` của theme trong `category.php` | 2 | giữ nguyên: không phải ảnh Media. Lưu ý: file `themes/hoangditru/assets/images/placeholder.jpg` **không có trong repo**, nên bài không có ảnh đại diện đang hiện ảnh vỡ |
+| `.bds-lb-img` của lightbox BĐS | 1 | giữ nguyên: `src` do JS gắn |
+| Ảnh xem trước trong meta box/trang cài đặt (admin) | 24 | giữ nguyên, có chủ ý: JS của trình chọn ảnh đổi `src` khi chọn ảnh mới — thêm `srcset` vào thì `srcset` thắng và ảnh xem trước đứng im. Admin cũng không ảnh hưởng tốc độ trang |
+
+Template mới thì đừng tự viết `<img src>` cho ảnh Media nữa — dùng `hdtc_img( $id_hoặc_url, $size, $attr )`.
+
+`width`/`height` mà `wp_get_attachment_image()` thêm vào là kích thước file. Theme có
+`img { height: auto }` nên không méo; riêng `.lpb-hero__icon` chỉ đặt `height` nên đã thêm
+`width: auto`, và hai avatar của `[cim_avatar]`/`[cim_card]` đặt cỡ bằng `style`.
+
+Ảnh trong **nội dung bài** đi qua bộ lọc HTML ở `the_content`: đổi WebP, thêm srcset cho ảnh dán URL
+tay (không có class `wp-image-N`), gắn `data-full`. Ảnh nền `url(...)` lấy từ
+`wp_get_attachment_image_url()` (footer, banner landing) cũng thành WebP.
+
+**Không** đổi sang WebP: trong wp-admin (chèn ảnh vào bài vẫn là URL gốc), REST API (trình soạn
+thảo khối), feed RSS, và trong `<head>` — `og:image` của Rank Math giữ JPEG vì Zalo/Facebook cũ
+không đọc được WebP.
+
+### LiteSpeed Cache
+
+WebP của LiteSpeed (*Image Optimization → Image WebP Replacement*, *WebP For Extra srcset*) bị tắt
+theo hai lớp: khi plugin bật, filter `pre_option_litespeed.conf.*` ép các tuỳ chọn đó về 0 dù ai
+bật lại trong trang cài đặt; và lúc kích hoạt plugin ghi hẳn 0 vào DB, rồi purge toàn bộ cache. Cache
+trang của LiteSpeed giữ nguyên.
+
+Để cả hai cùng chạy thì LiteSpeed thay URL lần nữa, thêm biến thể cache theo trình duyệt, và hai bộ
+`.webp` nằm cạnh nhau.
+
+### Cài trên hoangditru
+
+1. Merge vào `main` → job `ftp` đẩy `wp-content/plugins/hoangditru-webp/` lên.
+2. WP admin → **Plugin** → bật **Hoàng Di Trú WebP**. Lúc này LiteSpeed đã bị tắt WebP và cache đã purge.
+3. **Media → Chuyển WebP** → *Chuyển tất cả*. Trang chạy từng mẻ ~15 giây qua AJAX, có thanh tiến
+   độ; đóng tab giữa chừng không sao — chạy lại thì ảnh đã xong được bỏ qua. 393 MB / 3635 file
+   uploads cũ thì mất cỡ vài chục phút. Xong tự purge LiteSpeed.
+4. LiteSpeed Cache → *Image Optimization* → *Image WebP Replacement* → OFF → **Lưu** một lần, để
+   LiteSpeed viết lại `.htaccess` không còn luật WebP của nó.
+5. Mở trang bằng DevTools → Network → lọc `webp`: ảnh phải là `….jpg.webp`, và bấm vào ảnh trong
+   bài mới thấy request bản lớn.
+
+Khi chuyển sang **hPanel Git**: loader trong `mu-plugins` chỉ nạp `hoangditru-core` từ `app/`, không
+nạp plugin này. Giữ bản ở `wp-content/plugins/hoangditru-webp/` (bước 8 của mục chuyển đổi chỉ xoá
+`hoangditru-core` và theme), và cập nhật nó bằng tay khi có bản mới.
+
+Tuỳ biến bằng filter: `wsl_quality` (mặc định 82), `wsl_lightbox_exclude`, `wsl_lightbox_enabled`,
+`wsl_lightbox_min_width`, `wsl_upload_hosts` (CDN), `wsl_convert_on_upload`. Thuộc tính
+`data-no-webp` trên một `<img>` để bỏ qua ảnh đó. Có WP-CLI thì `wp wsl convert [--force]`.
+
+### Đã kiểm thế nào
+
+- [`scripts/webp.test.php`](scripts/webp.test.php), 77 trường hợp, chạy trong CI.
+- Chạy thật trên **WordPress 6.5 + SQLite** với theme và plugin lõi của repo: upload ảnh → đủ
+  `.webp` cho mọi size; trang chuyển hàng loạt chạy hết rồi lần hai bỏ qua hết; HTML của trang chủ,
+  bài viết, danh mục, BĐS, Golden Visa đúng WebP + srcset; thư viện Media trong admin vẫn URL gốc.
+  Bản lọc toàn trang được thử trên **template gốc chưa sửa** — đúng tình huống site khác.
+- Chromium (Playwright): ảnh lớn chỉ được request sau khi bấm; ←/→/Esc; ảnh nhỏ không mở; link bọc
+  ảnh không điều hướng sang file; mặt bằng BĐS vẫn mở `#bds-lightbox` chứ không mở lightbox chung;
+  thẻ BĐS trên điện thoại chọn đúng size theo `data-srcset`.
+- **Chưa** thử trên Hostinger và LiteSpeed thật: tên tuỳ chọn `litespeed.conf.img_optm-webp*` lấy
+  theo mã nguồn LiteSpeed Cache, chưa đối chiếu trên site. Bước 4 ở trên là để chắc ăn.
+
 ## Màu và font của site
 
 | | |
@@ -593,6 +704,8 @@ Không đặt trong Git. Tạo file `wp-content/app-config.php` bằng File Mana
 | Nav chỉ có "Trang chủ" | Chưa gán menu vào vị trí `primary` | Bước 6 |
 | Footer trống | Chưa nhập dữ liệu `contact-info-manager`, hoặc `cim-footer` chưa bật | Kiểm tra trang Plugin |
 | Deploy xong vẫn thấy trang cũ | LiteSpeed cache (`X-LiteSpeed-Cache: hit`) | WP admin → LiteSpeed Cache → Purge All; hoặc xoá khối `# BEGIN LSCACHE` trong `.htaccess` |
+| Ảnh vẫn là `.jpg` chứ không phải `.jpg.webp` | Ảnh cũ chưa chuyển, hoặc trang đang lấy từ cache | Media → Chuyển WebP → *Chuyển tất cả*, rồi LiteSpeed Cache → Purge All |
+| Trang chuyển WebP báo máy chủ không ghi được WebP | PHP thiếu GD có `imagewebp` lẫn Imagick có WEBP | hPanel → Advanced → PHP Configuration → bật extension `gd`/`imagick`; ảnh vẫn hiện bằng bản gốc trong lúc chờ |
 | Nội dung hiện chuỗi `[ux_text ...]` | Theme `hoangditru` chưa được kích hoạt | Bước 5 |
 | Trang trắng sau khi bật theme | Lỗi PHP runtime | Bật `WP_DEBUG_LOG` trong `wp-config.php` qua File Manager, đọc `wp-content/debug.log` |
 | Upload ảnh báo "Lỗi khi tải lên" | `async-upload.php` trả HTML *Error establishing a database connection* | Không phải lỗi code → ticket Hostinger |

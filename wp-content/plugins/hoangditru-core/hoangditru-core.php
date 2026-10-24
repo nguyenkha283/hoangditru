@@ -118,6 +118,9 @@ if ( $hdtc_conflict ) {
 	return;
 }
 
+// Hàm dùng chung cho template của mọi module: hdtc_img().
+require_once HDTC_DIR . 'includes/img.php';
+
 foreach ( HDTC_MODULES as $hdtc_dir => $hdtc_entry ) {
 	$hdtc_file = HDTC_DIR . 'modules/' . $hdtc_dir . '/' . $hdtc_entry;
 

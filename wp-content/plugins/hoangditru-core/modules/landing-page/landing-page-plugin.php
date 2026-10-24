@@ -9,7 +9,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'LPB_VERSION', '1.2.0' );
+define( 'LPB_VERSION', '1.2.1' );
 define( 'LPB_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'LPB_URL',     plugin_dir_url( __FILE__ ) );
 

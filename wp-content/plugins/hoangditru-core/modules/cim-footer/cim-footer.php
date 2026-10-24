@@ -107,8 +107,11 @@ function cimf_render() {
 
         $icon_id = ! empty( $data[ $key . '_icon' ] ) ? absint( $data[ $key . '_icon' ] ) : 0;
         if ( $icon_id ) {
-            $icon_img  = wp_get_attachment_image_url( $icon_id, 'thumbnail' );
-            $icon_html = '<img src="' . esc_url( $icon_img ) . '" alt="' . esc_attr( $label ) . '" class="cimf-social-img" width="24" height="24">';
+            $icon_html = hdtc_img( $icon_id, 'thumbnail', array(
+                'alt'   => $label,
+                'class' => 'cimf-social-img',
+                'sizes' => '24px',
+            ) );
         } else {
             $icon_html = '<span class="cimf-social-svg cimf-svg-' . esc_attr( $key ) . '">'
                        . cimf_default_svg( $key )
