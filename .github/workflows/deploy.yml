@@ -28,6 +28,11 @@ name: Deploy
 on:
   push:
     branches: [main]
+  # PR cũng chạy job lint. Không có dòng này thì toàn bộ test chỉ chạy SAU khi
+  # merge, tức lúc đang deploy lên site thật — biết code vỡ khi đã quá muộn.
+  # Hai job deploy tự loại mình ra khỏi run của PR, xem 'if' của chúng.
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 # Chỉ đọc ở mức workflow. Job nào cần ghi thì tự xin riêng.
@@ -35,7 +40,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy
+  # Tính theo ref: mọi lần deploy đều là refs/heads/main nên vẫn chung một nhóm
+  # và vẫn huỷ bản cũ như trước. Nhưng run của PR tách thành nhóm riêng theo
+  # nhánh, nếu không thì một push vào nhánh PR sẽ huỷ ngang lần deploy main
+  # đang chạy.
+  group: deploy-${{ github.ref }}
   # Huỷ run cũ khi có push mới. Hai push cách nhau một phút tạo hai cụm phiên
   # FTP liên tiếp — đúng thứ làm Hostinger chặn tạm thời (2026-10-23 và
   # 2026-10-24). Huỷ bản cũ thì chỉ commit mới nhất được đẩy, và vì
@@ -124,6 +133,9 @@ jobs:
   ftp:
     name: Đẩy lên Hostinger qua FTPS
     needs: lint
+    # Không deploy từ PR. PR chỉ để kiểm tra; đẩy lên site thật là việc của
+    # push vào main. PR từ fork cũng không có secret FTP.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -233,6 +245,8 @@ jobs:
   deploy-branch:
     name: Dựng nhánh deploy cho hPanel Git
     needs: lint
+    # Như job ftp: PR không được ghi vào nhánh deploy.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     # Quyền ghi chỉ cấp cho job này, không cấp cho cả workflow.
     permissions:
