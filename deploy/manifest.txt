@@ -1,16 +1,10 @@
 # Những thư mục trong wp-content/ được đẩy lên Hostinger.
 # Mỗi dòng 1 đường dẫn tính từ wp-content/. Dòng trống và dòng # bị bỏ qua.
 #
-# CHỈ code tự viết. Theme flatsome (bản trả phí) và plugin của bên thứ ba
+# CHỈ code tự viết. Theme flatsome (trả phí) và plugin của bên thứ ba
 # không nằm ở đây — xem README.
 
 themes/hoangditru
 
-plugins/bat-dong-san-plugin
-plugins/cim-footer
-plugins/citizenship-investment-plugin
-plugins/contact-info-manager
-plugins/landing-page-plugin
-plugins/smart-breadcrumb
-plugins/snera-youtube-embed
-plugins/trang-chu
+# 8 plugin lõi đã gộp thành một, mỗi cái thành một module bên trong.
+plugins/hoangditru-core

@@ -51,9 +51,9 @@ check_page "Tim kiem"    "/?s=dinh+cu"
 echo
 echo "=== Theme va plugin da len chua ==="
 check_asset "style.css theme" "/wp-content/themes/hoangditru/style.css"
-check_asset "nav-global.css"  "/wp-content/plugins/trang-chu/assets/nav-global.css"
-check_asset "cim-footer.css"  "/wp-content/plugins/cim-footer/assets/cim-footer.css"
-check_asset "bds style.css"   "/wp-content/plugins/bat-dong-san-plugin/assets/css/style.css"
+check_asset "nav-global.css"  "/wp-content/plugins/hoangditru-core/modules/trang-chu/assets/nav-global.css"
+check_asset "cim-footer.css"  "/wp-content/plugins/hoangditru-core/modules/cim-footer/assets/cim-footer.css"
+check_asset "bds style.css"   "/wp-content/plugins/hoangditru-core/modules/bat-dong-san/assets/css/style.css"
 
 echo
 echo "=== Nav va footer co render ==="

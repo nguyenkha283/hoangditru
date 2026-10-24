@@ -30,18 +30,49 @@ push main ──▶ GitHub Actions
 | `category.php`, `single.php` | giữ nguyên từ bản cũ, không sửa |
 | `template-parts/content-card.php` | thẻ bài dùng chung |
 
-**Plugin tự viết** (8 cái, không sửa gì)
+**Plugin lõi `hoangditru-core`** — 8 plugin cũ gộp thành một, mỗi cái thành một module
 
-| Plugin | Version | Vai trò đáng chú ý |
-|---|---|---|
-| `trang-chu` | 1.1.0 | **dựng thanh nav của toàn site** + template trang chủ |
-| `cim-footer` | 1.0.0 | **dựng footer của toàn site** |
-| `bat-dong-san-plugin` | 1.1.0 | CPT bất động sản, slider + lightbox riêng (slick từ CDN) |
-| `citizenship-investment-plugin` | 1.0.0 | trang đầu tư quốc tịch |
-| `landing-page-plugin` | 1.2.0 | landing page builder |
-| `contact-info-manager` | 1.1.0 | thông tin liên hệ, nguồn hotline cho nav + footer |
-| `smart-breadcrumb` | 1.0.0 | breadcrumb |
-| `snera-youtube-embed` | 1.0.0 | nút nhúng YouTube cho TinyMCE |
+| Module | Vai trò đáng chú ý |
+|---|---|
+| `trang-chu` | **dựng thanh nav của toàn site** + template trang chủ |
+| `cim-footer` | **dựng footer của toàn site** |
+| `bat-dong-san` | CPT bất động sản, slider + lightbox riêng (slick từ CDN) |
+| `citizenship-investment` | trang đầu tư quốc tịch |
+| `landing-page` | landing page builder |
+| `contact-info-manager` | thông tin liên hệ, nguồn hotline cho nav + footer |
+| `smart-breadcrumb` | breadcrumb |
+| `snera-youtube-embed` | nút nhúng YouTube cho TinyMCE |
+
+Gộp vì đây là **code của site, không phải tiện ích thêm vào**: tắt bất kỳ cái nào là site hỏng —
+mất nav, mất footer, mất trang chủ, mất CPT. Gộp lại thì không ai tắt nhầm, và deploy chỉ còn một
+thư mục.
+
+### Định danh KHÔNG được đổi
+
+Những thứ này đang nằm trong database. Đổi là mất dữ liệu đang có:
+
+| Loại | Giá trị |
+|---|---|
+| post type | `bat-dong-san`, `citizenship_invest`, `golden_visa` |
+| taxonomy | `bds_category`, `golden_visa_category` |
+| option | `cim_contact_info`, `smart_breadcrumb_options`, `trang_chu_settings` |
+| page template | `tct-trang-chu` và `landing-page-plugin/page-templates/template-landing.php` |
+| shortcode | 16 cái: `cim_*`, `youtube_embed` |
+| post meta | `_bds_*`, `s3_title_orange`, `s4_title_orange`, … |
+
+Chuỗi template của landing page **còn giữ tên thư mục cũ** `landing-page-plugin/…`. Đó là cố ý: nó
+là khoá lưu trong `_wp_page_template` của các post `golden_visa`, không phải đường dẫn file. Đường
+dẫn thật lấy từ hằng `LPB_DIR`. Đừng "dọn" chuỗi đó.
+
+### Hai chốt chặn khi nạp
+
+`hoangditru-core.php` kiểm tra 8 hàm đặc trưng của các plugin cũ trước khi nạp module. Nếu một
+plugin cũ còn bật thì nó **không nạp gì cả** và hiện thông báo trong admin, thay vì "cannot
+redeclare function" và trắng trang.
+
+[`scripts/plugin-load.test.php`](scripts/plugin-load.test.php) nạp thật plugin với WordPress giả
+lập và kiểm đủ 8 module + các shortcode quan trọng. `php -l` chỉ kiểm cú pháp từng file, không bắt
+được require sai đường dẫn hay trùng tên hàm. Test này chạy trong CI trước mỗi lần deploy.
 
 ## Vì sao tách được khỏi Flatsome
 

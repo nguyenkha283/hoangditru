@@ -107,6 +107,12 @@ jobs:
 
           echo "OK — $(find wp-content -type f | wc -l) file, không có file rỗng."
 
+      # php -l chỉ kiểm cú pháp TỪNG file. Nó không bắt được require sai đường
+      # dẫn, hai module khai báo trùng tên hàm, hay lỗi chết lúc nạp. Bước này
+      # nạp thật plugin lõi với WordPress giả lập.
+      - name: Nạp thử plugin lõi
+        run: php scripts/plugin-load.test.php
+
       # Script dò wp-content quyết định file được đẩy đi đâu, nên nó phải có
       # test và test phải chạy trước mỗi lần deploy.
       - name: Test scripts/ftp-resolve.sh
