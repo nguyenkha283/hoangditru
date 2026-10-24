@@ -58,7 +58,10 @@ function cim_admin_menu() {
     add_menu_page(
         'Thông Tin Liên Hệ',
         'Thông Tin Liên Hệ',
-        'manage_options',
+        // Cap riêng, không phải manage_options: Biên tập viên vào được trang
+        // này mà không mở theo cả Cài đặt / Plugin / Người dùng.
+        // Xem modules/phan-quyen/phan-quyen.php.
+        HDTQ_CAP_SITE_SETTINGS,
         'contact-info-manager',
         'cim_admin_page',
         'dashicons-id-alt',
@@ -86,7 +89,7 @@ function cim_save_settings() {
     if (
         ! isset( $_POST['cim_nonce'] ) ||
         ! wp_verify_nonce( $_POST['cim_nonce'], 'cim_save_contact_info' ) ||
-        ! current_user_can( 'manage_options' )
+        ! current_user_can( HDTQ_CAP_SITE_SETTINGS )
     ) {
         return;
     }
