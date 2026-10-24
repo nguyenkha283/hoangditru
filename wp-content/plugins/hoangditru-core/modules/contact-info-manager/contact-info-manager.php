@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'CIM_VERSION', '1.1.0' );
+define( 'CIM_VERSION', '1.1.1' );
 define( 'CIM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CIM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CIM_OPTION_KEY', 'cim_contact_info' );
@@ -172,7 +172,7 @@ function cim_admin_page() {
                                         <span class="dashicons dashicons-upload"></span> Chọn ảnh
                                     </button>
                                     <button type="button" id="cim-remove-avatar" class="button" <?php echo $avatar_url ? '' : 'style="display:none"'; ?>>
-                                        <span class="dashicons dashicons-trash"></span> Xoá ảnh
+                                        <span class="dashicons dashicons-trash"></span> Xoá
                                     </button>
                                 </div>
 
@@ -212,10 +212,10 @@ function cim_admin_page() {
                                 <input type="hidden" name="cim_cover_image" id="cim_cover_image" value="<?php echo esc_attr( $data['cover_image'] ); ?>">
                                 <div class="cim-avatar-buttons">
                                     <button type="button" id="cim-upload-cover" class="button button-secondary">
-                                        <span class="dashicons dashicons-upload"></span> Chọn ảnh bìa
+                                        <span class="dashicons dashicons-upload"></span> Chọn ảnh
                                     </button>
                                     <button type="button" id="cim-remove-cover" class="button" <?php echo $cover_url ? '' : 'style="display:none"'; ?>>
-                                        <span class="dashicons dashicons-trash"></span> Xoá ảnh
+                                        <span class="dashicons dashicons-trash"></span> Xoá
                                     </button>
                                 </div>
                             </div>
@@ -290,14 +290,14 @@ function cim_admin_page() {
                                                 class="button button-secondary cim-upload-social-icon"
                                                 data-key="<?php echo esc_attr( $key ); ?>"
                                                 title="Upload icon">
-                                            <span class="dashicons dashicons-upload"></span>
+                                            <span class="dashicons dashicons-upload"></span> Chọn ảnh
                                         </button>
                                         <button type="button"
                                                 class="button cim-remove-social-icon"
                                                 data-key="<?php echo esc_attr( $key ); ?>"
                                                 title="Xoá icon"
-                                                style="color:#a00;<?php echo $icon_url ? '' : 'display:none'; ?>">
-                                            <span class="dashicons dashicons-trash"></span>
+                                                <?php echo $icon_url ? '' : 'style="display:none"'; ?>>
+                                            <span class="dashicons dashicons-trash"></span> Xoá
                                         </button>
                                     </div>
                                 </div>
@@ -399,10 +399,10 @@ function cim_admin_page() {
                                 <input type="hidden" name="cim_footer_bg" id="cim_footer_bg" value="<?php echo esc_attr( $data['footer_bg'] ); ?>">
                                 <div class="cim-avatar-buttons">
                                     <button type="button" id="cim-upload-footer-bg" class="button button-secondary">
-                                        <span class="dashicons dashicons-upload"></span> Chọn ảnh nền
+                                        <span class="dashicons dashicons-upload"></span> Chọn ảnh
                                     </button>
                                     <button type="button" id="cim-remove-footer-bg" class="button" <?php echo $footer_bg_url ? '' : 'style="display:none"'; ?>>
-                                        <span class="dashicons dashicons-trash"></span> Xoá ảnh
+                                        <span class="dashicons dashicons-trash"></span> Xoá
                                     </button>
                                 </div>
                             </div>
