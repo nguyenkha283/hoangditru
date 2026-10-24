@@ -237,15 +237,25 @@ Hai lần đỏ ở **hai bước FTP khác nhau**, lint xanh cả hai lần, r�
 của `ftp-resolve.sh` mở một phiên FTP mới cho **mỗi** lần liệt kê thư mục — 3 đến 9 phiên mỗi lần
 chạy, cộng phiên của `FTP-Deploy-Action`. Bốn lần deploy trong 17 phút thành 16–36 lần đăng nhập.
 
-Ba thay đổi để không lặp lại:
+Ngày hôm sau chuyện lặp lại đúng như vậy: `a61fe42` lúc 01:34 xanh, `87400b8` lúc **01:35** đỏ cả
+hai lần đẩy. Hai push cách nhau một phút.
+
+Bốn thay đổi để không lặp lại:
 
 | | |
 |---|---|
 | **Giảm số phiên** | 1 phiên khi có `FTP_PATH`, 2–3 khi phải dò. Dừng ở kết quả đầu tiên thay vì thử hết; bỏ phiên "thăm dò TLS" riêng, gộp vào lần liệt kê đầu |
-| **Tự thử lại** | `ftp_list` thử lại tối đa 3 lần với giãn cách 15s → 45s khi gặp lỗi kết nối tạm thời. Bước đẩy file hỏng thì nghỉ 90 giây rồi đẩy lần hai |
-| **Không nói dối** | `continue-on-error` ở lần đẩy đầu khiến job vẫn xanh kể cả khi cả hai lần hỏng, nên có bước *Kết luận* tự đánh đỏ |
+| **Huỷ run cũ** | `concurrency.cancel-in-progress: true` — push mới huỷ run đang chạy, nên hai push sát nhau chỉ tạo **một** cụm phiên FTP thay vì hai. `FTP-Deploy-Action` chỉ ghi file trạng thái khi thành công, nên run bị huỷ giữa chừng không để lại trạng thái sai |
+| **Tự thử lại** | `ftp_list` thử tối đa 3 lần, giãn 15s → 45s. Bước đẩy file hỏng thì nghỉ **4 phút** rồi đẩy lần hai — đã thử 90 giây và không đủ |
+| **Không nói dối** | `continue-on-error` ở lần đẩy đầu khiến API báo bước đó `success` dù nó hỏng, nên có bước *Kết luận* với `if: always()` tự đánh đỏ. Thiếu `always()` thì chính bước đó bị skip khi lần hai hỏng |
 
-Vẫn nên **tránh push liên tiếp nhiều commit trong vài phút**. Gom thay đổi lại rồi push một lần.
+Dù vậy vẫn nên **gom thay đổi rồi push một lần**, đừng đẩy nhiều commit trong vài phút.
+
+### Đọc kết quả run cho đúng
+
+API `actions/runs/<id>/jobs` trả `conclusion` **sau khi** `continue-on-error` che lỗi, nên bước
+*FTPS deploy* có thể hiện `success` trong khi nó đã hỏng. Dấu hiệu nhận biết: bước *Nghỉ 4 phút* và
+*FTPS deploy (lần 2)* có chạy hay không — chúng chỉ chạy khi lần đầu thất bại.
 
 ## ⚠️ KHÔNG dùng hPanel → Git cho site này
 

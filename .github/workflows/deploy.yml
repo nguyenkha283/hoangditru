@@ -35,7 +35,12 @@ permissions:
 
 concurrency:
   group: deploy
-  cancel-in-progress: false
+  # Huỷ run cũ khi có push mới. Hai push cách nhau một phút tạo hai cụm phiên
+  # FTP liên tiếp — đúng thứ làm Hostinger chặn tạm thời (2026-10-23 và
+  # 2026-10-24). Huỷ bản cũ thì chỉ commit mới nhất được đẩy, và vì
+  # FTP-Deploy-Action chỉ ghi file trạng thái khi thành công nên run bị huỷ
+  # giữa chừng không để lại trạng thái sai: lần sau đẩy lại là xong.
+  cancel-in-progress: true
 
 jobs:
   lint:
@@ -173,11 +178,11 @@ jobs:
             **/.DS_Store
             **/*.map
 
-      - name: Nghỉ 90 giây trước khi thử lại
+      - name: Nghỉ 4 phút trước khi thử lại
         if: steps.check.outputs.ok == 'true' && steps.ftp1.outcome == 'failure'
         run: |
-          echo "::warning::Lần đẩy thứ nhất thất bại. Nghỉ 90 giây rồi thử lại — máy chủ FTP của Hostinger hay chặn tạm thời khi có nhiều phiên liên tiếp."
-          sleep 90
+          echo "::warning::Lần đẩy thứ nhất thất bại. Nghỉ 4 phút rồi thử lại — máy chủ FTP của Hostinger chặn tạm thời khi có nhiều phiên liên tiếp, 90 giây đã thử và không đủ."
+          sleep 240
 
       - name: FTPS deploy (lần 2)
         id: ftp2
@@ -201,7 +206,7 @@ jobs:
       # continue-on-error ở lần 1 làm job vẫn xanh kể cả khi cả hai lần đều hỏng,
       # nên phải tự đánh đỏ. Không có bước này thì "job success" sẽ nói dối.
       - name: Kết luận
-        if: steps.check.outputs.ok == 'true'
+        if: always() && steps.check.outputs.ok == 'true'
         run: |
           if [ "${{ steps.ftp1.outcome }}" = "success" ]; then
             echo "Đẩy thành công ngay lần đầu."
