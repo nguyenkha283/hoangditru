@@ -43,6 +43,30 @@ check_asset() {
   echo
 }
 
+# Asset cua plugin loi co the nam o hai cho tuy cach deploy:
+#   FTP        wp-content/plugins/hoangditru-core/...
+#   hPanel Git wp-content/app/plugins/hoangditru-core/...
+# Thu ca hai, dat o dau cung duoc, khong co o dau moi la loi. Nho vay script
+# chay duoc truoc va sau khi chuyen sang Git ma khong phai sua tay.
+check_core_asset() {
+  local label="$1" rel="$2" c1 c2
+  c1=$(curl -sL --max-time 20 -A "$UA" -o /dev/null -w '%{http_code}' "$BASE/wp-content/plugins/hoangditru-core/$rel")
+  if [ "$c1" = "200" ]; then
+    printf '%-26s HTTP 200  (wp-content/plugins)
+' "$label"
+    return
+  fi
+  c2=$(curl -sL --max-time 20 -A "$UA" -o /dev/null -w '%{http_code}' "$BASE/wp-content/app/plugins/hoangditru-core/$rel")
+  if [ "$c2" = "200" ]; then
+    printf '%-26s HTTP 200  (app/plugins, deploy qua Git)
+' "$label"
+    return
+  fi
+  printf '%-26s HTTP %s / %s  [X] khong thay o ca hai cho
+' "$label" "$c1" "$c2"
+  fail=1
+}
+
 echo "=== Trang ==="
 check_page "Trang chu"   "/"
 check_page "404"         "/duong-dan-khong-ton-tai-$RANDOM/"
@@ -51,9 +75,9 @@ check_page "Tim kiem"    "/?s=dinh+cu"
 echo
 echo "=== Theme va plugin da len chua ==="
 check_asset "style.css theme" "/wp-content/themes/hoangditru/style.css"
-check_asset "nav-global.css"  "/wp-content/plugins/hoangditru-core/modules/trang-chu/assets/nav-global.css"
-check_asset "cim-footer.css"  "/wp-content/plugins/hoangditru-core/modules/cim-footer/assets/cim-footer.css"
-check_asset "bds style.css"   "/wp-content/plugins/hoangditru-core/modules/bat-dong-san/assets/css/style.css"
+check_core_asset "nav-global.css" "modules/trang-chu/assets/nav-global.css"
+check_core_asset "cim-footer.css" "modules/cim-footer/assets/cim-footer.css"
+check_core_asset "bds style.css"  "modules/bat-dong-san/assets/css/style.css"
 
 echo
 echo "=== Nav va footer co render ==="

@@ -336,8 +336,9 @@ chuyển đổi làm được từng bước, và muốn lùi chỉ cần bật 
    còn bật nên tự đứng ngoài.
 5. WP admin → **Plugin** → tắt *Hoàng Di Trú Core*. Loader tiếp quản ngay.
 6. WP admin → **Giao diện** → kích hoạt lại *Hoangditru* để `template_root` trỏ sang `/app/themes`.
-7. `bash scripts/check-site.sh https://hoangditru.com` — nhớ sửa đường dẫn asset trong script sang
-   `app/plugins/...` trước khi chạy.
+7. `bash scripts/check-site.sh https://hoangditru.com`. Script thử asset ở cả `wp-content/plugins`
+   lẫn `wp-content/app/plugins` và in ra chỗ nào đang phục vụ, nên chạy được trước và sau khi
+   chuyển. Thấy `(app/plugins, deploy qua Git)` là loader đã tiếp quản.
 8. Chạy ổn rồi thì xoá bản thừa: `wp-content/plugins/hoangditru-core/`,
    `wp-content/themes/hoangditru/`, và 8 thư mục plugin cũ.
 9. Cuối cùng đổi job `ftp` sang chỉ chạy tay (`workflow_dispatch`) để nó không ghi lại các thư mục
