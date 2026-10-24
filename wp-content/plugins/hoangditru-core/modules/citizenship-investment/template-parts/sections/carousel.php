@@ -4,7 +4,6 @@ defined( 'ABSPATH' ) || exit;
 $post_id = get_the_ID();
 $slides  = get_post_meta( $post_id, '_ci_carousel_slides', true ) ?: [];
 $att_id  = (int) get_post_meta( $post_id, '_ci_overlay_icon', true );
-$icon    = $att_id ? wp_get_attachment_image_url( $att_id, 'thumbnail' ) : '';
 $title   = get_the_title();
 
 if ( empty( $slides ) ) return;
@@ -13,12 +12,18 @@ if ( empty( $slides ) ) return;
 <section class="ci-section ci-carousel-section">
     <div class="ci-carousel" id="ci-carousel">
         <div class="ci-carousel__track" id="ci-carousel-track">
-            <?php foreach ( $slides as $att_id ) :
-                $url = wp_get_attachment_image_url( $att_id, 'full' );
-                if ( ! $url ) continue;
+            <?php foreach ( $slides as $i => $slide_id ) :
+                // Slide rộng hết màn hình. Slide đầu tải ngay (ảnh LCP), các
+                // slide sau lazy.
+                $img = hdtc_img( $slide_id, 'full', array(
+                    'alt'     => '',
+                    'sizes'   => '100vw',
+                    'loading' => 0 === $i ? false : 'lazy',
+                ) );
+                if ( ! $img ) continue;
             ?>
                 <div class="ci-carousel__slide">
-                    <img src="<?php echo esc_url( $url ); ?>" alt="">
+                    <?php echo $img; ?>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -38,9 +43,12 @@ if ( empty( $slides ) ) return;
     <!-- Fixed overlay: icon + h2 title -->
     <div class="ci-carousel-overlay">
         <div class="ci-carousel-overlay__inner">
-            <?php if ( $icon ) : ?>
-                <img class="ci-overlay-icon" src="<?php echo esc_url( $icon ); ?>" alt="<?php echo esc_attr( $title ); ?>">
-            <?php endif; ?>
+            <?php echo hdtc_img( $att_id, 'thumbnail', array(
+                'class'   => 'ci-overlay-icon',
+                'alt'     => $title,
+                'loading' => false,
+                'sizes'   => '36px',
+            ) ); ?>
             <h2 class="ci-overlay-title"><?php echo esc_html( $title ); ?></h2>
         </div>
     </div>

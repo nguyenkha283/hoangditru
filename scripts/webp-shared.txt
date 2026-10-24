@@ -1,0 +1,10 @@
+# File giống hệt nhau giữa hai bản plugin WebP. Đường dẫn tính từ thư mục plugin.
+# Dùng bởi scripts/webp-sync.sh và scripts/webp.test.php.
+includes/convert.php
+includes/rewrite.php
+includes/litespeed.php
+includes/lightbox.php
+includes/admin.php
+assets/lightbox.js
+assets/lightbox.css
+assets/admin.js

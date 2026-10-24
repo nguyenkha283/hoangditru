@@ -149,6 +149,12 @@ foreach ( $expect as $module => $fn ) {
 	}
 }
 
+// Hàm in ảnh dùng chung cho template của các module (includes/img.php).
+if ( ! function_exists( 'hdtc_img' ) ) {
+	echo "  LỖI   thiếu hdtc_img() — includes/img.php không được nạp\n";
+	$errors[] = 'hdtc_img';
+}
+
 // Những định danh nằm trong database, đổi là mất dữ liệu.
 $must_have_shortcodes = array( 'cim_phone', 'cim_card', 'cim_footer_section', 'youtube_embed' );
 

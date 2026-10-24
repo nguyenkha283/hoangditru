@@ -10,7 +10,7 @@ Khi làm việc trên một nhánh mới (`claude/*` hoặc nhánh tính năng n
 3. Báo lại khi CI xanh, hoặc khi failure **không phải** do thay đổi trong PR (nêu rõ check nào và
    vì sao).
 
-Workflow `.github/workflows/deploy.yml` chạy `php -l`, 4 test script trong `scripts/`, rồi đẩy
+Workflow `.github/workflows/deploy.yml` chạy `php -l`, 5 test script trong `scripts/`, rồi đẩy
 `wp-content` lên Hostinger qua FTPS. **Job deploy chỉ chạy trên `main`** — PR chỉ chạy phần kiểm
 tra, nên CI xanh trên PR không có nghĩa là site đã cập nhật.
 
@@ -21,6 +21,7 @@ tra, nên CI xanh trên PR không có nghĩa là site đã cập nhật.
 - `php scripts/phan-quyen.test.php`
 - `php scripts/loader-url.test.php`
 - `bash scripts/ftp-resolve.test.sh`
+- `php scripts/webp.test.php`
 
 ## Đụng vào đâu thì đọc README trước
 
@@ -30,6 +31,12 @@ README là tài liệu chính, không phải phụ lục. Hai mục bắt buộc
   capability. Tất cả đang nằm trong database của site thật; đổi là mất dữ liệu đang có.
 - **Quyền của role Biên tập viên** — sửa `HDTQ_CAPS` thì phải bump `HDTQ_VERSION`, nếu không quyền
   không được ghi lại.
+
+Plugin WebP có **hai bản** (`wp-content/plugins/hoangditru-webp` và `plugins-khac/webp-srcset-lightbox`)
+dùng chung các file liệt kê trong `scripts/webp-shared.txt`. Sửa ở bản hoangditru rồi chạy
+`bash scripts/webp-sync.sh`; test sẽ đỏ nếu hai bản lệch nhau. Template mới in ảnh thư viện Media thì
+dùng `hdtc_img()` (plugin lõi) hoặc `wp_get_attachment_image()`, đừng tự viết `<img src="…">` — xem
+mục *Ảnh: WebP, srcset, lightbox* trong README.
 
 Sửa CSS/JS của theme thì bump `HDT_VERSION` trong `functions.php` **và** dòng `Version:` trong
 `style.css` cho khớp, nếu không trình duyệt và LiteSpeed vẫn trả bản cũ.

@@ -33,8 +33,7 @@ function tc_cim_img( $id, $size = 'full' ) {
 function tc_social_icon( $key ) {
     $icon_id = tc_cim( $key . '_icon' );
     if ( $icon_id ) {
-        $url = tc_cim_img( $icon_id, 'thumbnail' );
-        return '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $key ) . '">';
+        return hdtc_img( $icon_id, 'thumbnail', array( 'alt' => $key, 'sizes' => '36px' ) );
     }
     $defaults = ['youtube' => '▶', 'facebook' => 'f', 'tiktok' => '♪'];
     return '<span class="tc-social-letter">' . ( $defaults[ $key ] ?? '' ) . '</span>';
@@ -45,7 +44,12 @@ get_header();
 // Dữ liệu dùng chung
 $phone        = tc_cim('phone');
 $phone_tel    = preg_replace('/\D/', '', $phone );
-$avatar_url   = tc_cim_img( tc_cim('avatar'), 'medium' );
+$avatar_img   = hdtc_img( tc_cim('avatar'), 'medium', array(
+    'alt'     => tc_cim('full_name'),
+    'class'   => 'tc-contact__avatar',
+    'sizes'   => '250px',
+    'loading' => false,
+) );
 $full_name    = tc_cim('full_name');
 $bio_raw      = tc_cim('bio');
 $email        = tc_cim('email');
@@ -95,8 +99,8 @@ $cover_url = tc_cim_img( tc_cim('cover_image'), 'full' );
     <div class="tc-boxed">
         <div class="tc-contact__inner">
             <div class="tc-contact__avatar-col">
-                <?php if ( $avatar_url ) : ?>
-                    <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr($full_name); ?>" class="tc-contact__avatar">
+                <?php if ( $avatar_img ) : ?>
+                    <?php echo $avatar_img; ?>
                 <?php else : ?>
                     <div class="tc-contact__avatar tc-contact__avatar--placeholder"></div>
                 <?php endif; ?>
@@ -259,7 +263,7 @@ $s5_posts = get_posts( $s5_ids
         <?php if ( ! empty($s5_posts) ) : ?>
         <div class="tc-bds-grid">
             <?php foreach ( $s5_posts as $bds ) :
-                $thumb_url  = get_the_post_thumbnail_url( $bds->ID, 'large' );
+                $thumb_id   = get_post_thumbnail_id( $bds->ID );
                 $dia_chi    = get_post_meta( $bds->ID, '_bds_dia_chi',    true );
                 $khoang_gia = get_post_meta( $bds->ID, '_bds_khoang_gia', true );
                 $loai_hinh  = get_post_meta( $bds->ID, '_bds_loai_hinh',  true );
@@ -267,11 +271,13 @@ $s5_posts = get_posts( $s5_ids
             ?>
             <article class="bds-du-an__item">
                 <a href="<?php echo esc_url($link); ?>" class="bds-du-an__thumb-link">
-                    <?php if ( $thumb_url ) : ?>
-                        <img src="<?php echo esc_url($thumb_url); ?>"
-                             alt="<?php echo esc_attr($bds->post_title); ?>"
-                             class="bds-du-an__thumb loaded"
-                             width="400" height="200" loading="lazy">
+                    <?php if ( $thumb_id ) : ?>
+                        <?php echo hdtc_img( $thumb_id, 'large', array(
+                            'alt'     => $bds->post_title,
+                            'class'   => 'bds-du-an__thumb loaded',
+                            'loading' => 'lazy',
+                            'sizes'   => '(max-width: 768px) 50vw, 290px',
+                        ) ); ?>
                     <?php else : ?>
                         <div class="bds-du-an__thumb bds-du-an__thumb--placeholder"></div>
                     <?php endif; ?>
@@ -311,7 +317,12 @@ $s5_posts = get_posts( $s5_ids
 /* ═══════════════════════════════════════════════════════════════
    SECTION 6 — GIỚI THIỆU
 ═══════════════════════════════════════════════════════════════ */
-$s6_img_url = $tc['s6_image'] ? wp_get_attachment_image_url( $tc['s6_image'], 'large' ) : '';
+$s6_img = hdtc_img( $tc['s6_image'], 'large', array(
+    'alt'     => $tc['s6_title'],
+    'class'   => 'tc-intro__img',
+    'loading' => 'lazy',
+    'sizes'   => '(max-width: 768px) 100vw, 600px',
+) );
 ?>
 <section class="tc-section tc-intro">
     <div class="tc-boxed">
@@ -321,8 +332,8 @@ $s6_img_url = $tc['s6_image'] ? wp_get_attachment_image_url( $tc['s6_image'], 'l
                 <?php if ( $tc['s6_desc']  ) : ?><div class="tc-intro__desc"><?php echo wp_kses_post($tc['s6_desc']); ?></div><?php endif; ?>
             </div>
             <div class="tc-intro__image-col">
-                <?php if ( $s6_img_url ) : ?>
-                <img src="<?php echo esc_url($s6_img_url); ?>" alt="<?php echo esc_attr($tc['s6_title']); ?>" class="tc-intro__img" loading="lazy">
+                <?php if ( $s6_img ) : ?>
+                <?php echo $s6_img; ?>
                 <?php else : ?>
                 <div class="tc-intro__img-placeholder"></div>
                 <?php endif; ?>

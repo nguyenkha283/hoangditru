@@ -13,7 +13,7 @@ $bg = $img ? 'style="background-image:url(' . esc_url( $img ) . ')"' : '';
 <section class="lpb-hero" <?php echo $bg; ?>>
     <div class="lpb-hero__overlay">
         <?php if ( $icon ) : ?>
-            <img src="<?php echo esc_url( $icon ); ?>" alt="" class="lpb-hero__icon">
+            <?php echo hdtc_img( $icon, null, array( 'class' => 'lpb-hero__icon', 'alt' => '', 'loading' => false, 'sizes' => '90px' ) ); ?>
         <?php endif; ?>
         <?php if ( $title ) : ?>
             <span class="lpb-hero__title"><?php echo esc_html( $title ); ?></span>

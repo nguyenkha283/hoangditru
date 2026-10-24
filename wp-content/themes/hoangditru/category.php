@@ -276,7 +276,7 @@ $latest_posts_query = new WP_Query( array(
 
         <!-- ========== SECTION 1: PINNED POST ========== -->
         <?php if ( $pinned_post && 'publish' === $pinned_post->post_status ) :
-            $pinned_thumb = get_the_post_thumbnail_url( $pinned_post->ID, 'large' );
+            $pinned_thumb = get_post_thumbnail_id( $pinned_post->ID );
             $pinned_cats  = get_the_category( $pinned_post->ID );
             $pinned_tag   = $pinned_cats ? $pinned_cats[0]->name : $category->name;
             $pinned_date  = date_i18n( 'd/m/Y', strtotime( $pinned_post->post_date ) );
@@ -293,9 +293,13 @@ $latest_posts_query = new WP_Query( array(
                 <div class="featured-image-col">
                     <a href="<?php echo get_permalink( $pinned_post->ID ); ?>">
                         <?php if ( $pinned_thumb ) : ?>
-                            <img src="<?php echo esc_url( $pinned_thumb ); ?>"
-                                 alt="<?php echo esc_attr( $pinned_post->post_title ); ?>"
-                                 loading="lazy">
+                            <?php
+                            echo wp_get_attachment_image( $pinned_thumb, 'large', false, array(
+                                'alt'     => $pinned_post->post_title,
+                                'loading' => 'lazy',
+                                'sizes'   => '(max-width: 768px) 100vw, 600px',
+                            ) );
+                            ?>
                         <?php else : ?>
                             <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/placeholder.jpg' ); ?>"
                                  alt="" loading="lazy">
@@ -343,7 +347,7 @@ $latest_posts_query = new WP_Query( array(
                 <?php if ( $latest_posts_query->have_posts() ) :
                     while ( $latest_posts_query->have_posts() ) :
                         $latest_posts_query->the_post();
-                        $thumb     = get_the_post_thumbnail_url( get_the_ID(), 'medium_large' );
+                        $thumb     = get_post_thumbnail_id();
                         $post_cats = get_the_category();
                         $post_tag  = $post_cats ? $post_cats[0]->name : $category->name;
                         $post_date = get_the_date( 'd/m/Y' );
@@ -357,9 +361,13 @@ $latest_posts_query = new WP_Query( array(
                     <div class="post-card-image">
                         <a href="<?php the_permalink(); ?>">
                             <?php if ( $thumb ) : ?>
-                                <img src="<?php echo esc_url( $thumb ); ?>"
-                                     alt="<?php echo esc_attr( get_the_title() ); ?>"
-                                     loading="lazy">
+                                <?php
+                                echo wp_get_attachment_image( $thumb, 'medium_large', false, array(
+                                    'alt'     => get_the_title(),
+                                    'loading' => 'lazy',
+                                    'sizes'   => '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 380px',
+                                ) );
+                                ?>
                             <?php else : ?>
                                 <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/placeholder.jpg' ); ?>"
                                      alt="" loading="lazy">

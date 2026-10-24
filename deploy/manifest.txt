@@ -8,3 +8,7 @@ themes/hoangditru
 
 # 8 plugin lõi đã gộp thành một, mỗi cái thành một module bên trong.
 plugins/hoangditru-core
+
+# WebP + srcset + lightbox. Plugin riêng, bật/tắt được: tắt thì site vẫn chạy,
+# chỉ là ảnh JPEG/PNG như cũ.
+plugins/hoangditru-webp

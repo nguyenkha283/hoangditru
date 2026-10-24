@@ -34,16 +34,18 @@ $cat_url  = ( $term && ! is_wp_error( $term ) ) ? get_term_link( $term ) : '';
             <?php foreach ( $bds_posts as $bds ) :
                 $dia_chi    = get_post_meta( $bds->ID, '_bds_dia_chi',    true );
                 $khoang_gia = get_post_meta( $bds->ID, '_bds_khoang_gia', true );
-                $thumb_url  = get_the_post_thumbnail_url( $bds->ID, 'large' );
+                $thumb_id   = get_post_thumbnail_id( $bds->ID );
                 $link       = get_permalink( $bds->ID );
             ?>
             <article class="lpb-du-an__item">
                 <a href="<?php echo esc_url( $link ); ?>" class="lpb-du-an__thumb-link">
-                    <?php if ( $thumb_url ) : ?>
-                        <img src="<?php echo esc_url( $thumb_url ); ?>"
-                             alt="<?php echo esc_attr( $bds->post_title ); ?>"
-                             class="lpb-du-an__thumb"
-                             loading="lazy">
+                    <?php if ( $thumb_id ) : ?>
+                        <?php echo hdtc_img( $thumb_id, 'large', array(
+                            'alt'     => $bds->post_title,
+                            'class'   => 'lpb-du-an__thumb',
+                            'loading' => 'lazy',
+                            'sizes'   => '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw',
+                        ) ); ?>
                     <?php else : ?>
                         <div class="lpb-du-an__thumb lpb-du-an__thumb--placeholder"></div>
                     <?php endif; ?>
