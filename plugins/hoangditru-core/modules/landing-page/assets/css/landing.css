@@ -89,6 +89,7 @@ body:has(#lpb-landing) .header-wrapper.stuck {
 
 .lpb-hero__icon {
     height: 90px;
+    width: auto; /* thẻ img có width/height (srcset); không có dòng này icon bị kéo giãn */
     object-fit: contain;
     flex-shrink: 0;
     filter: drop-shadow(0 1px 3px rgba(0,0,0,.4));

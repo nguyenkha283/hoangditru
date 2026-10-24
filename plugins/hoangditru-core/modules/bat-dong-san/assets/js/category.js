@@ -1,10 +1,23 @@
 /* =========================================================
-   BẤT ĐỘNG SẢN – category.js  v1.3
+   BẤT ĐỘNG SẢN – category.js  v1.3.1
    Lazy load ảnh cho cả taxonomy archive và CPT archive
    ========================================================= */
 jQuery(function ($) {
 
     /* ---- Lazy load bằng IntersectionObserver ---- */
+    // sizes và srcset phải gắn TRƯỚC src, nếu không trình duyệt tải src rồi
+    // lại tải thêm bản trong srcset.
+    function setSrc( img ) {
+        if ( img.dataset.srcset ) {
+            img.sizes  = img.dataset.sizes || '';
+            img.srcset = img.dataset.srcset;
+            img.removeAttribute('data-srcset');
+            img.removeAttribute('data-sizes');
+        }
+        img.src = img.dataset.src;
+        img.removeAttribute('data-src');
+    }
+
     function lazyLoadImages( container ) {
         var images = container.querySelectorAll('img[data-src]');
         if ( ! images.length ) return;
@@ -14,8 +27,7 @@ jQuery(function ($) {
                 entries.forEach(function ( entry ) {
                     if ( ! entry.isIntersecting ) return;
                     var img = entry.target;
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
+                    setSrc( img );
                     img.addEventListener('load', function () { img.classList.add('loaded'); }, { once: true });
                     observer.unobserve(img);
                 });
@@ -24,8 +36,7 @@ jQuery(function ($) {
         } else {
             // Fallback
             images.forEach(function(img) {
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
+                setSrc( img );
                 img.classList.add('loaded');
             });
         }

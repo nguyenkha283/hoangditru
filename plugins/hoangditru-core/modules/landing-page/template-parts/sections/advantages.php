@@ -13,7 +13,7 @@ if ( empty( $rows ) ) return;
             ?>
             <li class="lpb-advantages__item">
                 <?php if ( $icon ) : ?>
-                    <img class="lpb-advantages__icon" src="<?php echo esc_url( $icon ); ?>" alt="" loading="lazy">
+                    <?php echo hdtc_img( $icon, null, array( 'class' => 'lpb-advantages__icon', 'alt' => '', 'loading' => 'lazy', 'sizes' => '40px' ) ); ?>
                 <?php endif; ?>
                 <span class="lpb-advantages__text"><?php echo esc_html( $text ); ?></span>
             </li>

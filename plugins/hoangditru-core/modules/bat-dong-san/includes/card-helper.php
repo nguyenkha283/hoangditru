@@ -6,12 +6,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Dùng chung cho taxonomy-bds_category.php, archive và ajax-category.php
  */
 function bds_render_card( $post_id, $thumb_url, $title, $dia_chi, $khoang_gia, $loai_hinh, $link ) {
+    // srcset để category.js gắn cùng lúc với src. Lưới 4 → 3 → 2 → 1 cột trong
+    // khung 1200px, xem .bds-du-an__grid trong category.css.
+    $thumb_id = $thumb_url ? get_post_thumbnail_id( $post_id ) : 0;
+    $srcset   = $thumb_id ? wp_get_attachment_image_srcset( $thumb_id, 'large' ) : '';
     ob_start(); ?>
     <article class="bds-du-an__item">
         <a href="<?php echo esc_url( $link ); ?>" class="bds-du-an__thumb-link">
             <?php if ( $thumb_url ) : ?>
                 <img
                     data-src="<?php echo esc_url( $thumb_url ); ?>"
+                    <?php if ( $srcset ) : ?>
+                    data-srcset="<?php echo esc_attr( $srcset ); ?>"
+                    data-sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 290px"
+                    <?php endif; ?>
                     src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'/%3E"
                     alt="<?php echo esc_attr( $title ); ?>"
                     class="bds-du-an__thumb"

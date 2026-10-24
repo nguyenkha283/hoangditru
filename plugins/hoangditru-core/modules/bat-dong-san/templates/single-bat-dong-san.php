@@ -49,20 +49,20 @@ if ( function_exists('get_header') ) get_header();
         <!-- Slider chính -->
         <div class="bds-slider-main">
             <?php foreach ( $carousel as $img_id ) :
-                $src = wp_get_attachment_image_src( $img_id, 'large' );
-                if ( ! $src ) continue; ?>
+                $img = hdtc_img( $img_id, 'large', array( 'alt' => $title, 'loading' => 'lazy', 'sizes' => '(max-width: 1200px) 100vw, 1152px' ) );
+                if ( ! $img ) continue; ?>
                 <div class="bds-slide">
-                    <img src="<?php echo esc_url($src[0]); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy" />
+                    <?php echo $img; ?>
                 </div>
             <?php endforeach; ?>
         </div>
         <!-- Slider nav (thumbnails) -->
         <div class="bds-slider-nav">
             <?php foreach ( $carousel as $img_id ) :
-                $src = wp_get_attachment_image_src( $img_id, 'thumbnail' );
-                if ( ! $src ) continue; ?>
+                $img = hdtc_img( $img_id, 'thumbnail', array( 'alt' => '', 'loading' => 'lazy' ) );
+                if ( ! $img ) continue; ?>
                 <div class="bds-slide-thumb">
-                    <img src="<?php echo esc_url($src[0]); ?>" alt="" loading="lazy" />
+                    <?php echo $img; ?>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -134,10 +134,17 @@ if ( function_exists('get_header') ) get_header();
                     <div class="bds-mb-gallery">
                         <?php foreach ( $img_ids as $img_id ) :
                             $full  = wp_get_attachment_image_src( $img_id, 'large' );
-                            $thumb = wp_get_attachment_image_src( $img_id, 'medium' );
                             if ( ! $full ) continue; ?>
                             <a href="<?php echo esc_url($full[0]); ?>" class="bds-mb-img-link bds-lb-trigger" data-full="<?php echo esc_url($full[0]); ?>" data-caption="<?php echo esc_attr($mb['title']); ?>">
-                                <img src="<?php echo esc_url($thumb ? $thumb[0] : $full[0]); ?>" alt="<?php echo esc_attr($mb['title']); ?>" loading="lazy" />
+                                <?php
+                                // Lightbox riêng của BĐS (#bds-lightbox) lo phần bấm
+                                // xem; lightbox chung của site loại trừ vùng này.
+                                echo hdtc_img( $img_id, 'medium', array(
+                                    'alt'     => $mb['title'],
+                                    'loading' => 'lazy',
+                                    'sizes'   => '(max-width: 480px) 100vw, (max-width: 768px) 50vw, 380px',
+                                ) );
+                                ?>
                             </a>
                         <?php endforeach; ?>
                     </div>

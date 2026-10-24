@@ -14,7 +14,11 @@ if ( empty( $rows ) ) return;
             <div class="lpb-benefits__item">
                 <?php if ( $img ) : ?>
                     <div class="lpb-benefits__img-wrap">
-                        <img src="<?php echo esc_url( $img ); ?>" alt="" loading="lazy">
+                        <?php echo hdtc_img( $img, null, array(
+                            'alt'     => '',
+                            'loading' => 'lazy',
+                            'sizes'   => '81px',
+                        ) ); ?>
                     </div>
                 <?php endif; ?>
                 <?php if ( $desc ) : ?>

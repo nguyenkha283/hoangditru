@@ -27,7 +27,7 @@ function bds_enqueue_category_scripts() {
     if ( ! $is_tax && ! $is_archive ) return;
 
     wp_enqueue_style(  'bds-cat-style', BDS_URL . 'assets/css/category.css', [], '1.2.0' );
-    wp_enqueue_script( 'bds-cat-js',    BDS_URL . 'assets/js/category.js', ['jquery'], '1.2.0', true );
+    wp_enqueue_script( 'bds-cat-js',    BDS_URL . 'assets/js/category.js', ['jquery'], '1.3.1', true );
     wp_localize_script( 'bds-cat-js', 'BDS_CAT', [
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce'    => wp_create_nonce('bds_load_more_nonce'),
