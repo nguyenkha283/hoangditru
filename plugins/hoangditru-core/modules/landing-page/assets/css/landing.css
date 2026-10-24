@@ -3,7 +3,7 @@
    ================================================================ */
 
 :root {
-    --lpb-orange:     #7c98d2;  /* Giữ tên biến: s3_title_orange/s4_title_orange là khoá meta trong DB, đổi tên sẽ hỏng dữ liệu. Giá trị nay là xanh navy. */
+    --lpb-orange:     #1e3a73;  /* Giữ tên biến: s3_title_orange/s4_title_orange là khoá meta trong DB, đổi tên sẽ hỏng dữ liệu. Giá trị nay là xanh navy. */
     --lpb-text:       #000;
     --lpb-muted:      #6b7280;
     --lpb-border:     #e5e7eb;
@@ -297,7 +297,7 @@ body:has(#lpb-landing) .header-wrapper.stuck {
 
 /* Hollow: các bước giữa — màu nền rgb(255 197 150) */
 .lpb-timeline__step.is-hollow .lpb-timeline__node {
-    background: rgb(255, 197, 150);
+    background: #7c98d2;
     border: 2px solid var(--lpb-orange);
 }
 
