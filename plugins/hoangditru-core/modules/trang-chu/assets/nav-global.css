@@ -149,7 +149,7 @@
     transition: background .15s, color .15s, padding-left .15s;
 }
 .tc-nav__list .sub-menu li a:hover {
-    background: #fff8f3;
+    background: #e2ebff;
     color: var(--tc-orange);
     padding-left: 26px;
 }
