@@ -1,0 +1,322 @@
+/* ═══════════════════════════════════════════════
+   CIM Footer — Stylesheet v1.0.0
+   ═══════════════════════════════════════════════ */
+
+/* ── Reset / Base ── */
+#cim-footer,
+#cim-footer *,
+#cim-footer *::before,
+#cim-footer *::after {
+    box-sizing: border-box;
+}
+
+/* ── Wrapper ── */
+#cim-footer {
+    position: relative;
+    width: 100%;
+    background-color: #1a1a1a; /* fallback khi chưa có ảnh nền */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    color: #ffffff;
+    /* Dùng font chung của theme — không override */
+    font-family: inherit;
+}
+
+/* ── Overlay ── */
+.cimf-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.70);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ── Boxed inner ── */
+.cimf-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 64px 24px;
+}
+
+/* ── Grid 2 cột ── */
+.cimf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px 56px;
+    align-items: start;
+}
+
+/* ── Heading ── */
+.cimf-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff !important;
+    margin: 0 0 24px 0 !important;
+    padding: 0 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    border: none !important;
+}
+
+/* ── Bio ── */
+.cimf-bio {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    margin-bottom: 24px;
+}
+
+.cimf-bio p {
+    margin: 0 0 0.75em;
+    color: inherit;
+}
+
+.cimf-bio p:last-child {
+    margin-bottom: 0;
+}
+
+/* ── Contact rows (email / phone) ── */
+.cimf-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.cimf-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.cimf-icon svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+.cimf-contact-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    text-decoration: none !important;
+    font-size: 0.9375rem;
+    transition: color 0.2s ease;
+    word-break: break-all;
+}
+
+.cimf-contact-link:hover {
+    color: #ffffff !important;
+    text-decoration: underline !important;
+}
+
+.cimf-contact-text {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+/* ── Social icons ── */
+.cimf-social-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.cimf-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff !important;
+    text-decoration: none !important;
+    transition: background 0.2s ease, transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.cimf-social-link:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: translateY(-2px);
+}
+
+/* Icon mặc định SVG */
+.cimf-social-svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+}
+
+.cimf-social-svg svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+    fill: #ffffff;
+}
+
+/* Icon upload tùy chỉnh */
+.cimf-social-img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    display: block;
+    border-radius: 3px;
+}
+
+/* ── CF7 form ── */
+.cimf-col-form .cimf-heading {
+    margin-bottom: 24px !important;
+}
+
+.cimf-cf7-wrap .wpcf7 {
+    margin: 0;
+    padding: 0;
+}
+
+/* Labels */
+.cimf-cf7-wrap .wpcf7 label,
+.cimf-cf7-wrap .wpcf7 .wpcf7-form-control-wrap label {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* Inputs & Textarea */
+.cimf-cf7-wrap .wpcf7 input:not([type="submit"]),
+.cimf-cf7-wrap .wpcf7 textarea,
+.cimf-cf7-wrap .wpcf7 select {
+    background: rgba(255, 255, 255, 0.10) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 6px !important;
+    color: #ffffff !important;
+    padding: 10px 14px !important;
+    width: 100% !important;
+    font-size: 0.9375rem !important;
+    font-family: inherit !important;
+    outline: none !important;
+    transition: border-color 0.2s ease, background 0.2s ease !important;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.cimf-cf7-wrap .wpcf7 input::placeholder,
+.cimf-cf7-wrap .wpcf7 textarea::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.cimf-cf7-wrap .wpcf7 input:focus:not([type="submit"]),
+.cimf-cf7-wrap .wpcf7 textarea:focus {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Submit button */
+.cimf-cf7-wrap .wpcf7 input[type="submit"] {
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 12px 28px !important;
+    font-size: 0.9375rem !important;
+    font-weight: 700 !important;
+    font-family: inherit !important;
+    cursor: pointer !important;
+    width: auto !important;
+    transition: background 0.2s ease, transform 0.15s ease !important;
+    letter-spacing: 0.03em;
+}
+
+.cimf-cf7-wrap .wpcf7 input[type="submit"]:hover {
+    background: rgba(255, 255, 255, 0.88) !important;
+    transform: translateY(-1px);
+}
+
+/* CF7 validation messages */
+.cimf-cf7-wrap .wpcf7 .wpcf7-not-valid-tip {
+    color: #fca5a5 !important;
+    font-size: 0.8125rem;
+    margin-top: 4px;
+}
+
+.cimf-cf7-wrap .wpcf7 .wpcf7-response-output {
+    border-radius: 6px !important;
+    padding: 10px 14px !important;
+    font-size: 0.875rem !important;
+    margin-top: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Responsive ── */
+
+/* Tablet: ≥ 768px → 2 cột */
+@media ( max-width: 767px ) {
+    .cimf-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .cimf-inner {
+        padding: 48px 20px;
+    }
+
+    .cimf-col-contact {
+        order: 1;
+    }
+
+    .cimf-col-form {
+        order: 2;
+    }
+}
+
+/* Desktop lớn */
+@media ( min-width: 1280px ) {
+    .cimf-inner {
+        max-width: 1200px;
+    }
+}
+
+/* ── Chi nhánh ── */
+.cimf-contact-row--branch {
+    align-items: flex-start;
+}
+
+.cimf-contact-row--branch .cimf-icon {
+    margin-top: 2px; /* canh giữa với dòng đầu text */
+}
+
+.cimf-branch-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1.55;
+}
+
+.cimf-branch-title {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.9375rem;
+}
+
+.cimf-branch-address {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.9rem;
+}

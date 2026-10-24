@@ -1,0 +1,370 @@
+/* ── Contact Info Manager – Admin Styles ── */
+:root {
+    --cim-primary: #6366f1;
+    --cim-primary-dark: #4f46e5;
+    --cim-surface: #ffffff;
+    --cim-border: #e5e7eb;
+    --cim-text: #1f2937;
+    --cim-muted: #6b7280;
+    --cim-code-bg: #f3f4f6;
+    --cim-yt: #ff0000;
+    --cim-fb: #1877f2;
+    --cim-tt: #010101;
+    --radius: 10px;
+}
+
+/* ── Layout ── */
+.cim-wrap { max-width: 1200px; }
+
+.cim-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px !important;
+    color: var(--cim-primary) !important;
+    margin-bottom: 24px !important;
+}
+.cim-title .dashicons { font-size: 28px; width: 28px; height: 28px; }
+
+.cim-layout { max-width: 680px; }
+.cim-form-col { width: 100%; }
+
+/* ── Card ── */
+.cim-card {
+    background: var(--cim-surface);
+    border: 1px solid var(--cim-border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.cim-card-title {
+    font-size: 16px !important;
+    font-weight: 600;
+    color: var(--cim-text) !important;
+    margin: 0 0 20px !important;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--cim-border);
+}
+
+/* ── Fields ── */
+.cim-field { margin-bottom: 20px; }
+
+.cim-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--cim-text);
+    font-size: 14px;
+}
+
+.cim-field input.regular-text,
+.cim-field textarea.large-text {
+    border-radius: 6px;
+    border: 1px solid var(--cim-border);
+    padding: 8px 12px;
+    width: 100%;
+    font-size: 14px;
+    transition: border-color .2s;
+}
+
+.cim-field input.regular-text:focus,
+.cim-field textarea.large-text:focus {
+    border-color: var(--cim-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+}
+
+.cim-field .description {
+    margin-top: 6px;
+    color: var(--cim-muted);
+    font-size: 12px;
+}
+
+.cim-field .description code {
+    background: var(--cim-code-bg);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    color: var(--cim-primary-dark);
+    border: 1px solid var(--cim-border);
+}
+
+/* ── Input with icon ── */
+.cim-input-icon-wrap { position: relative; display: flex; align-items: center; gap: 6px; }
+.cim-input-icon-wrap input { padding-left: 36px !important; flex: 1; }
+.cim-input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--cim-muted);
+    font-size: 16px;
+}
+
+/* ── API key input ── */
+.cim-api-input { font-family: monospace; letter-spacing: .04em; }
+.cim-toggle-api-key {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px !important;
+    height: 34px;
+}
+.cim-toggle-api-key .dashicons { font-size: 18px; width: 18px; height: 18px; color: var(--cim-muted); }
+
+/* ── Cover image ── */
+.cim-cover-wrap { display: flex; flex-direction: column; gap: 10px; }
+
+#cim-cover-preview {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--cim-border);
+    display: block;
+}
+
+.cim-cover-placeholder {
+    width: 100%;
+    height: 120px;
+    border-radius: 8px;
+    border: 2px dashed var(--cim-border);
+    background: var(--cim-code-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--cim-muted);
+    font-size: 13px;
+}
+.cim-cover-placeholder .dashicons { font-size: 32px; width: 32px; height: 32px; color: #d1d5db; }
+
+/* ── Avatar ── */
+.cim-avatar-wrap { display: flex; flex-direction: column; gap: 10px; }
+
+#cim-avatar-preview {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--cim-border);
+    display: block;
+}
+
+.cim-avatar-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Social icon upload ── */
+.cim-social-field .cim-social-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cim-social-url-input { flex: 1; }
+
+.cim-social-icon-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.cim-social-icon-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,.18);
+}
+
+.cim-social-icon-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cim-default-icon-text {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.cim-icon-btns {
+    display: flex;
+    gap: 4px;
+}
+
+.cim-icon-btns .button {
+    padding: 2px 6px !important;
+    min-height: 26px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.cim-icon-btns .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+.cim-social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 4px;
+    color: #fff;
+}
+.cim-yt { background: var(--cim-yt); }
+.cim-fb { background: var(--cim-fb); font-size: 14px; }
+.cim-tt { background: var(--cim-tt); }
+
+/* ── Submit ── */
+.cim-submit-row { margin-top: 4px; }
+
+/* ── Shortcode reference table ── */
+.cim-ref-card { position: sticky; top: 32px; }
+
+.cim-ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.cim-ref-table th {
+    background: var(--cim-code-bg);
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid var(--cim-border);
+}
+.cim-ref-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--cim-border);
+    vertical-align: middle;
+}
+.cim-ref-table tr:last-child td { border-bottom: none; }
+.cim-ref-table code {
+    background: var(--cim-code-bg);
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 11px;
+    color: var(--cim-primary-dark);
+    white-space: nowrap;
+}
+
+/* ── Preview box ── */
+.cim-preview-box {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+.cim-preview-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 3px solid var(--cim-primary);
+}
+.cim-preview-info { flex: 1; min-width: 0; }
+.cim-preview-name { font-weight: 700; font-size: 16px; color: var(--cim-text); }
+.cim-preview-bio  { font-size: 13px; color: var(--cim-muted); margin: 4px 0 8px; line-height: 1.5; }
+.cim-preview-row  { font-size: 13px; color: var(--cim-muted); margin-bottom: 4px; }
+.cim-preview-social { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+.cim-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    text-decoration: none; color: #fff;
+}
+.cim-btn-yt { background: var(--cim-yt); }
+.cim-btn-fb { background: var(--cim-fb); }
+.cim-btn-tt { background: #555; }
+
+/* ── Signature / TinyMCE field ── */
+.cim-field .wp-editor-container {
+    border: 1px solid var(--cim-border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.cim-field .wp-editor-tabs {
+    background: var(--cim-code-bg);
+    border-bottom: 1px solid var(--cim-border);
+}
+.cim-field #wp-cim_signature-editor-tools {
+    background: var(--cim-code-bg);
+}
+
+/* ── Chi nhánh động ── */
+.cim-branch-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 12px;
+    background: var(--cim-code-bg);
+    border: 1px solid var(--cim-border);
+    border-radius: 8px;
+}
+
+.cim-branch-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cim-branch-title,
+.cim-branch-address {
+    width: 100% !important;
+    border-radius: 6px !important;
+    border: 1px solid var(--cim-border) !important;
+    padding: 7px 10px !important;
+    font-size: 13px !important;
+    transition: border-color .2s;
+}
+
+.cim-branch-title:focus,
+.cim-branch-address:focus {
+    border-color: var(--cim-primary) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+
+.cim-branch-title {
+    font-weight: 600;
+}
+
+.cim-remove-branch {
+    flex-shrink: 0;
+    padding: 5px 8px !important;
+    color: #a00 !important;
+    margin-top: 2px;
+}
+
+.cim-remove-branch .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+#cim-add-branch .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 2px;
+}

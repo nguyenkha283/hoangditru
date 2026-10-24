@@ -1,0 +1,203 @@
+/* ── Trang Chủ Settings – Admin CSS ── */
+:root {
+    --tc-orange: #1e3a73;  /* Giữ tên biến: s3_title_orange/s4_title_orange là khoá meta trong DB, đổi tên sẽ hỏng dữ liệu. Giá trị nay là xanh navy. */
+    --tc-border: #e5e7eb;
+    --tc-bg:     #f9fafb;
+    --tc-text:   #1f2937;
+    --tc-muted:  #6b7280;
+    --radius:    10px;
+}
+
+.tcs-wrap { max-width: 960px; }
+
+.tcs-page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--tc-orange) !important;
+    font-size: 24px !important;
+    margin-bottom: 24px !important;
+}
+.tcs-page-title .dashicons { font-size: 28px; width: 28px; height: 28px; }
+
+/* ── Card dạng info (read-only, không có form input) ── */
+.tcs-card--info {
+    background: #fffbf5;
+    border-color: #fde8c8;
+}
+.tcs-card--info .tcs-card-title { border-bottom-color: #fde8c8; }
+.tcs-card--info .description { margin-bottom: 14px; font-size: 13px; line-height: 1.6; }
+.tcs-card--info .description a { color: var(--tc-orange); }
+.tcs-cover-preview {
+    max-width: 100%;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--tc-border);
+}
+.tcs-img-placeholder--sm { height: 70px; font-size: 12px; }
+
+/* ── Card ── */
+.tcs-card {
+    background: #fff;
+    border: 1px solid var(--tc-border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+
+.tcs-card-title {
+    font-size: 16px !important;
+    font-weight: 600;
+    color: var(--tc-text) !important;
+    margin: 0 0 18px !important;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--tc-border);
+}
+
+/* ── Fields ── */
+.tcs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.tcs-field { margin-bottom: 16px; }
+.tcs-field label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--tc-text); }
+.tcs-field input.regular-text,
+.tcs-field textarea.large-text {
+    border-radius: 6px;
+    border: 1px solid var(--tc-border);
+    padding: 8px 12px;
+    width: 100%;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color .2s;
+}
+.tcs-field input.regular-text:focus,
+.tcs-field textarea.large-text:focus {
+    border-color: var(--tc-orange);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(30,58,115,.12);
+}
+.tcs-note { font-weight: 400; color: var(--tc-muted); font-size: 12px; margin-left: 4px; }
+
+/* ── Image upload ── */
+.tcs-image-upload { display: flex; flex-direction: column; gap: 10px; }
+.tcs-image-upload img {
+    max-height: 160px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid var(--tc-border);
+}
+.tcs-img-placeholder {
+    height: 100px;
+    border: 2px dashed var(--tc-border);
+    border-radius: 8px;
+    background: var(--tc-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--tc-muted);
+    font-size: 13px;
+}
+.tcs-img-placeholder .dashicons { font-size: 28px; width: 28px; height: 28px; color: #d1d5db; }
+.tcs-btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Sortable Picker ── */
+.tcs-picker { border: 1px solid var(--tc-border); border-radius: 8px; overflow: hidden; }
+
+.tcs-picker-cols { display: grid; grid-template-columns: 1fr 1fr; }
+
+.tcs-picker-all,
+.tcs-picker-selected { display: flex; flex-direction: column; }
+
+.tcs-picker-all { border-right: 1px solid var(--tc-border); }
+
+.tcs-picker-label {
+    background: var(--tc-bg);
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 1px solid var(--tc-border);
+    color: var(--tc-text);
+}
+
+.tcs-count { font-weight: 400; color: var(--tc-muted); }
+
+.tcs-search {
+    border: none;
+    border-bottom: 1px solid var(--tc-border) !important;
+    border-radius: 0 !important;
+    padding: 8px 14px !important;
+    width: 100% !important;
+    box-sizing: border-box;
+    font-size: 13px;
+}
+.tcs-search:focus { outline: none; border-bottom-color: var(--tc-orange) !important; box-shadow: none !important; }
+
+.tcs-all-list,
+.tcs-selected-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.tcs-all-list li,
+.tcs-selected-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    font-size: 13px;
+    color: var(--tc-text);
+    border-bottom: 1px solid #f3f4f6;
+    transition: background .15s;
+}
+.tcs-all-list li:hover { background: #fef3e8; }
+.tcs-all-list li.tcs-used { opacity: .45; }
+.tcs-all-list li img,
+.tcs-selected-list li img { width: 36px; height: 36px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
+
+.tcs-item-title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.tcs-add-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: var(--tc-orange);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    font-size: 16px; line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s;
+}
+.tcs-add-btn:hover { background: #182e5b; }
+.tcs-add-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+
+.tcs-drag-handle {
+    cursor: grab;
+    color: var(--tc-muted);
+    flex-shrink: 0;
+}
+.tcs-drag-handle:active { cursor: grabbing; }
+
+.tcs-selected-list li { background: #fff8f3; cursor: default; }
+.tcs-selected-list .ui-sortable-helper { box-shadow: 0 4px 12px rgba(0,0,0,.12); border-radius: 6px; opacity: .95; }
+.tcs-selected-list .ui-sortable-placeholder { background: #fde8d0; border: 2px dashed var(--tc-orange); border-radius: 4px; }
+
+.tcs-remove-item {
+    margin-left: auto;
+    color: #dc2626 !important;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 0 !important;
+}
+.tcs-remove-item .dashicons { font-size: 18px; width: 18px; height: 18px; }
+
+.tcs-empty-msg { padding: 24px 14px; text-align: center; color: var(--tc-muted); font-size: 13px; margin: 0; }
+
+/* ── Submit ── */
+.tcs-submit-row { margin-top: 4px; }

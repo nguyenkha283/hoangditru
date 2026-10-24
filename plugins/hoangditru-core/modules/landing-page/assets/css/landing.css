@@ -1,0 +1,551 @@
+/* ================================================================
+   Landing Page Builder — landing.css  v1.3
+   ================================================================ */
+
+:root {
+    --lpb-orange:     #1e3a73;  /* Giữ tên biến: s3_title_orange/s4_title_orange là khoá meta trong DB, đổi tên sẽ hỏng dữ liệu. Giá trị nay là xanh navy. */
+    --lpb-text:       #000;
+    --lpb-muted:      #6b7280;
+    --lpb-border:     #e5e7eb;
+    --lpb-bg-alt:     #f3f4f6;
+    --lpb-radius:     8px;
+    --lpb-boxed:      1200px;
+    --lpb-py:         4rem;
+    --lpb-transition: 0.25s ease;
+}
+
+#lpb-landing *, #lpb-landing *::before, #lpb-landing *::after { box-sizing: border-box; }
+
+/* [5] Body nền trắng */
+body:has(#lpb-landing) { background: #fff !important; }
+
+/* [2] Boxed — [6] bỏ box-shadow */
+#lpb-landing {
+    max-width: var(--lpb-boxed);
+    margin: 0 auto;
+    background: #fff;
+    overflow: hidden;
+}
+
+.lpb-container { max-width: 100%; padding: 0 2rem; }
+.lpb-section   { padding: var(--lpb-py) 0; }
+.lpb-section__title {
+    text-align: center;
+    margin: 0 0 2.5rem;
+    color: var(--lpb-text);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+/* Menu đè lên hero */
+body:has(#lpb-landing) #header,
+body:has(#lpb-landing) .header-wrapper,
+body:has(#lpb-landing) #main-header {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: transparent !important;
+}
+body:has(#lpb-landing) .header-wrapper.stuck {
+    position: fixed;
+    background: rgba(0,0,0,.85) !important;
+}
+
+/* ================================================================
+   [1] HERO — height 80vh, nằm trong max-width
+   ================================================================ */
+.lpb-hero {
+    position: relative;
+    height: 94vh;          /* [1] chiều cao 94vh */
+    min-height: 360px;     /* sàn tối thiểu */
+    max-height: 800px;     /* trần tối đa */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+.lpb-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, #000000 0%, rgba(0,0,0,.8) 4%, rgba(0,0,0,0) 55%);
+    z-index: 0;
+}
+
+.lpb-hero__overlay {
+    position: absolute;
+    bottom: 5%; left: 0;
+    width: 55%;
+    max-width: 600px;
+    background: #0000007a;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 1;
+}
+
+.lpb-hero__icon {
+    height: 90px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,.4));
+}
+
+.lpb-hero__title {
+    font-size: clamp(1.3rem, 3vw, 1.9rem);
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    line-height: 1.2;
+}
+
+/* ================================================================
+   [2] DESCRIPTION — giữa hero và ưu điểm
+   ================================================================ */
+.lpb-hero-desc {
+    padding: 2rem 0;
+    background: #fff;
+    border-bottom: 1px solid var(--lpb-border);
+}
+
+/* [4] Tiêu đề trang h1 */
+.lpb-hero-desc__title {
+    color: var(--lpb-orange);
+    margin: 0 0 .75rem;
+    line-height: 1.3;
+}
+
+/* [5] Description: justify, bỏ căn giữa, bỏ padding lr, bỏ max-width */
+.lpb-hero-desc__text {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--lpb-text);
+    margin: 0;
+    text-align: justify;
+}
+
+/* ================================================================
+   ƯU ĐIỂM — 2 cột, bg orange, no shadow/hover
+   ================================================================ */
+.lpb-advantages { background: var(--lpb-bg-alt); }
+.lpb-advantages__list {
+    list-style: none; margin: 0; padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+.lpb-advantages__item {
+    background: var(--lpb-orange);
+    border-radius: var(--lpb-radius);
+    padding: 1rem 1.25rem;
+    display: flex; align-items: center; gap: .85rem;
+}
+.lpb-advantages__icon {
+    width: 40px; height: 40px;
+    object-fit: contain; flex-shrink: 0;
+    filter: brightness(0) invert(1);
+}
+.lpb-advantages__text {
+    font-size: 1.25rem; font-weight: 500;
+    color: #fff; line-height: 1.4;
+}
+@media (max-width: 640px) {
+    .lpb-advantages__list { grid-template-columns: 1fr; }
+}
+
+/* ================================================================
+   QUYỀN LỢI — 6/3/1 cột, ảnh 81×80, bg trắng
+   ================================================================ */
+.lpb-benefits__grid {
+    display: flex; flex-wrap: wrap; gap: 20px;
+}
+.lpb-benefits__item {
+    flex: 1 1 calc((100% - 5 * 20px) / 6);
+    min-width: 0;
+    background: #fff;
+    padding: 1em;
+    text-align: center;
+    border: 1px solid var(--lpb-border);
+    border-radius: var(--lpb-radius);
+}
+.lpb-benefits__img-wrap {
+    width: 81px; height: 80px;
+    margin: 0 auto .75rem;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+}
+.lpb-benefits__img-wrap img {
+    max-width: 81px; max-height: 80px;
+    width: auto; height: auto;
+    object-fit: contain; display: block;
+}
+.lpb-benefits__desc {
+    font-size: 1rem; color: var(--lpb-text);
+    margin: 0; line-height: 1.55;
+}
+@media (max-width: 1024px) and (min-width: 641px) {
+    .lpb-benefits__item { flex: 1 1 calc((100% - 2 * 20px) / 3); }
+}
+@media (max-width: 640px) {
+    .lpb-benefits__item { flex: 1 1 100%; }
+}
+
+/* ================================================================
+   ACCORDION — Điều kiện
+   ================================================================ */
+.lpb-conditions { background: var(--lpb-bg-alt); }
+.lpb-accordion {
+    max-width: 860px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: .6rem;
+}
+.lpb-accordion__item {
+    border: 1px solid var(--lpb-border);
+    border-radius: var(--lpb-radius);
+    overflow: hidden; background: #fff;
+}
+.lpb-accordion__trigger {
+    width: 100%; background: none; border: none;
+    padding: .9rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    font-size: .93rem; font-weight: 600; color: var(--lpb-text);
+    cursor: pointer; text-align: left;
+    transition: background var(--lpb-transition), color var(--lpb-transition);
+	margin-bottom: 0;
+}
+.lpb-accordion__trigger:hover { background: var(--lpb-bg-alt); color: var(--lpb-orange); }
+.lpb-accordion__trigger[aria-expanded="true"] { color: var(--lpb-orange); }
+.lpb-accordion__trigger[aria-expanded="true"] .lpb-accordion__arrow { transform: rotate(180deg); }
+.lpb-accordion__arrow { flex-shrink: 0; width: 18px; height: 18px; transition: transform var(--lpb-transition); }
+.lpb-accordion__body { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+.lpb-accordion__body.is-open { max-height: 2000px; }
+.lpb-accordion__content {
+    padding: 0 1.25rem 1.1rem;
+    font-size: 1rem; color: var(--lpb-text); line-height: 1.7;
+}
+.lpb-accordion__content p { margin: 0 0 .5rem; }
+.lpb-accordion__content p:last-child { margin: 0; }
+
+/* ================================================================
+   QUY TRÌNH HỒ SƠ — Timeline
+   ================================================================ */
+
+/* Biến nội bộ cho timeline */
+.lpb-timeline {
+    --node-size: 24px;                  /* tất cả node đều 24×24 */
+    --node-half: 12px;                  /* = node-size / 2, dùng để canh line */
+    --line-w:    2px;
+}
+
+.lpb-process { background: #fff; }
+
+/* ── Desktop / Tablet: ngang ── */
+.lpb-timeline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+}
+
+.lpb-timeline__step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    min-width: 0;
+}
+
+/* Đường ngang — bắt đầu từ giữa node bước hiện tại sang phải */
+.lpb-timeline__line {
+    position: absolute;
+    top: var(--node-half);   /* canh giữa node */
+    left: 50%;
+    width: 100%;
+    height: var(--line-w);
+    background: var(--lpb-orange);
+    z-index: 0;
+}
+
+/* Node wrapper */
+.lpb-timeline__node-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Node: tất cả 24×24 ── */
+.lpb-timeline__node {
+    width: var(--node-size);
+    height: var(--node-size);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Solid: bước đầu & cuối */
+.lpb-timeline__step.is-solid .lpb-timeline__node {
+    background: var(--lpb-orange);
+    border: none;
+}
+
+/* Hollow: các bước giữa — màu nền rgb(255 197 150) */
+.lpb-timeline__step.is-hollow .lpb-timeline__node {
+    background: rgb(255, 197, 150);
+    border: 2px solid var(--lpb-orange);
+}
+
+/* Tick dọc ngắn dưới node (desktop) */
+.lpb-timeline__tick {
+    width: var(--line-w);
+    height: 24px;
+    background: var(--lpb-orange);
+}
+
+.lpb-timeline__label { padding: 0 .4rem; margin-top: .5rem; }
+
+.lpb-timeline__title {
+    font-size: .82rem; font-weight: 600;
+    color: var(--lpb-text); margin: 0 0 .2rem; line-height: 1.4;
+}
+.lpb-timeline__desc {
+    font-size: .76rem; color: var(--lpb-muted);
+    margin: 0; line-height: 1.5;
+}
+
+/* ================================================================
+   Mobile ≤ 768px — vertical, line & node bên trái, text bên phải
+   ================================================================ */
+@media (max-width: 768px) {
+
+    .lpb-timeline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .lpb-timeline__step {
+        flex-direction: row;
+        align-items: flex-start;
+        text-align: left;
+        gap: 1rem;
+        position: relative;
+        min-height: calc(var(--node-size) + 2rem);
+    }
+
+    /* Line dọc: canh giữa node = left 12px, top bắt đầu sau node */
+    .lpb-timeline__line {
+        top: var(--node-size);          /* bắt đầu ngay dưới đáy node */
+        left: var(--node-half);         /* giữa node (12px) */
+        transform: translateX(-50%);    /* trừ đi nửa độ dày line */
+        width: var(--line-w);
+        height: calc(100% - var(--node-size) + 2rem);
+        background: var(--lpb-orange);
+    }
+
+    /* Bước cuối không cần line */
+    .lpb-timeline__step.is-last .lpb-timeline__line {
+        display: none;
+    }
+
+    .lpb-timeline__node-wrap {
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+        width: var(--node-size);        /* giữ cột node cố định */
+    }
+
+    /* Ẩn tick dọc trên mobile (line đã thay thế) */
+    .lpb-timeline__tick { display: none; }
+
+    .lpb-timeline__label {
+        flex: 1;
+        padding: 0;
+        margin-top: 2px;
+        padding-bottom: 2rem;
+    }
+}
+
+
+/* ================================================================
+   DANH MỤC DỰ ÁN — BĐS grid
+   ================================================================ */
+.lpb-du-an { background: var(--lpb-bg-alt); }
+
+.lpb-du-an__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+}
+
+.lpb-du-an__item {
+    background: #fff;
+    border-radius: var(--lpb-radius);
+    overflow: hidden;
+    border: 1px solid var(--lpb-border);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow var(--lpb-transition), transform var(--lpb-transition);
+}
+
+.lpb-du-an__item:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+    transform: translateY(-3px);
+}
+
+.lpb-du-an__thumb-link { display: block; overflow: hidden; }
+
+.lpb-du-an__thumb {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.lpb-du-an__item:hover .lpb-du-an__thumb { transform: scale(1.04); }
+
+.lpb-du-an__thumb--placeholder {
+    height: 200px;
+    background: var(--lpb-bg-alt);
+}
+
+.lpb-du-an__body {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.lpb-du-an__name {
+    font-size: .95rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.lpb-du-an__name a { color: var(--lpb-text); text-decoration: none; }
+.lpb-du-an__name a:hover { color: var(--lpb-orange); }
+
+.lpb-du-an__address,
+.lpb-du-an__price {
+    font-size: 1rem;
+    color: var(--lpb-text);
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: .3rem;
+    line-height: 1.45;
+}
+
+.lpb-du-an__price {
+    color: var(--lpb-orange);
+    font-weight: 600;
+    font-size: .85rem;
+}
+
+.lpb-du-an__icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    fill: currentColor;
+    margin-top: 6px;
+}
+
+.lpb-du-an__footer { text-align: center; }
+
+.lpb-du-an__view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .65rem 1.75rem;
+    border: 2px solid var(--lpb-orange);
+    border-radius: 99px;
+    color: var(--lpb-orange);
+    font-size: .9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--lpb-transition), color var(--lpb-transition);
+}
+
+.lpb-du-an__view-all:hover { background: var(--lpb-orange); color: #fff; }
+
+.lpb-du-an__view-all svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+@media (max-width: 1024px) and (min-width: 641px) {
+    .lpb-du-an__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+    .lpb-du-an__grid { grid-template-columns: 1fr; }
+}
+
+/* ================================================================
+   TIN TỨC
+   ================================================================ */
+.lpb-news { background: var(--lpb-bg-alt); }
+.lpb-news__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+.lpb-news__item {
+    background: #fff; border-radius: var(--lpb-radius);
+    overflow: hidden; border: 1px solid var(--lpb-border);
+    transition: box-shadow var(--lpb-transition), transform var(--lpb-transition);
+}
+.lpb-news__item:hover { box-shadow: 0 6px 20px rgba(0,0,0,.1); transform: translateY(-3px); }
+.lpb-news__thumb img { width: 100%; height: 190px; object-fit: cover; display: block; }
+.lpb-news__body  { padding: 1rem; }
+.lpb-news__date  { font-size: .75rem; color: var(--lpb-muted); margin: 0 0 .35rem; }
+.lpb-news__title { font-size: .92rem; font-weight: 600; margin: 0 0 .35rem; line-height: 1.4; }
+.lpb-news__title a { color: var(--lpb-text); text-decoration: none; }
+.lpb-news__title a:hover { color: var(--lpb-orange); }
+.lpb-news__excerpt { font-size: .8rem; color: var(--lpb-muted); margin: 0; line-height: 1.6; }
+
+/* ================================================================
+   [4] FAQs — tiêu đề "FAQs", không padding section
+   ================================================================ */
+.lpb-faqs {
+    border-top: solid 1px var(--lpb-bg-alt);
+	background: #fff;
+    padding: 2em;         /* [4] bỏ padding section */
+}
+.lpb-faqs .lpb-container {
+    padding: 80px 0px;
+}
+.lpb-faqs__content {
+    margin: 0 auto;
+    color: var(--lpb-text);
+    line-height: 1.8;
+}
+.lpb-faqs__content h1,
+.lpb-faqs__content h2,
+.lpb-faqs__content h3 { font-weight: 500; color: var(--lpb-text); margin: 1.5rem 0 .5rem; }
+.lpb-faqs__content h2 { font-size: 1.25rem; color: var(--lpb-text); }
+.lpb-faqs__content h3 { font-size: 1rem; color: var(--lpb-orange); }
+.lpb-faqs__content p  { margin: 0 0 .85rem; }
+.lpb-faqs__content ul,
+.lpb-faqs__content ol { padding-left: 1.5rem; margin: 0 0 .85rem; }
+.lpb-faqs__content li { margin-bottom: .3rem; }
+
+/* ================================================================
+   SCROLL ANIMATION
+   ================================================================ */
+.lpb-animate { opacity: 0; transform: translateY(18px); transition: opacity .5s ease, transform .5s ease; }
+.lpb-animate.is-visible { opacity: 1; transform: translateY(0); }

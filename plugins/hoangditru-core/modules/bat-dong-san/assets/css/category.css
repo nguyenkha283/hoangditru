@@ -1,0 +1,189 @@
+/* =========================================================
+   BẤT ĐỘNG SẢN – category.css  v1.3
+   Dùng cho: taxonomy archive, CPT archive /bat-dong-san
+   ========================================================= */
+:root {
+    --bds-orange:     #1e3a73;  /* Giữ tên biến: s3_title_orange/s4_title_orange là khoá meta trong DB, đổi tên sẽ hỏng dữ liệu. Giá trị nay là xanh navy. */
+    --bds-text:       #111;
+    --bds-muted:      #6b7280;
+    --bds-border:     #e5e7eb;
+    --bds-bg-alt:     #f3f4f6;
+    --bds-radius:     8px;
+    --bds-transition: 0.25s ease;
+}
+
+/* box-sizing scoped — không đè theme */
+.bds-cat-wrap *,
+.bds-cat-wrap *::before,
+.bds-cat-wrap *::after,
+.bds-arc-wrap *,
+.bds-arc-wrap *::before,
+.bds-arc-wrap *::after { box-sizing: border-box; }
+
+/* =====================================================
+   TAXONOMY CATEGORY ARCHIVE (/danh-muc-bds/ten)
+   ===================================================== */
+.bds-cat-header    { max-width: 1200px; margin: 0 auto; padding: 32px 24px 0; }
+.bds-cat-title     { font-size: 26px; font-weight: 700; color: var(--bds-text); margin: 0 0 8px; }
+.bds-cat-desc      { font-size: 15px; color: var(--bds-muted); margin: 0 0 8px; }
+.bds-cat-container { max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px; }
+.bds-cat-empty     { grid-column: 1 / -1; text-align: center; color: var(--bds-muted); padding: 60px 0; font-size: 15px; }
+
+/* =====================================================
+   CPT ARCHIVE (/bat-dong-san)
+   ===================================================== */
+.bds-arc-container { max-width: 1200px; margin: 0 auto; padding: 32px 24px 60px; }
+
+.bds-arc-title {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--bds-text);
+    margin: 0 0 12px;
+}
+
+/* Divider dưới h1 */
+.bds-arc-divider {
+    border: none;
+    border-bottom: 1px solid #1c1c1c;
+    margin: 0 0 36px;
+}
+
+.bds-arc-empty { color: var(--bds-muted); font-size: 15px; }
+
+.bds-arc-section { margin-bottom: 52px; }
+
+.bds-arc-section__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+}
+.bds-arc-section__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--bds-text);
+    margin: 0;
+}
+.bds-arc-section__viewall {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--bds-orange);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: opacity var(--bds-transition);
+    flex-shrink: 0;
+}
+.bds-arc-section__viewall:hover { opacity: .75; }
+.bds-arc-section__viewall svg { width: 16px; height: 16px; }
+
+/* =====================================================
+   CARD GRID — shared
+   ===================================================== */
+.bds-du-an__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+/* =====================================================
+   CARD ITEM — shared
+   ===================================================== */
+.bds-du-an__item {
+    background: #fff;
+    border-radius: var(--bds-radius);
+    overflow: hidden;
+    border: 1px solid var(--bds-border);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow var(--bds-transition), transform var(--bds-transition);
+}
+.bds-du-an__item:hover { box-shadow: 0 6px 20px rgba(0,0,0,.1); transform: translateY(-3px); }
+
+/* Thumb wrap — position relative để chứa tag */
+.bds-du-an__thumb-link { display: block; overflow: hidden; position: relative; }
+
+.bds-du-an__thumb {
+    width: 100%; height: 200px; object-fit: cover; display: block;
+    background: var(--bds-bg-alt);
+    opacity: 0;
+    transition: opacity .4s ease, transform .4s ease;
+}
+.bds-du-an__thumb.loaded              { opacity: 1; }
+.bds-du-an__item:hover .bds-du-an__thumb { transform: scale(1.04); }
+.bds-du-an__thumb--placeholder        { height: 200px; background: var(--bds-bg-alt); }
+
+/* Tag loại hình nổi trên ảnh */
+.bds-du-an__tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, .55);
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    line-height: 1.5;
+    pointer-events: none;
+}
+
+/* Card body */
+.bds-du-an__body { padding: 1rem; flex: 1; display: flex; flex-direction: column; gap: .4rem; }
+.bds-du-an__name { font-size: .95rem; font-weight: 700; margin: 0; line-height: 1.35; }
+.bds-du-an__name a { color: var(--bds-text); text-decoration: none; }
+.bds-du-an__name a:hover { color: var(--bds-orange); }
+.bds-du-an__address {
+    font-size: 1rem; color: var(--bds-text); margin: 0;
+    display: flex; align-items: flex-start; gap: .3rem; line-height: 1.45;
+}
+.bds-du-an__price {
+    font-size: .92rem; color: var(--bds-orange); font-weight: 700; margin: 0;
+    display: flex; align-items: flex-start; gap: .3rem; margin-top: auto; padding-top: 6px;
+}
+.bds-du-an__icon { width: 14px; height: 14px; flex-shrink: 0; fill: currentColor; margin-top: 7px; }
+
+/* =====================================================
+   LOAD MORE (taxonomy archive only)
+   ===================================================== */
+.bds-cat-loadmore-wrap { text-align: center; margin-top: .5rem; }
+.bds-loadmore-btn {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .7rem 2rem; border: 2px solid var(--bds-orange); border-radius: 99px;
+    background: transparent; color: var(--bds-orange); font-size: .9rem; font-weight: 600;
+    cursor: pointer; transition: background var(--bds-transition), color var(--bds-transition);
+}
+.bds-loadmore-btn:hover   { background: var(--bds-orange); color: #fff; }
+.bds-loadmore-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* =====================================================
+   SKELETON
+   ===================================================== */
+.bds-skeleton { background: #fff; border-radius: var(--bds-radius); border: 1px solid var(--bds-border); overflow: hidden; }
+.bds-skeleton__thumb {
+    width: 100%; height: 200px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%; animation: bds-shimmer 1.4s infinite;
+}
+.bds-skeleton__body { padding: 1rem; }
+.bds-skeleton__line {
+    height: 12px; border-radius: 6px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%; animation: bds-shimmer 1.4s infinite; margin-bottom: 10px;
+}
+.bds-skeleton__line--short { width: 60%; }
+@keyframes bds-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+@media (max-width: 1024px) { .bds-du-an__grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .bds-du-an__grid { grid-template-columns: repeat(2, 1fr); } .bds-cat-title { font-size: 22px; } .bds-arc-title { font-size: 1.6em; } }
+@media (max-width: 480px)  { .bds-du-an__grid { grid-template-columns: 1fr; } }

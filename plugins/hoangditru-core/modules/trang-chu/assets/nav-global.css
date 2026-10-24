@@ -1,0 +1,457 @@
+/* ═══════════════════════════════════════════════════════════════
+   NAV GLOBAL — nav-global.css  v1.3
+   Load trên MỌI trang của website.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+    --tc-orange: #1e3a73;  /* Giữ tên biến: s3_title_orange/s4_title_orange là khoá meta trong DB, đổi tên sẽ hỏng dữ liệu. Giá trị nay là xanh navy. */
+    --tc-text:   #333333;
+    --tc-nav-h:  68px;
+    --tc-boxed:  1200px;
+}
+
+/* ── Ẩn toàn bộ header Flatsome trên mobile ── */
+@media (max-width: 480px) {
+    #header,
+    #top-bar,
+    .header-wrapper,
+    #wide-nav,
+    .header-bottom,
+    .header-main,
+    .header-top {
+        display: none !important;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   NAV BAR WRAPPER
+   ════════════════════════════════════════════════════════════════ */
+.tc-nav-bar {
+    width: 100%;
+    background: #fff;
+    border-bottom: 3px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    z-index: 9999;
+    /* Desktop/tablet: sticky */
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+}
+.admin-bar .tc-nav-bar { top: 32px; }
+
+/* ════════════════════════════════════════════════════════════════
+   NAV INNER (flex container)
+   ════════════════════════════════════════════════════════════════ */
+.tc-nav__inner {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    height: var(--tc-nav-h);
+    max-width: var(--tc-boxed);
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MENU LIST (desktop)
+   ════════════════════════════════════════════════════════════════ */
+.tc-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    height: 100%;
+}
+.tc-nav__list > li {
+    position: relative;
+    height: 100%;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    margin: 0;
+}
+.tc-nav__list > li > a {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    height: 100%;
+    padding: 0 18px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tc-text);
+    text-decoration: none;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+    -webkit-box-shadow: inset 0 -3px 0 transparent;
+    box-shadow: inset 0 -3px 0 transparent;
+    -webkit-transition: color .2s, -webkit-box-shadow .2s;
+    transition: color .2s, box-shadow .2s;
+}
+.tc-nav__list > li > a:hover {
+    color: var(--tc-orange);
+    -webkit-box-shadow: inset 0 -3px 0 rgba(30,58,115,.35);
+    box-shadow: inset 0 -3px 0 rgba(30,58,115,.35);
+}
+.tc-nav__list > li.current-menu-item > a,
+.tc-nav__list > li.current-menu-ancestor > a {
+    color: var(--tc-orange);
+    -webkit-box-shadow: inset 0 -3px 0 var(--tc-orange);
+    box-shadow: inset 0 -3px 0 var(--tc-orange);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DROPDOWN (desktop)
+   ════════════════════════════════════════════════════════════════ */
+.tc-nav__list .sub-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background: #fff;
+    border-top: 3px solid var(--tc-orange);
+    -webkit-box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    border-radius: 0 0 8px 8px;
+    padding: 8px 0;
+    list-style: none;
+    margin: 0;
+    z-index: 1000;
+}
+.tc-nav__list > li:hover > .sub-menu { display: block; }
+.tc-nav__list .sub-menu li a {
+    display: block;
+    padding: 9px 20px;
+    font-weight: 500;
+    color: var(--tc-text);
+    text-decoration: none;
+    white-space: nowrap;
+    -webkit-transition: background .15s, color .15s, padding-left .15s;
+    transition: background .15s, color .15s, padding-left .15s;
+}
+.tc-nav__list .sub-menu li a:hover {
+    background: #fff8f3;
+    color: var(--tc-orange);
+    padding-left: 26px;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HOTLINE BUTTON
+   ════════════════════════════════════════════════════════════════ */
+.tc-nav__hotline {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    gap: 7px;
+    margin-left: 16px;
+    padding: 7px 16px;
+    background: var(--tc-orange);
+    color: #fff !important;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    -webkit-transition: background .2s;
+    transition: background .2s;
+}
+.tc-nav__hotline:hover { background: #182e5b; }
+.tc-nav__hotline-icon {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+.tc-nav__hotline-icon svg { width: 16px; height: 16px; }
+
+/* ════════════════════════════════════════════════════════════════
+   HAMBURGER
+   Desktop: ẩn. Mobile: hiển thị (dùng div thay button để tránh
+   iOS Safari override default button styles)
+   ════════════════════════════════════════════════════════════════ */
+.tc-nav__toggle {
+    display: none; /* ẩn mặc định trên desktop */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    box-sizing: border-box;
+}
+.tc-nav__toggle:hover { background: rgba(0,0,0,.06); }
+.tc-nav__toggle span {
+    display: block;
+    height: 2px;
+    background: var(--tc-text);
+    border-radius: 2px;
+    pointer-events: none;
+    -webkit-transition: -webkit-transform .25s, opacity .2s;
+    transition: transform .25s, opacity .2s;
+}
+.tc-nav__toggle[aria-expanded="true"] span:nth-child(1) {
+    -webkit-transform: translateY(7px) rotate(45deg);
+    transform: translateY(7px) rotate(45deg);
+}
+.tc-nav__toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.tc-nav__toggle[aria-expanded="true"] span:nth-child(3) {
+    -webkit-transform: translateY(-7px) rotate(-45deg);
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SENTINEL
+   ════════════════════════════════════════════════════════════════ */
+#tc-nav-sentinel,
+#tc-nav-sentinel-global {
+    display: block;
+    height: 0;
+    -webkit-transition: height .2s;
+    transition: height .2s;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MOBILE  ≤ 480px
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+    /* Nav: fixed ở DƯỚI CÙNG */
+    .tc-nav-bar {
+        position: fixed;
+        bottom: 0;
+        top: auto;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        height: var(--tc-nav-h);
+        border-bottom: none;
+        border-top: 3px solid #e5e7eb;
+        box-shadow: 0 -2px 8px rgba(0,0,0,.08);
+        /* Safe area iPhone (home indicator) */
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .admin-bar .tc-nav-bar { bottom: 0; top: auto; }
+
+    /* Sentinel: 0 vì nav bottom không che nội dung trên */
+    #tc-nav-sentinel,
+    #tc-nav-sentinel-global { height: 0 !important; }
+
+    /* Padding bottom toàn trang tránh nav che nội dung cuối */
+    body { padding-bottom: calc(var(--tc-nav-h) + env(safe-area-inset-bottom, 0px)) !important; }
+
+    /* Bố cục: hamburger trái | hotline phải, ẩn menu list */
+    .tc-nav__inner {
+        -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+        padding: 0 12px;
+        height: var(--tc-nav-h);
+    }
+
+    /* Ẩn menu list — hiện khi toggle, bung xuống từ bottom */
+    .tc-nav__list {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        top: auto;
+        left: 0;
+        right: 0;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-align: stretch;
+        -ms-flex-align: stretch;
+        align-items: stretch;
+        height: auto;
+        max-height: 70vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        background: #fff;
+        border-top: 3px solid var(--tc-orange);
+        border-bottom: none;
+        -webkit-box-shadow: 0 -8px 24px rgba(0,0,0,.15);
+        box-shadow: 0 -8px 24px rgba(0,0,0,.15);
+        z-index: 9998;
+        padding-bottom: env(safe-area-inset-bottom, 12px);
+    }
+    .tc-nav__list.tc-nav--open {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+    }
+
+    /* Item menu gọn */
+    .tc-nav__list > li {
+        height: auto;
+        display: block;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .tc-nav__list > li > a {
+        height: auto;
+        padding: 12px 16px;
+        font-size: 14px;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+    }
+
+    /* Sub-menu toggle arrow */
+    .tc-nav__list > li.menu-item-has-children > a::after {
+        content: '+';
+        font-size: 18px;
+        font-weight: 400;
+        color: var(--tc-orange);
+        margin-left: 8px;
+        -ms-flex-negative: 0;
+        flex-shrink: 0;
+        -webkit-transition: -webkit-transform .2s;
+        transition: transform .2s;
+        display: inline-block;
+        width: 24px;
+        text-align: center;
+    }
+    .tc-nav__list > li.tc-sub-open > a::after {
+        content: '−';
+    }
+
+    /* Sub-menu */
+    .tc-nav__list .sub-menu {
+        display: none;
+        position: static;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        border-top: none;
+        border-radius: 0;
+        border-left: 3px solid var(--tc-orange);
+        margin: 0 0 0 16px;
+        padding: 4px 0;
+        background: #fafafa;
+    }
+    .tc-nav__list > li.tc-sub-open > .sub-menu { display: block; }
+    .tc-nav__list .sub-menu li a {
+        padding: 10px 16px;
+        font-size: 13px;
+        color: #555;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .tc-nav__list .sub-menu li a:hover {
+        padding-left: 20px;
+        color: var(--tc-orange);
+        background: #fff8f3;
+    }
+
+    /* Hamburger: HIỆN trên mobile */
+    .tc-nav__toggle {
+        display: -webkit-box !important;
+        display: -ms-flexbox !important;
+        display: flex !important;
+    }
+
+    /* Hotline: đầy đủ icon + số */
+    .tc-nav__hotline {
+        margin-left: auto;
+        padding: 8px 14px;
+        border-radius: 24px;
+        font-size: 13px;
+    }
+    .tc-nav__hotline-number { display: inline; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TABLET  481 – 768px
+   ════════════════════════════════════════════════════════════════ */
+@media (min-width: 481px) and (max-width: 768px) {
+    .tc-nav__toggle { display: -webkit-box !important; display: -ms-flexbox !important; display: flex !important; }
+
+    .tc-nav__list {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: auto;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-align: stretch;
+        -ms-flex-align: stretch;
+        align-items: stretch;
+        background: #fff;
+        border-top: 1px solid rgba(0,0,0,.08);
+        -webkit-box-shadow: 0 8px 20px rgba(0,0,0,.14);
+        box-shadow: 0 8px 20px rgba(0,0,0,.14);
+        z-index: 1001;
+        padding: 8px 0 16px;
+    }
+    .tc-nav__list.tc-nav--open { display: -webkit-box; display: -ms-flexbox; display: flex; }
+
+    .tc-nav__list > li { height: auto; display: block; }
+    .tc-nav__list > li > a {
+        height: auto; padding: 12px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+    .tc-nav__list .sub-menu {
+        position: static; -webkit-box-shadow: none; box-shadow: none;
+        border-top: none; border-left: 3px solid var(--tc-orange);
+        border-radius: 0; margin-left: 20px; padding: 0; display: none;
+    }
+    .tc-nav__list > li.tc-sub-open > .sub-menu { display: block; }
+
+    /* Hotline: icon only */
+    .tc-nav__hotline-number { display: none; }
+    .tc-nav__hotline { padding: 8px 10px; border-radius: 50%; margin-left: 8px; }
+}
