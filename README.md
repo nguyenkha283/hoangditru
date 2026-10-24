@@ -69,7 +69,7 @@ Những thứ này đang nằm trong database. Đổi là mất dữ liệu đan
 | option | `cim_contact_info`, `smart_breadcrumb_options`, `trang_chu_settings`, `hdt_phan_quyen_version` |
 | capability | `hdt_manage_site_content` — gác trang Trang chủ + Thông tin liên hệ |
 | page template | `tct-trang-chu` và `landing-page-plugin/page-templates/template-landing.php` |
-| shortcode | 16 cái: `cim_*`, `youtube_embed` |
+| shortcode | 16 cái: `cim_*`, `youtube_embed` — riêng `[cim_signature]` còn đăng ký nhưng không in gì: tính năng chữ ký đã gỡ, bỏ đăng ký thì bài cũ lộ nguyên chuỗi shortcode |
 | post meta | `_bds_*`, `s3_title_orange`, `s4_title_orange`, … |
 | post meta (plugin WebP) | `_wsl_webp` — danh sách file đã có WebP của từng ảnh |
 | tên file WebP | `ảnh.jpg.webp` nằm cạnh `ảnh.jpg` trong `uploads/` — đổi quy ước là mọi file đã chuyển thành rác |

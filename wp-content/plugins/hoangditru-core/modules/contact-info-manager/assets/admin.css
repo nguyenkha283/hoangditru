@@ -284,20 +284,6 @@
 .cim-btn-fb { background: var(--cim-fb); }
 .cim-btn-tt { background: #555; }
 
-/* ── Signature / TinyMCE field ── */
-.cim-field .wp-editor-container {
-    border: 1px solid var(--cim-border);
-    border-radius: 6px;
-    overflow: hidden;
-}
-.cim-field .wp-editor-tabs {
-    background: var(--cim-code-bg);
-    border-bottom: 1px solid var(--cim-border);
-}
-.cim-field #wp-cim_signature-editor-tools {
-    background: var(--cim-code-bg);
-}
-
 /* ── Chi nhánh động ── */
 .cim-branch-row {
     display: flex;
