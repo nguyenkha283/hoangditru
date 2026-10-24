@@ -53,3 +53,7 @@ debug.log
 Thumbs.db
 desktop.ini
 node_modules/
+
+# Gói file đóng sẵn để upload tay — là bản sao của wp-content, không version
+hoangditru-*-upload/
+hoangditru-*-upload.zip
