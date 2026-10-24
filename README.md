@@ -523,12 +523,19 @@ cho tới khi chốt phương án chuyển domain.
 | | |
 |---|---|
 | Màu nhấn | `#1e3a73` |
-| Font body | Roboto |
-| Font tiêu đề | Roboto Condensed |
+| Font body | UTMAptima — file local `assets/fonts/UTMAptima.woff`, khai bằng `@font-face` |
+| Font tiêu đề | Phudu — Google Fonts |
 
-Google Fonts nạp bằng `wp_enqueue_style` trong `functions.php` với dải
-`wght@400..800` — cả hai họ là variable font nên một dải trả về một file cho mỗi tập ký tự, thay vì
-một file cho mỗi weight. Site dùng weight 400, 500, 600, 700, 800.
+Phudu nạp bằng `wp_enqueue_style` trong `functions.php` (không `@import`: `@import` chặn render vì
+trình duyệt phải tải xong `style.css` mới biết có font cần tải, còn thẻ `<link>` tải song song).
+Dải `wght@300..900` vì Phudu là variable font: một dải trả về một file cho mỗi tập ký tự, thay vì
+một file cho mỗi weight. Kèm `preconnect` tới `fonts.gstatic.com` qua `wp_resource_hints`.
+
+UTMAptima **chỉ có một file, weight normal**. Chữ in đậm trong body là trình duyệt tự làm dày
+(synthetic bold), không phải file riêng. Có file bold thật thì thêm một `@font-face` nữa với
+`font-weight: 700`.
+
+Mọi CSS của plugin đều dùng `font-family: inherit`, nên đổi font chỉ phải sửa ở theme.
 
 Màu nhấn nằm ở bốn nơi, đổi màu phải đụng cả bốn:
 
