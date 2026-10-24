@@ -6,10 +6,13 @@ lên đúng `wp-content/themes` và `wp-content/plugins`, WordPress thấy ở v
 loader hay symlink.
 
 ```
-push main ──▶ GitHub Actions
+pull request ──▶ GitHub Actions
+                 └─ lint          php -l + 4 test script; CHỈ kiểm tra, không deploy
+
+push main ─────▶ GitHub Actions
                  ├─ lint          php -l mọi file; lỗi cú pháp thì DỪNG, không deploy
                  ├─ ftp           FTPS → /public_html/wp-content/
-                 └─ ftp           FTPS → /public_html/wp-content/
+                 └─ deploy-branch dựng nhánh deploy cho hPanel Git
 ```
 
 **Không cần theme Flatsome nữa.** Site chạy bằng theme `hoangditru` độc lập.
@@ -321,6 +324,10 @@ git add -A && git commit -m "..." && git push
 
 Actions lint rồi đẩy FTPS. Lỗi cú pháp PHP → job `lint` đỏ, job `ftp` **không chạy**, server giữ
 nguyên bản cũ.
+
+Làm qua pull request thì job `lint` chạy ngay trên PR, còn `ftp` và `deploy-branch` tự loại mình ra
+(`if: github.event_name != 'pull_request'`). Nên **CI xanh trên PR không có nghĩa là site đã cập
+nhật** — chỉ push/merge vào `main` mới deploy.
 
 Thêm theme/plugin tự viết mới → thêm một dòng vào [`deploy/manifest.txt`](deploy/manifest.txt) rồi
 push. (`manifest.txt` dùng cho bước lint; job `ftp` đẩy cả `wp-content/`.)
