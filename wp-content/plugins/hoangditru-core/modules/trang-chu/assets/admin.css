@@ -107,8 +107,14 @@
 
 .tcs-picker-cols { display: grid; grid-template-columns: 1fr 1fr; }
 
+/* minmax(0, …) và min-width: 0: cột "1fr" mặc định không hẹp hơn nội dung
+   không xuống dòng, nên tiêu đề dài kéo giãn cột vượt khung và nút × bị
+   .tcs-picker (overflow: hidden) cắt mất. Giữ cột đúng nửa khung để tiêu đề
+   rút gọn bằng dấu … thay vào đó. */
+.tcs-picker-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
 .tcs-picker-all,
-.tcs-picker-selected { display: flex; flex-direction: column; }
+.tcs-picker-selected { display: flex; flex-direction: column; min-width: 0; }
 
 .tcs-picker-all { border-right: 1px solid var(--tc-border); }
 
