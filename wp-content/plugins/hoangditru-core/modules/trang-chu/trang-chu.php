@@ -225,7 +225,10 @@ function tc_empty_header_menu_output( $nav_html, $args ) {
 
 add_action( 'admin_menu', 'tc_admin_menu' );
 function tc_admin_menu() {
-    add_menu_page( 'Cài Đặt Trang Chủ', 'Trang Chủ', 'manage_options',
+    // Cap riêng, không phải manage_options: Biên tập viên vào được trang này mà
+    // không mở theo cả Cài đặt / Plugin / Người dùng.
+    // Xem modules/phan-quyen/phan-quyen.php.
+    add_menu_page( 'Cài Đặt Trang Chủ', 'Trang Chủ', HDTQ_CAP_SITE_SETTINGS,
         'trang-chu-settings', 'tc_admin_page', 'dashicons-home', 25 );
 }
 
@@ -270,7 +273,7 @@ function tc_get( $key ) {
 add_action( 'admin_init', 'tc_save_settings' );
 function tc_save_settings() {
     if ( ! isset($_POST['tc_nonce']) || ! wp_verify_nonce($_POST['tc_nonce'],'tc_save') ) return;
-    if ( ! current_user_can('manage_options') ) return;
+    if ( ! current_user_can( HDTQ_CAP_SITE_SETTINGS ) ) return;
     $data = [
         's3_title_black'  => sanitize_text_field($_POST['s3_title_black']  ?? ''),
         's3_title_orange' => sanitize_text_field($_POST['s3_title_orange'] ?? ''),

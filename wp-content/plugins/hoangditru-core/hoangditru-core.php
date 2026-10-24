@@ -19,6 +19,7 @@
  *   post type      bat-dong-san, citizenship_invest, golden_visa
  *   taxonomy       bds_category, golden_visa_category
  *   option         cim_contact_info, smart_breadcrumb_options, trang_chu_settings
+ *   capability     hdt_manage_site_content  (gác trang Trang chủ + Thông tin liên hệ)
  *   page template  tct-trang-chu
  *                  landing-page-plugin/page-templates/template-landing.php
  *   16 shortcode   cim_*, youtube_embed
@@ -45,13 +46,17 @@ define( 'HDTC_URL', plugin_dir_url( __FILE__ ) );
 /**
  * Các module, nạp theo thứ tự này.
  *
- * contact-info-manager đứng đầu vì trang-chu và cim-footer đọc dữ liệu liên hệ
- * của nó. Thực tế việc đọc diễn ra trong hook nên thứ tự không bắt buộc, nhưng
- * để vậy cho dễ hiểu.
+ * phan-quyen đứng đầu vì nó định nghĩa hằng HDTQ_CAP_SITE_SETTINGS mà
+ * contact-info-manager và trang-chu dùng để gác trang cài đặt của chúng.
+ *
+ * contact-info-manager đứng trước trang-chu và cim-footer vì hai cái đó đọc dữ
+ * liệu liên hệ của nó. Thực tế việc đọc diễn ra trong hook nên thứ tự không
+ * bắt buộc, nhưng để vậy cho dễ hiểu.
  *
  * @var array<string,string> thư mục module => file chính
  */
 const HDTC_MODULES = array(
+	'phan-quyen'             => 'phan-quyen.php',
 	'contact-info-manager'   => 'contact-info-manager.php',
 	'cim-footer'             => 'cim-footer.php',
 	'trang-chu'              => 'trang-chu.php',
@@ -142,6 +147,13 @@ function hdtc_activate() {
 
 	if ( defined( 'CIM_OPTION_KEY' ) && function_exists( 'cim_default_data' ) && ! get_option( CIM_OPTION_KEY ) ) {
 		add_option( CIM_OPTION_KEY, cim_default_data() );
+	}
+
+	// Quyền của role Biên tập viên. Hook 'init' của module cũng tự chạy việc
+	// này, nhưng làm ngay lúc kích hoạt thì quyền đúng từ request đầu tiên.
+	if ( function_exists( 'hdtq_sync_role' ) ) {
+		hdtq_sync_role();
+		update_option( HDTQ_SYNC_OPTION, HDTQ_VERSION );
 	}
 
 	flush_rewrite_rules();

@@ -9,7 +9,7 @@
  * WordPress chạy được nên đây là cách duy nhất kiểm những thứ đó.
  *
  * Cách làm: khai báo sẵn các hàm WordPress mà module gọi ở phạm vi file dưới
- * dạng hàm rỗng, rồi require file chính của plugin và đếm xem 8 module có nạp
+ * dạng hàm rỗng, rồi require file chính của plugin và đếm xem các module có nạp
  * đủ không.
  *
  * Giới hạn: chỉ chứng minh plugin NẠP được. Không chứng minh nó CHẠY đúng —
@@ -126,6 +126,7 @@ if ( ! defined( 'HDTC_VERSION' ) ) {
 
 // Mỗi module phải thật sự được nạp — nhận biết qua hàm đặc trưng của nó.
 $expect = array(
+	'phan-quyen'             => 'hdtq_sync_role',
 	'contact-info-manager'   => 'cim_activate',
 	'cim-footer'             => 'cimf_enqueue',
 	'trang-chu'              => 'tc_register_template',
@@ -171,4 +172,4 @@ if ( $errors ) {
 	exit( 1 );
 }
 
-echo "\nOK — plugin lõi nạp được, đủ 8 module.\n";
+printf( "\nOK — plugin lõi nạp được, đủ %d module.\n", count( $expect ) );
