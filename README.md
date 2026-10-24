@@ -30,10 +30,12 @@ push main ──▶ GitHub Actions
 | `category.php`, `single.php` | giữ nguyên từ bản cũ, không sửa |
 | `template-parts/content-card.php` | thẻ bài dùng chung |
 
-**Plugin lõi `hoangditru-core`** — 8 plugin cũ gộp thành một, mỗi cái thành một module
+**Plugin lõi `hoangditru-core`** — 8 plugin cũ gộp thành một, mỗi cái thành một module, cộng
+module `phan-quyen` viết mới
 
 | Module | Vai trò đáng chú ý |
 |---|---|
+| `phan-quyen` | **giới hạn role Biên tập viên** còn 8 mục nội dung — xem bên dưới |
 | `trang-chu` | **dựng thanh nav của toàn site** + template trang chủ |
 | `cim-footer` | **dựng footer của toàn site** |
 | `bat-dong-san` | CPT bất động sản, slider + lightbox riêng (slick từ CDN) |
@@ -55,7 +57,8 @@ Những thứ này đang nằm trong database. Đổi là mất dữ liệu đan
 |---|---|
 | post type | `bat-dong-san`, `citizenship_invest`, `golden_visa` |
 | taxonomy | `bds_category`, `golden_visa_category` |
-| option | `cim_contact_info`, `smart_breadcrumb_options`, `trang_chu_settings` |
+| option | `cim_contact_info`, `smart_breadcrumb_options`, `trang_chu_settings`, `hdt_phan_quyen_version` |
+| capability | `hdt_manage_site_content` — gác trang Trang chủ + Thông tin liên hệ |
 | page template | `tct-trang-chu` và `landing-page-plugin/page-templates/template-landing.php` |
 | shortcode | 16 cái: `cim_*`, `youtube_embed` |
 | post meta | `_bds_*`, `s3_title_orange`, `s4_title_orange`, … |
@@ -71,8 +74,76 @@ plugin cũ còn bật thì nó **không nạp gì cả** và hiện thông báo 
 redeclare function" và trắng trang.
 
 [`scripts/plugin-load.test.php`](scripts/plugin-load.test.php) nạp thật plugin với WordPress giả
-lập và kiểm đủ 8 module + các shortcode quan trọng. `php -l` chỉ kiểm cú pháp từng file, không bắt
+lập và kiểm đủ 9 module + các shortcode quan trọng. `php -l` chỉ kiểm cú pháp từng file, không bắt
 được require sai đường dẫn hay trùng tên hàm. Test này chạy trong CI trước mỗi lần deploy.
+
+## Quyền của role Biên tập viên
+
+Module `phan-quyen` đặt lại capabilities của role `editor` (WordPress tiếng Việt gọi là **Biên tập
+viên**). Áp dụng ngay cho mọi tài khoản đang mang role đó, không phải gán lại role cho từng người.
+
+**Được thêm / sửa / xoá nội dung của 8 mục:**
+
+| Mục | Màn hình |
+|---|---|
+| Bài viết | `edit.php`, kèm Danh mục và Thẻ |
+| Trang | `edit.php?post_type=page` |
+| Media | `upload.php`, `media-new.php` |
+| Golden Visa | `edit.php?post_type=golden_visa`, kèm Danh mục Golden Visa |
+| Bất động sản | `edit.php?post_type=bat-dong-san`, kèm Danh mục BĐS |
+| Đầu tư quốc tịch | `edit.php?post_type=citizenship_invest` |
+| Trang chủ | `admin.php?page=trang-chu-settings` |
+| Thông tin liên hệ | `admin.php?page=contact-info-manager` |
+
+Cộng **Bảng tin** và **Hồ sơ cá nhân** (để tự đổi mật khẩu).
+
+**Bị chặn hoàn toàn:** Bình luận, Giao diện (theme, menu, widget, customizer), Plugin, Người dùng,
+Công cụ, Cài đặt — kể cả trang Smart Breadcrumb, và mọi menu do plugin cài thêm sau này.
+
+### Mục Trang nằm trong danh sách, và đó là bắt buộc
+
+`golden_visa` đăng ký với `capability_type => 'page'`. Quyền sửa Golden Visa và quyền sửa Trang là
+**cùng một bộ cap**, không tách được mà không đổi định danh cap của CPT. Biên tập viên được giao cả
+mục Trang nên giữ nguyên.
+
+### Bốn tầng chặn
+
+Một tầng không đủ, nên có bốn:
+
+| Tầng | Chặn được gì | Vì sao cần |
+|---|---|---|
+| Capabilities | REST API, XML-RPC, mọi lối vào | tầng duy nhất có hiệu lực thật |
+| Xoá menu (`admin_menu`, priority 999) | menu và submenu ngoài allowlist | menu **Bình luận** và **Công cụ** của WordPress đăng ký bằng cap `edit_posts` nên editor vẫn thấy dù không còn quyền |
+| `wp_die` 403 (`admin_init`) | người gõ thẳng URL | ẩn menu chỉ làm mất đường dẫn |
+| `map_meta_cap` | post thuộc post type ngoài allowlist | CPT của plugin thứ ba để `capability_type` mặc định là `post` thì editor tự động sửa được qua REST, ẩn menu không với tới |
+
+Cách làm là **allowlist**: cái gì không có trong danh sách thì biến mất. Cài thêm plugin sau này
+cũng tự động bị ẩn khỏi Biên tập viên, không phải sửa file.
+
+### Hai trang cài đặt dùng cap riêng
+
+Trang chủ và Thông tin liên hệ trước đây gác bằng `manage_options`. Cấp `manage_options` cho editor
+là mở luôn Cài đặt, Plugin, Người dùng, Giao diện. Nên hai trang đó chuyển sang cap riêng
+`hdt_manage_site_content`, cấp cho `administrator` và `editor`, không kéo theo gì khác.
+
+### Vài điểm cần biết
+
+- **Người có `manage_options` không bị chặn**, kể cả khi họ mang thêm role editor — để không tự khoá
+  chính mình.
+- Hai widget Bảng tin **Tổng quan** và **Hoạt động** bị bỏ với Biên tập viên: cả hai gọi thẳng hàm
+  bình luận của WordPress, không kiểm `moderate_comments`, nên bỏ cap thôi là chưa đủ. Cột **Bình
+  luận** trong danh sách bài viết cũng bị bỏ vì nó trỏ tới màn hình đã chặn.
+- Giữ `unfiltered_html` cho Biên tập viên vì meta box của landing page và Golden Visa cần dán được
+  iframe/embed.
+- **Khối tái sử dụng** (post type `wp_block`) không nằm trong allowlist, nên Biên tập viên không
+  chèn được khối tái sử dụng trong trình soạn thảo khối — đúng theo yêu cầu "chặn các mục khác",
+  không phải lỗi. Nếu site có dùng tới, thêm `'wp_block'` vào `HDTQ_POST_TYPES` và bump
+  `HDTQ_VERSION`. Trình soạn thảo vẫn chạy bình thường khi thiếu nó, chỉ hiện thông báo trong
+  trình chèn khối.
+- Sau khi sửa `HDTQ_CAPS`, **phải bump `HDTQ_VERSION`** trong `phan-quyen.php`, nếu không quyền
+  không được ghi lại. Giá trị đang lưu nằm ở option `hdt_phan_quyen_version`.
+- [`scripts/phan-quyen.test.php`](scripts/phan-quyen.test.php) kiểm 107 trường hợp của allowlist và
+  chạy trong CI. Việc menu có thật sự biến mất trên site thật thì chưa kiểm được — xem mục dưới.
 
 ## Vì sao tách được khỏi Flatsome
 
@@ -122,6 +193,10 @@ lập và kiểm đủ 8 module + các shortcode quan trọng. `php -l` chỉ ki
 Theme `hoangditru` **chưa render thử lần nào**. Phân tích dựa trên đọc code, HTML render thật của
 site cũ và file SQL — không phải trên một lần chạy thật. Sau khi deploy phải xem bằng mắt: trang
 chủ, một bài viết, một category, một trang tĩnh, một landing page, một trang bất động sản.
+
+Phân quyền Biên tập viên cũng vậy: allowlist có test, nhưng việc menu thật sự biến mất và `wp_die`
+thật sự chặn thì phải đăng nhập bằng một tài khoản Biên tập viên rồi xem bằng mắt — thấy đúng 8 mục
+cộng Bảng tin và Hồ sơ cá nhân, và gõ tay `/wp-admin/options-general.php` phải ra 403.
 
 ---
 

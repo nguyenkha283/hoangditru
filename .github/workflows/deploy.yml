@@ -106,6 +106,11 @@ jobs:
       - name: Nạp thử plugin lõi
         run: php scripts/plugin-load.test.php
 
+      # Allowlist này quyết định Biên tập viên mở được màn hình admin nào. Lỏng
+      # một mục là lộ mục đáng ra phải chặn.
+      - name: Test phân quyền Biên tập viên
+        run: php scripts/phan-quyen.test.php
+
       # Filter này quyết định URL của mọi asset khi plugin được nạp từ app/.
       # Sai một dấu gạch chéo là vỡ toàn bộ CSS/JS.
       - name: Test filter URL của loader
