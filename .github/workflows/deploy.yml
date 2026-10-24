@@ -149,8 +149,12 @@ jobs:
           echo "server-dir sẽ dùng: $path"
           echo "path=$path" >> "$GITHUB_OUTPUT"
 
+      # Lần 1. continue-on-error để còn cơ hội thử lại: Hostinger chặn tạm thời
+      # khi có nhiều phiên FTP trong thời gian ngắn, và lỗi đó tự hết sau vài phút.
       - name: FTPS deploy
+        id: ftp1
         if: steps.check.outputs.ok == 'true'
+        continue-on-error: true
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
@@ -168,3 +172,42 @@ jobs:
             **/node_modules/**
             **/.DS_Store
             **/*.map
+
+      - name: Nghỉ 90 giây trước khi thử lại
+        if: steps.check.outputs.ok == 'true' && steps.ftp1.outcome == 'failure'
+        run: |
+          echo "::warning::Lần đẩy thứ nhất thất bại. Nghỉ 90 giây rồi thử lại — máy chủ FTP của Hostinger hay chặn tạm thời khi có nhiều phiên liên tiếp."
+          sleep 90
+
+      - name: FTPS deploy (lần 2)
+        id: ftp2
+        if: steps.check.outputs.ok == 'true' && steps.ftp1.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./wp-content/
+          server-dir: ${{ steps.resolve.outputs.path }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.DS_Store
+            **/*.map
+
+      # continue-on-error ở lần 1 làm job vẫn xanh kể cả khi cả hai lần đều hỏng,
+      # nên phải tự đánh đỏ. Không có bước này thì "job success" sẽ nói dối.
+      - name: Kết luận
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          if [ "${{ steps.ftp1.outcome }}" = "success" ]; then
+            echo "Đẩy thành công ngay lần đầu."
+          elif [ "${{ steps.ftp2.outcome }}" = "success" ]; then
+            echo "Đẩy thành công ở lần thử thứ hai."
+          else
+            echo "::error::Cả hai lần đẩy FTPS đều thất bại."
+            exit 1
+          fi

@@ -125,11 +125,23 @@ GitHub repo → **Settings → Secrets and variables → Actions → New reposit
 
 Secret chỉ GitHub Actions đọc được, không hiện lại trong giao diện và không có trong code.
 
-**`FTP_PATH` không bắt buộc.** Bước *Dò wp-content trên server* tự tìm: thử
-`/public_html/wp-content/`, `/wp-content/`, rồi từng `/domains/<d>/public_html/wp-content/`. Chỉ
-chấp nhận thư mục có đủ `themes/`, `plugins/` **và** `wp-includes/` nằm cạnh. Khớp nhiều hơn một
-thì dừng và bắt đặt `FTP_PATH`, để không deploy nhầm site. Logic nằm ở
-[`scripts/ftp-resolve.sh`](scripts/ftp-resolve.sh), chạy thử ở máy được bằng `FTP_FAKE_TREE`.
+**`FTP_PATH` — nên đặt, dù không bắt buộc.** Với site này là:
+
+```
+/public_html/wp-content/
+```
+
+Đặt rồi thì mỗi lần chạy chỉ tốn **1 phiên đăng nhập FTP**; để trống thì script phải dò và tốn 2–3
+phiên. Nghe nhỏ nhưng đó chính là nguyên nhân deploy từng hỏng — xem mục *Độ tin cậy* bên dưới.
+
+Khi `FTP_PATH` trống, bước *Dò wp-content trên server* thử `/public_html/wp-content/` rồi
+`/wp-content/`, **dừng ngay ở cái đầu tiên** có đủ `themes/`, `plugins/` và `wp-includes/` bên
+cạnh; chỉ khi cả hai trượt mới quét `/domains/`. Nhiều site cùng khớp thì dừng hẳn và bắt đặt
+`FTP_PATH`, để không deploy nhầm site.
+
+Logic ở [`scripts/ftp-resolve.sh`](scripts/ftp-resolve.sh), test ở
+[`scripts/ftp-resolve.test.sh`](scripts/ftp-resolve.test.sh) — chạy được ở máy nhờ `FTP_FAKE_TREE`
+(đọc thư mục thật thay cho curl), 11 trường hợp, trong đó có 3 ca **ràng buộc số phiên FTP**.
 
 ### Về TLS của FTPS
 
@@ -206,6 +218,34 @@ nguyên bản cũ.
 
 Thêm theme/plugin tự viết mới → thêm một dòng vào [`deploy/manifest.txt`](deploy/manifest.txt) rồi
 push. (`manifest.txt` dùng cho bước lint; job `ftp` đẩy cả `wp-content/`.)
+
+## Độ tin cậy của deploy
+
+Máy chủ FTP của Hostinger **chặn tạm thời khi có quá nhiều phiên đăng nhập trong thời gian ngắn**.
+Ngày 2026-10-23 điều này đã xảy ra, và mốc thời gian nói rõ hơn mọi log:
+
+```
+08:47  success
+09:13  success
+09:17  success   ← 4 phút sau lần trước
+09:22  FAILURE   ← 5 phút sau
+09:30  FAILURE   ← 8 phút sau
+10:16  success   ← sau 46 phút nghỉ
+```
+
+Hai lần đỏ ở **hai bước FTP khác nhau**, lint xanh cả hai lần, rồi tự khỏi mà không sửa gì. Bản đầu
+của `ftp-resolve.sh` mở một phiên FTP mới cho **mỗi** lần liệt kê thư mục — 3 đến 9 phiên mỗi lần
+chạy, cộng phiên của `FTP-Deploy-Action`. Bốn lần deploy trong 17 phút thành 16–36 lần đăng nhập.
+
+Ba thay đổi để không lặp lại:
+
+| | |
+|---|---|
+| **Giảm số phiên** | 1 phiên khi có `FTP_PATH`, 2–3 khi phải dò. Dừng ở kết quả đầu tiên thay vì thử hết; bỏ phiên "thăm dò TLS" riêng, gộp vào lần liệt kê đầu |
+| **Tự thử lại** | `ftp_list` thử lại tối đa 3 lần với giãn cách 15s → 45s khi gặp lỗi kết nối tạm thời. Bước đẩy file hỏng thì nghỉ 90 giây rồi đẩy lần hai |
+| **Không nói dối** | `continue-on-error` ở lần đẩy đầu khiến job vẫn xanh kể cả khi cả hai lần hỏng, nên có bước *Kết luận* tự đánh đỏ |
+
+Vẫn nên **tránh push liên tiếp nhiều commit trong vài phút**. Gom thay đổi lại rồi push một lần.
 
 ## ⚠️ KHÔNG dùng hPanel → Git cho site này
 
