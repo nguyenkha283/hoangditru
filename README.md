@@ -288,23 +288,63 @@ API `actions/runs/<id>/jobs` trả `conclusion` **sau khi** `continue-on-error` 
 *FTPS deploy* có thể hiện `success` trong khi nó đã hỏng. Dấu hiệu nhận biết: bước *Nghỉ 4 phút* và
 *FTPS deploy (lần 2)* có chạy hay không — chúng chỉ chạy khi lần đầu thất bại.
 
-## ⚠️ KHÔNG dùng hPanel → Git cho site này
+## Chuyển sang hPanel Git
 
-**hPanel Git xoá sạch thư mục đích trước mỗi lần kéo code.** Trỏ nó vào `wp-content` là mất theme
-mặc định, mất plugin của Hostinger, mất `uploads/` — chỉ còn đúng nội dung của nhánh được cài.
+FTP chạy được nhưng phải vá nhiều: giảm phiên, retry, huỷ run cũ — toàn bộ để né việc Hostinger
+chặn phiên FTP. hPanel Git không có lớp vấn đề đó: server tự `git pull` qua HTTPS, **không phiên FTP
+nào**, và **không cần mật khẩu FTP trong GitHub Secrets**.
 
-Chuyện này đã xảy ra với site `hoangditru.com` ngày 2026-10-23: `wp-content` chỉ còn
-`themes/hoangditru` và `plugins/*` của repo, `themes/twentytwentyfive` và `plugins/hostinger` biến
-mất, và site trả 403.
+### Luật sắt
 
-Vì vậy:
+**hPanel Git XOÁ SẠCH thư mục đích trước mỗi lần kéo code.** Ngày 2026-10-23 nó được trỏ vào
+`public_html` và đã xoá toàn bộ file PHP gốc của WordPress; site trả 403, phải khôi phục thủ công.
 
-- Nhánh `deploy` **đã bị xoá**, và job dựng nhánh đó đã bỏ khỏi workflow.
-- Workflow chỉ còn quyền `contents: read`, không thể đẩy nhánh nào nữa.
-- Nếu trong hPanel → **Advanced → GIT** còn repository nào được cấu hình, **xoá nó đi**.
-- Deploy duy nhất được dùng: job `ftp` trong workflow này.
+Vì vậy install path **bắt buộc** là `wp-content/app` — thư mục riêng, rỗng, không chứa gì ngoài nội
+dung nhánh `deploy`.
 
-Kiến trúc `wp-content/app` + symlink (để dùng được hPanel Git an toàn) cần SSH, mà gói này không có.
+### Vì sao cần loader
+
+WordPress chỉ tìm theme ở `wp-content/themes` và plugin ở `wp-content/plugins`. hPanel Git chỉ cài
+được **1 kho / 1 nhánh / 1 thư mục**, nên code buộc phải nằm gom trong `app/`.
+[`deploy/mu-plugin.php`](deploy/mu-plugin.php) bắc cầu:
+
+| | |
+|---|---|
+| Theme | `register_theme_directory( app/themes )`. WordPress tự suy ra URL vì `app/` nằm trong `wp-content` |
+| Plugin lõi | `require` thẳng `app/plugins/hoangditru-core/hoangditru-core.php` |
+| URL asset | filter `plugins_url` dựng lại URL cho file nằm ngoài `wp-content/plugins`, nếu không mọi CSS/JS của plugin sẽ thành `…/wp-content/plugins/home/u…/wp-content/app/…`. Có test riêng: [`scripts/loader-url.test.php`](scripts/loader-url.test.php), 7 ca |
+
+Loader đặt ở `wp-content/mu-plugins/hoangditru-loader.php` — **ngoài** `app/` nên Git không đụng tới,
+và mu-plugin thì luôn chạy, không ai tắt được.
+
+### Chốt tự bảo vệ, để chuyển đổi lùi được
+
+Nếu `hoangditru-core` vẫn đang bật như plugin thường, loader **không nạp** bản trong `app/` và hiện
+thông báo trong admin. Nạp cả hai là "cannot redeclare function" và trắng trang. Nhờ chốt này, việc
+chuyển đổi làm được từng bước, và muốn lùi chỉ cần bật lại plugin thường.
+
+### Các bước chuyển đổi
+
+1. Push xong, kiểm nhánh `deploy` trên GitHub: gốc nhánh phải là `themes/`, `plugins/`,
+   `mu-plugin.php`.
+2. hPanel → **Advanced → GIT** → *Create a new repository*: repo này, branch **`deploy`**, install
+   path **`wp-content/app`**. Copy webhook ở mục Auto-Deployment sang GitHub →
+   Settings → Webhooks.
+3. Kiểm `wp-content/app/` đã có `themes/`, `plugins/`, `mu-plugin.php`.
+4. File Manager: copy `wp-content/app/mu-plugin.php` thành
+   `wp-content/mu-plugins/hoangditru-loader.php`. Site **chưa đổi gì** — loader thấy plugin thường
+   còn bật nên tự đứng ngoài.
+5. WP admin → **Plugin** → tắt *Hoàng Di Trú Core*. Loader tiếp quản ngay.
+6. WP admin → **Giao diện** → kích hoạt lại *Hoangditru* để `template_root` trỏ sang `/app/themes`.
+7. `bash scripts/check-site.sh https://hoangditru.com` — nhớ sửa đường dẫn asset trong script sang
+   `app/plugins/...` trước khi chạy.
+8. Chạy ổn rồi thì xoá bản thừa: `wp-content/plugins/hoangditru-core/`,
+   `wp-content/themes/hoangditru/`, và 8 thư mục plugin cũ.
+9. Cuối cùng đổi job `ftp` sang chỉ chạy tay (`workflow_dispatch`) để nó không ghi lại các thư mục
+   vừa xoá.
+
+Giữ `twentytwentyfive` trong `wp-content/themes` làm theme dự phòng: nếu `app/` có sự cố, WordPress
+còn thứ để rơi về thay vì chết hẳn.
 
 ## Nếu sau này có SSH
 

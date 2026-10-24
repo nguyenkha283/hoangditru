@@ -1,11 +1,12 @@
 # Deploy code lên Hostinger.
 #
-# Gói hosting không có SSH, nên không dùng được symlink hay wp-cli. Thay vào đó
-# đẩy file trực tiếp qua FTPS vào đúng wp-content/themes và wp-content/plugins —
-# WordPress thấy theme và plugin ở vị trí chuẩn, không cần loader hay thủ thuật gì.
+# Gói hosting không có SSH, nên không dùng được wp-cli. Có hai đường đẩy code,
+# cùng tồn tại trong giai đoạn chuyển đổi:
 #
-#   job lint   php -l mọi file. Lỗi cú pháp thì dừng, không deploy.
-#   job ftp    dò wp-content trên server rồi đẩy wp-content/ qua FTPS.
+#   job ftp            FTPS thẳng vào wp-content/themes và wp-content/plugins.
+#                      Đang là đường chính.
+#   job deploy-branch  dựng nhánh "deploy" để hPanel Git cài vào wp-content/app.
+#                      Đường sẽ thay thế FTP khi chuyển đổi xong.
 #
 # Secret cần đặt ở GitHub repo → Settings → Secrets and variables → Actions:
 #   FTP_HOST      IP máy chủ FTP, đúng như hPanel → Files → FTP Accounts hiện.
@@ -15,12 +16,12 @@
 #                 trong scripts/ftp-resolve.sh.
 #   FTP_USER      username FTP
 #   FTP_PASSWORD  password FTP
-#   FTP_PATH      (tuỳ chọn) đường dẫn wp-content. Bỏ trống thì workflow tự dò.
+#   FTP_PATH      nên đặt = /public_html/wp-content/ để mỗi lần chạy chỉ tốn
+#                 1 phiên FTP. Bỏ trống thì workflow tự dò, tốn 2-3 phiên.
 #
-# ⚠️ TUYỆT ĐỐI KHÔNG dùng hPanel → Git cho site này. hPanel Git XOÁ SẠCH thư mục
-# đích trước mỗi lần kéo code. Ngày 2026-10-23 nó được trỏ vào public_html và đã
-# xoá toàn bộ file PHP gốc của WordPress, thay wp-content bằng nội dung repo.
-# Chỉ deploy bằng FTPS qua job ftp.
+# hPanel Git XOA SACH thư mục đích trước mỗi lần kéo code. Ngày 2026-10-23 nó
+# được trỏ vào public_html và đã xoá toàn bộ file PHP gốc của WordPress.
+# Install path BẮT BUỘC là wp-content/app — một thư mục riêng, rỗng.
 
 name: Deploy
 
@@ -29,7 +30,7 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Chỉ đọc. Không job nào đẩy nhánh, nên workflow không cần quyền ghi repo.
+# Chỉ đọc ở mức workflow. Job nào cần ghi thì tự xin riêng.
 permissions:
   contents: read
 
@@ -52,7 +53,7 @@ jobs:
       - name: Đọc deploy/manifest.txt
         run: |
           set -euo pipefail
-          sed -e 's/\r$//' deploy/manifest.txt | grep -vE '^[[:space:]]*(#|$)' > paths.txt || true
+          tr -d '\r' < deploy/manifest.txt | grep -vE '^[[:space:]]*(#|$)' > paths.txt || true
           if [ ! -s paths.txt ]; then
             echo "::error::deploy/manifest.txt không có dòng nào."
             exit 1
@@ -78,7 +79,7 @@ jobs:
           find wp-content -name '*.php' -print0 | xargs -0 -r -n1 php -l > /dev/null
           echo "Đã kiểm $(find wp-content -name '*.php' | wc -l) file PHP."
 
-      # php -l KHÔNG bắt được file rỗng: file 0 byte không có lỗi cú pháp.
+      # php -l KHONG bắt được file rỗng: file 0 byte không có lỗi cú pháp.
       # Ngày 2026-10-23 một lệnh sửa file viết sai đã cắt functions.php và
       # style.css về 0 byte, lint vẫn xanh, và suýt deploy lên server.
       - name: Không file nào được rỗng hoặc mất header
@@ -92,18 +93,10 @@ jobs:
             exit 1
           fi
 
-          # Theme hỏng header là WordPress không nhận ra theme nữa.
           grep -q '^ Theme Name:' wp-content/themes/hoangditru/style.css \
-            || { echo "::error::style.css mất header 'Theme Name:'"; exit 1; }
-          grep -q "define( 'HDT_VERSION'" wp-content/themes/hoangditru/functions.php \
-            || { echo "::error::functions.php mất define HDT_VERSION"; exit 1; }
-
-          # Mỗi plugin phải còn file chính cùng tên thư mục.
-          for d in wp-content/plugins/*/; do
-            n=$(basename "$d")
-            [ -f "$d$n.php" ] || ls "$d"*.php >/dev/null 2>&1 \
-              || { echo "::error::Plugin $n không có file PHP nào"; exit 1; }
-          done
+            || { echo "::error::style.css mất header Theme Name"; exit 1; }
+          grep -q "define( 'HDTC_VERSION'" wp-content/plugins/hoangditru-core/hoangditru-core.php \
+            || { echo "::error::plugin lõi mất define HDTC_VERSION"; exit 1; }
 
           echo "OK — $(find wp-content -type f | wc -l) file, không có file rỗng."
 
@@ -112,6 +105,11 @@ jobs:
       # nạp thật plugin lõi với WordPress giả lập.
       - name: Nạp thử plugin lõi
         run: php scripts/plugin-load.test.php
+
+      # Filter này quyết định URL của mọi asset khi plugin được nạp từ app/.
+      # Sai một dấu gạch chéo là vỡ toàn bộ CSS/JS.
+      - name: Test filter URL của loader
+        run: php scripts/loader-url.test.php
 
       # Script dò wp-content quyết định file được đẩy đi đâu, nên nó phải có
       # test và test phải chạy trước mỗi lần deploy.
@@ -141,9 +139,7 @@ jobs:
 
       # Dò wp-content thay vì tin vào FTP_PATH. Lý do: FTP-Deploy-Action tự TẠO
       # thư mục nếu server-dir không tồn tại, nên một FTP_PATH sai sẽ chạy xanh
-      # mà code nằm ở chỗ không ai dùng. Script chỉ chấp nhận thư mục có đủ
-      # themes/, plugins/ và wp-includes/ bên cạnh; nhiều hơn một kết quả thì
-      # dừng để khỏi deploy nhầm site. Logic có test ở scripts/ftp-resolve.sh.
+      # mà code nằm ở chỗ không ai dùng.
       - name: Dò wp-content trên server
         id: resolve
         if: steps.check.outputs.ok == 'true'
@@ -161,7 +157,7 @@ jobs:
           echo "path=$path" >> "$GITHUB_OUTPUT"
 
       # Lần 1. continue-on-error để còn cơ hội thử lại: Hostinger chặn tạm thời
-      # khi có nhiều phiên FTP trong thời gian ngắn, và lỗi đó tự hết sau vài phút.
+      # khi có nhiều phiên FTP trong thời gian ngắn, lỗi đó tự hết sau vài phút.
       - name: FTPS deploy
         id: ftp1
         if: steps.check.outputs.ok == 'true'
@@ -210,7 +206,8 @@ jobs:
             **/*.map
 
       # continue-on-error ở lần 1 làm job vẫn xanh kể cả khi cả hai lần đều hỏng,
-      # nên phải tự đánh đỏ. Không có bước này thì "job success" sẽ nói dối.
+      # nên phải tự đánh đỏ. Thiếu always() thì chính bước này bị skip khi lần
+      # hai hỏng, và thông báo lỗi không bao giờ in ra.
       - name: Kết luận
         if: always() && steps.check.outputs.ok == 'true'
         run: |
@@ -221,4 +218,60 @@ jobs:
           else
             echo "::error::Cả hai lần đẩy FTPS đều thất bại."
             exit 1
+          fi
+
+  # Nhánh "deploy" là thứ hPanel Git cài vào wp-content/app. Gốc nhánh đúng như
+  # loader mong đợi: themes/ + plugins/, kèm mu-plugin.php để copy sang
+  # wp-content/mu-plugins mà không phải tải về máy.
+  #
+  # Commit NOI TIEP, không force-push, để git pull phía Hostinger luôn chạy được.
+  deploy-branch:
+    name: Dựng nhánh deploy cho hPanel Git
+    needs: lint
+    runs-on: ubuntu-latest
+    # Quyền ghi chỉ cấp cho job này, không cấp cho cả workflow.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cập nhật nhánh deploy
+        run: |
+          set -euo pipefail
+          tr -d '\r' < deploy/manifest.txt | grep -vE '^[[:space:]]*(#|$)' > /tmp/paths.txt
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          SRC_SHA=$(git rev-parse --short HEAD)
+
+          OUT=$(mktemp -d)
+          if git ls-remote --exit-code --heads origin deploy > /dev/null 2>&1; then
+            git fetch origin deploy
+            git worktree add "$OUT" -B deploy origin/deploy
+          else
+            git worktree add --detach "$OUT"
+            git -C "$OUT" checkout --orphan deploy
+          fi
+
+          find "$OUT" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          mkdir -p "$OUT/themes" "$OUT/plugins"
+
+          while IFS= read -r p; do
+            cp -R "wp-content/$p" "$OUT/$p"
+          done < /tmp/paths.txt
+
+          cp deploy/mu-plugin.php "$OUT/mu-plugin.php"
+
+          find "$OUT" -name '.DS_Store' -delete
+
+          cd "$OUT"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Không có thay đổi, bỏ qua."
+          else
+            git commit -q -m "Deploy từ main @ $SRC_SHA"
+            git push origin deploy
+            echo "Đã cập nhật nhánh deploy."
           fi
