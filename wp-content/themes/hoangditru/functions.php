@@ -7,7 +7,7 @@
  * và các template WordPress chuẩn.
  */
 
-define( 'HDT_VERSION', '2.1.2' );
+define( 'HDT_VERSION', '2.1.3' );
 
 // ------------------------------------------------------------------
 // 1. Khai báo tính năng theme
