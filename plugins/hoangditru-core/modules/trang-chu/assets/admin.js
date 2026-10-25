@@ -98,10 +98,11 @@ $('.tcs-picker').each(function(){
 
         var name = $picker.data('name');
         var imgHtml = thumbSrc ? '<img src="'+thumbSrc+'" alt="">' : '';
+        var safeTitle = $('<div>').text(title).html();
         var html = '<li data-id="'+id+'">'
                  + '<span class="tcs-drag-handle dashicons dashicons-menu"></span>'
                  + imgHtml
-                 + '<span class="tcs-item-title">'+$('<div>').text(title).html()+'</span>'
+                 + '<span class="tcs-item-title" title="'+safeTitle.replace(/"/g,'&quot;')+'">'+safeTitle+'</span>'
                  + '<input type="hidden" name="'+name+'[]" value="'+id+'">'
                  + '<button type="button" class="tcs-remove-item button-link"><span class="dashicons dashicons-no-alt"></span></button>'
                  + '</li>';

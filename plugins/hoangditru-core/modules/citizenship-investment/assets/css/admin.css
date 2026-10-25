@@ -41,7 +41,7 @@
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
-    width: 86px;
+    min-width: 86px; /* đủ chỗ cho nút "Chọn ảnh" có icon */
     position: relative;
     z-index: 1;
 }

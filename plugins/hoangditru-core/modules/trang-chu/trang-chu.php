@@ -9,7 +9,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'TC_VERSION', '1.1.0' );
+define( 'TC_VERSION', '1.1.1' );
 define( 'TC_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'TC_URL',     plugin_dir_url( __FILE__ ) );
 define( 'TC_KEY',     'trang_chu_settings' );
@@ -393,7 +393,7 @@ function tc_sortable_picker( $name, $selected_ids, $post_type, $max = 6 ) {
                 <li data-id="<?php echo $id; ?>">
                     <span class="tcs-drag-handle dashicons dashicons-menu"></span>
                     <?php if($thumb) echo '<img src="'.esc_url($thumb).'" alt="">'; ?>
-                    <span class="tcs-item-title"><?php echo esc_html($all_map[$id]); ?></span>
+                    <span class="tcs-item-title" title="<?php echo esc_attr($all_map[$id]); ?>"><?php echo esc_html($all_map[$id]); ?></span>
                     <input type="hidden" name="<?php echo esc_attr($name); ?>[]" value="<?php echo $id; ?>">
                     <button type="button" class="tcs-remove-item button-link"><span class="dashicons dashicons-no-alt"></span></button>
                 </li>

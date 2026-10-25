@@ -151,16 +151,6 @@
     .cim-card-social  { justify-content: center; }
 }
 
-/* ── Signature ── */
-.cim-signature {
-    margin: 1.5em 0;
-    padding: 1em 1.25em;
-    border-left: 4px solid currentColor;
-    opacity: .85;
-    font-size: .95em;
-    line-height: 1.7;
-}
-
 /* ── Footer section ── */
 .cim-footer-section {
     position: relative;

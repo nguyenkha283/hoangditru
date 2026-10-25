@@ -109,7 +109,7 @@ function ci_mb_carousel( $post ) {
                 </li>
             <?php endforeach; ?>
         </ul>
-        <button type="button" class="button ci-add-images" data-target="ci-carousel-list" data-input="ci_carousel_slides[]">+ Thêm slide</button>
+        <button type="button" class="button button-secondary ci-add-images" data-target="ci-carousel-list" data-input="ci_carousel_slides[]"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>
     </div>
     <?php
 }
@@ -127,8 +127,8 @@ function ci_mb_page_overlay( $post ) {
             <img src="<?php echo esc_url( $url ); ?>" style="max-height:60px;display:block;margin-bottom:8px;border:1px solid #ddd;padding:3px;border-radius:3px">
         <?php endif; ?>
         <input type="hidden" name="ci_overlay_icon" id="ci_overlay_icon" value="<?php echo esc_attr( $att_id ); ?>">
-        <button type="button" class="button ci-pick-img" data-field="ci_overlay_icon">Tải lên / Chọn ảnh</button>
-        <button type="button" class="button ci-clear-img" data-field="ci_overlay_icon" <?php echo $att_id ? '' : 'style="display:none"'; ?>>Xóa</button>
+        <button type="button" class="button button-secondary ci-pick-img" data-field="ci_overlay_icon"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>
+        <button type="button" class="button ci-clear-img" data-field="ci_overlay_icon" <?php echo $att_id ? '' : 'style="display:none"'; ?>><span class="dashicons dashicons-trash"></span> Xoá</button>
     </div>
     <p class="description" style="margin-top:8px">Tiêu đề h2 lấy từ tiêu đề trang tự động.</p>
     <?php
@@ -156,7 +156,7 @@ function ci_mb_features( $post ) {
                         <span class="ci-feat-thumb ci-feat-thumb--empty">?</span>
                     <?php endif; ?>
                     <input type="hidden" name="ci_feat_icon[]" value="<?php echo esc_attr( $att_id ); ?>">
-                    <button type="button" class="button button-small ci-feat-pick-img">Chọn ảnh</button>
+                    <button type="button" class="button button-secondary ci-feat-pick-img"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>
                 </div>
 
                 <input type="text" name="ci_feat_text[]"
@@ -207,8 +207,8 @@ function ci_mb_why_us( $post ) {
                         <img src="<?php echo esc_url( $bg_url ); ?>" style="max-width:260px;display:block;margin-bottom:6px">
                     <?php endif; ?>
                     <input type="hidden" name="ci_why_bg" id="ci_why_bg" value="<?php echo esc_attr( $bg_id ); ?>">
-                    <button type="button" class="button ci-pick-img" data-field="ci_why_bg">Chọn ảnh</button>
-                    <button type="button" class="button ci-clear-img" data-field="ci_why_bg" <?php echo $bg_id ? '' : 'style="display:none"'; ?>>Xóa</button>
+                    <button type="button" class="button button-secondary ci-pick-img" data-field="ci_why_bg"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>
+                    <button type="button" class="button ci-clear-img" data-field="ci_why_bg" <?php echo $bg_id ? '' : 'style="display:none"'; ?>><span class="dashicons dashicons-trash"></span> Xoá</button>
                 </div>
             </td>
         </tr>
