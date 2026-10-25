@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Contact Info Manager
  * Plugin URI: #
- * Description: Quản lý thông tin liên hệ với shortcode riêng cho từng trường. Hỗ trợ ảnh nền footer và chữ ký TinyMCE có thể chèn vào bất kỳ post type nào.
+ * Description: Quản lý thông tin liên hệ với shortcode riêng cho từng trường. Hỗ trợ ảnh nền footer.
  * Version: 1.1.0
  * Author: Your Name
  * License: GPL2
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'CIM_VERSION', '1.1.0' );
+define( 'CIM_VERSION', '1.1.2' );
 define( 'CIM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CIM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CIM_OPTION_KEY', 'cim_contact_info' );
@@ -46,7 +46,6 @@ function cim_default_data() {
         'footer_bg'         => '',
         'footer_desc'       => '',
         'branches'          => '',
-        'signature'         => '',
     ];
 }
 
@@ -76,7 +75,6 @@ add_action( 'admin_enqueue_scripts', 'cim_admin_scripts' );
 function cim_admin_scripts( $hook ) {
     if ( 'toplevel_page_contact-info-manager' !== $hook ) return;
     wp_enqueue_media();
-    wp_enqueue_editor();
     wp_enqueue_style( 'cim-admin-style', CIM_PLUGIN_URL . 'assets/admin.css', [], CIM_VERSION );
     wp_enqueue_script( 'cim-admin-script', CIM_PLUGIN_URL . 'assets/admin.js', ['jquery'], CIM_VERSION, true );
 }
@@ -98,7 +96,7 @@ function cim_save_settings() {
     $data    = get_option( CIM_OPTION_KEY, cim_default_data() );
 
     foreach ( $fields as $field ) {
-        if ( in_array( $field, ['bio', 'signature', 'footer_desc'], true ) ) {
+        if ( in_array( $field, ['bio', 'footer_desc'], true ) ) {
             $data[ $field ] = wp_kses_post( $_POST[ 'cim_' . $field ] ?? '' );
         } elseif ( in_array( $field, ['youtube', 'facebook', 'tiktok'], true ) ) {
             $data[ $field ] = esc_url_raw( $_POST[ 'cim_' . $field ] ?? '' );
@@ -112,6 +110,9 @@ function cim_save_settings() {
             $data[ $field ] = sanitize_text_field( $_POST[ 'cim_' . $field ] ?? '' );
         }
     }
+
+    // Chữ ký đã bị gỡ khỏi plugin; lần lưu đầu tiên xoá luôn giá trị cũ.
+    unset( $data['signature'] );
 
     update_option( CIM_OPTION_KEY, $data );
 
@@ -172,7 +173,7 @@ function cim_admin_page() {
                                         <span class="dashicons dashicons-upload"></span> Chọn ảnh
                                     </button>
                                     <button type="button" id="cim-remove-avatar" class="button" <?php echo $avatar_url ? '' : 'style="display:none"'; ?>>
-                                        <span class="dashicons dashicons-trash"></span> Xoá ảnh
+                                        <span class="dashicons dashicons-trash"></span> Xoá
                                     </button>
                                 </div>
 
@@ -212,10 +213,10 @@ function cim_admin_page() {
                                 <input type="hidden" name="cim_cover_image" id="cim_cover_image" value="<?php echo esc_attr( $data['cover_image'] ); ?>">
                                 <div class="cim-avatar-buttons">
                                     <button type="button" id="cim-upload-cover" class="button button-secondary">
-                                        <span class="dashicons dashicons-upload"></span> Chọn ảnh bìa
+                                        <span class="dashicons dashicons-upload"></span> Chọn ảnh
                                     </button>
                                     <button type="button" id="cim-remove-cover" class="button" <?php echo $cover_url ? '' : 'style="display:none"'; ?>>
-                                        <span class="dashicons dashicons-trash"></span> Xoá ảnh
+                                        <span class="dashicons dashicons-trash"></span> Xoá
                                     </button>
                                 </div>
                             </div>
@@ -290,14 +291,14 @@ function cim_admin_page() {
                                                 class="button button-secondary cim-upload-social-icon"
                                                 data-key="<?php echo esc_attr( $key ); ?>"
                                                 title="Upload icon">
-                                            <span class="dashicons dashicons-upload"></span>
+                                            <span class="dashicons dashicons-upload"></span> Chọn ảnh
                                         </button>
                                         <button type="button"
                                                 class="button cim-remove-social-icon"
                                                 data-key="<?php echo esc_attr( $key ); ?>"
                                                 title="Xoá icon"
-                                                style="color:#a00;<?php echo $icon_url ? '' : 'display:none'; ?>">
-                                            <span class="dashicons dashicons-trash"></span>
+                                                <?php echo $icon_url ? '' : 'style="display:none"'; ?>>
+                                            <span class="dashicons dashicons-trash"></span> Xoá
                                         </button>
                                     </div>
                                 </div>
@@ -335,7 +336,7 @@ function cim_admin_page() {
                     </div>
 
                     <div class="cim-card">
-                        <h2 class="cim-card-title">🖼️ Footer & Chữ Ký</h2>
+                        <h2 class="cim-card-title">🖼️ Footer</h2>
 
                         <!-- Mô tả ngắn footer -->
                         <div class="cim-field">
@@ -399,35 +400,16 @@ function cim_admin_page() {
                                 <input type="hidden" name="cim_footer_bg" id="cim_footer_bg" value="<?php echo esc_attr( $data['footer_bg'] ); ?>">
                                 <div class="cim-avatar-buttons">
                                     <button type="button" id="cim-upload-footer-bg" class="button button-secondary">
-                                        <span class="dashicons dashicons-upload"></span> Chọn ảnh nền
+                                        <span class="dashicons dashicons-upload"></span> Chọn ảnh
                                     </button>
                                     <button type="button" id="cim-remove-footer-bg" class="button" <?php echo $footer_bg_url ? '' : 'style="display:none"'; ?>>
-                                        <span class="dashicons dashicons-trash"></span> Xoá ảnh
+                                        <span class="dashicons dashicons-trash"></span> Xoá
                                     </button>
                                 </div>
                             </div>
                             <p class="description">Dùng shortcode <code>[cim_footer_bg]</code> để lấy URL ảnh nền, hoặc <code>[cim_footer_section]</code> để render thẻ section có background.</p>
                         </div>
 
-                        <!-- Signature TinyMCE -->
-                        <div class="cim-field">
-                            <label for="cim_signature">Chữ ký (Signature)</label>
-                            <?php
-                            wp_editor(
-                                $data['signature'] ?? '',
-                                'cim_signature',
-                                [
-                                    'textarea_name' => 'cim_signature',
-                                    'textarea_rows' => 8,
-                                    'media_buttons' => true,
-                                    'teeny'         => false,
-                                    'tinymce'       => true,
-                                    'quicktags'     => true,
-                                ]
-                            );
-                            ?>
-                            <p class="description">Chèn chữ ký vào bất kỳ post type nào bằng shortcode: <code>[cim_signature]</code></p>
-                        </div>
                     </div>
 
                     <div class="cim-submit-row">
@@ -647,14 +629,11 @@ add_shortcode( 'cim_footer_section', function( $atts, $content = '' ) {
     return '<' . $tag . ' class="' . esc_attr( $class ) . '" style="' . $style . '">' . do_shortcode( (string) $content ) . '</' . $tag . '>';
 } );
 
-// ── [cim_signature class=""] — chèn chữ ký vào content ──
-add_shortcode( 'cim_signature', function( $atts ) {
-    $atts  = shortcode_atts( [ 'class' => '' ], $atts );
-    $value = cim_get( 'signature' );
-    if ( ! $value ) return '';
-    $class = trim( 'cim-signature ' . sanitize_html_class( $atts['class'] ) );
-    return '<div class="' . esc_attr( $class ) . '">' . wp_kses_post( $value ) . '</div>';
-} );
+// ── [cim_signature] — chữ ký đã bị gỡ ──
+// Vẫn đăng ký shortcode, nhưng không in gì. Bài cũ nào đã chèn [cim_signature]
+// mà bỏ đăng ký thì nguyên chuỗi "[cim_signature]" sẽ hiện ra trên trang. Tên
+// shortcode cũng nằm trong danh sách định danh không được đổi (README).
+add_shortcode( 'cim_signature', '__return_empty_string' );
 
 // ── [cim_card] — card tổng hợp ──
 add_shortcode( 'cim_card', function( $atts ) {
@@ -709,45 +688,3 @@ add_shortcode( 'cim_card', function( $atts ) {
         . '</div>'
         . '</div>';
 } );
-
-// ──────────────────────────────────────────────
-// TinyMCE Plugin — nút "Chèn Chữ Ký" trên editor bài viết
-// ──────────────────────────────────────────────
-
-add_action( 'admin_init', 'cim_tinymce_init' );
-function cim_tinymce_init() {
-    if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) return;
-    if ( 'true' !== get_user_option( 'rich_editing' ) ) return;
-
-    add_filter( 'mce_external_plugins', 'cim_tinymce_plugin' );
-    add_filter( 'mce_buttons',          'cim_tinymce_button' );
-}
-
-function cim_tinymce_plugin( $plugins ) {
-    $plugins['cim_signature'] = CIM_PLUGIN_URL . 'assets/tinymce-signature.js';
-    return $plugins;
-}
-
-function cim_tinymce_button( $buttons ) {
-    array_push( $buttons, 'cim_signature_btn' );
-    return $buttons;
-}
-
-// Truyền dữ liệu chữ ký sang JS để preview trong popup
-add_action( 'admin_enqueue_scripts', 'cim_tinymce_localize' );
-function cim_tinymce_localize( $hook ) {
-    // Chỉ load trên các trang có editor bài viết
-    if ( ! in_array( $hook, ['post.php', 'post-new.php'], true ) ) return;
-
-    $data = get_option( CIM_OPTION_KEY, cim_default_data() );
-
-    wp_add_inline_script(
-        'editor',
-        'var CIM_Signature = ' . wp_json_encode( [
-            'shortcode' => '[cim_signature]',
-            'preview'   => wp_strip_all_tags( $data['signature'] ?? '' ),
-            'label'     => 'Chèn Chữ Ký',
-        ] ) . ';',
-        'before'
-    );
-}

@@ -97,7 +97,7 @@ $(document).on('click', '#ci-add-feat', function(){
             '<div class="ci-feat-icon-cell">'+
                 '<span class="ci-feat-thumb ci-feat-thumb--empty">?</span>'+
                 '<input type="hidden" name="ci_feat_icon[]" value="0">'+
-                '<button type="button" class="button button-small ci-feat-pick-img">Chọn ảnh</button>'+
+                '<button type="button" class="button button-secondary ci-feat-pick-img"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>'+
             '</div>'+
             '<input type="text" name="ci_feat_text[]" placeholder="Nội dung đặc điểm..." style="flex:1">'+
             '<span class="ci-remove-feat dashicons dashicons-trash" style="cursor:pointer;color:#c00;margin-left:8px"></span>'+

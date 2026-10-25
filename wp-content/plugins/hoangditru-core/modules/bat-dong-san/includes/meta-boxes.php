@@ -71,7 +71,7 @@ function bds_meta_carousel_cb( $post ) {
             </div>
         <?php endforeach; ?>
     </div>
-    <button type="button" id="bds-add-carousel-img" class="button">+ Thêm hình ảnh</button>
+    <button type="button" id="bds-add-carousel-img" class="button button-secondary"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>
 
     <script>
     jQuery(function($){
@@ -203,7 +203,7 @@ function bds_meta_mat_bang_cb( $post ) {
                 <?php endforeach; ?>
             </div>
             <div class="bds-mb-actions">
-                <button type="button" class="button bds-mb-add-img" data-index="<?php echo $i; ?>">+ Thêm hình</button>
+                <button type="button" class="button button-secondary bds-mb-add-img" data-index="<?php echo $i; ?>"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>
                 <button type="button" class="bds-mb-remove">✕ Xóa mục này</button>
             </div>
         </div>
@@ -253,7 +253,7 @@ function bds_meta_mat_bang_cb( $post ) {
                 '<input type="text" name="bds_mat_bang['+idx+'][title]" placeholder="Tiêu đề mặt bằng..." />'+
                 '<div class="bds-mb-images"></div>'+
                 '<div class="bds-mb-actions">'+
-                  '<button type="button" class="button bds-mb-add-img" data-index="'+idx+'">+ Thêm hình</button>'+
+                  '<button type="button" class="button button-secondary bds-mb-add-img" data-index="'+idx+'"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>'+
                   '<button type="button" class="bds-mb-remove">✕ Xóa mục này</button>'+
                 '</div></div>');
             $('#bds-mb-wrap').append(item);

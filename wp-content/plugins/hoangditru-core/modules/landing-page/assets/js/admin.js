@@ -15,7 +15,7 @@
                     '<div class="lpb-image-picker lpb-inline">' +
                         '<input type="hidden" name="lpb_advantages[' + i + '][icon]" value="" class="lpb-img-input">' +
                         '<div class="lpb-img-preview lpb-sm"></div>' +
-                        '<button type="button" class="button lpb-upload-btn">Icon</button>' +
+                        '<button type="button" class="button button-secondary lpb-upload-btn"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>' +
                     '</div>' +
                     '<input type="text" name="lpb_advantages[' + i + '][text]" value="" placeholder="Nội dung ưu điểm" class="widefat">' +
                 '</div>' +
@@ -34,7 +34,7 @@
                     '<div class="lpb-image-picker" style="margin-bottom:8px">' +
                         '<input type="hidden" name="lpb_benefits[' + i + '][image]" value="" class="lpb-img-input">' +
                         '<div class="lpb-img-preview"></div>' +
-                        '<button type="button" class="button lpb-upload-btn">Chọn hình</button>' +
+                        '<button type="button" class="button button-secondary lpb-upload-btn"><span class="dashicons dashicons-upload"></span> Chọn ảnh</button>' +
                     '</div>' +
                     '<textarea name="lpb_benefits[' + i + '][desc]" rows="2" placeholder="Mô tả quyền lợi" class="widefat"></textarea>' +
                 '</div>' +
@@ -158,16 +158,22 @@
             var url = attachment.url;
             $input.val(url);
             $preview.html('<img src="' + url + '">');
+            $picker.find('.lpb-remove-btn').show();
         });
 
         mediaFrame.open();
     });
 
-    // Xóa ảnh (chỉ hero banner)
+    // Xóa ảnh (chỉ hero banner). Tìm input/preview trong cùng .lpb-image-picker
+    // như nút chọn ảnh: meta box Hero cũng mang id "lpb_hero_icon", nên
+    // $('#lpb_hero_icon') trúng khung meta box chứ không trúng input ẩn — trước
+    // đây bấm Xóa rồi Lưu thì icon vẫn còn.
     $(document).on('click', '.lpb-remove-btn', function (e) {
         e.preventDefault();
-        $('#' + $(this).data('target')).val('');
-        $('#' + $(this).data('preview')).html('');
+        var $picker = $(this).closest('.lpb-image-picker');
+        $picker.find('.lpb-img-input').val('');
+        $picker.find('.lpb-img-preview').html('');
+        $(this).hide();
     });
 
 })(jQuery);
