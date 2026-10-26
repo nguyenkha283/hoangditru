@@ -60,7 +60,7 @@ defined( 'ABSPATH' ) || exit;
  * ghi một lần cho mỗi phiên bản. Giá trị đang lưu nằm ở option
  * `hdt_phan_quyen_version`.
  */
-define( 'HDTQ_VERSION', '1.0.0' );
+define( 'HDTQ_VERSION', '1.1.0' );
 
 const HDTQ_ROLE              = 'editor';
 const HDTQ_SYNC_OPTION       = 'hdt_phan_quyen_version';
@@ -92,12 +92,29 @@ const HDTQ_TAXONOMIES = array(
 const HDTQ_PAGES = array(
 	'trang-chu-settings',
 	'contact-info-manager',
+	'hdt-xoa-cache',
+);
+
+/**
+ * Menu cha giữ lại dù bản thân nó bị chặn, kèm cap để hiện: slug => cap.
+ *
+ * WordPress treo mục "Menu" dưới menu cha "Giao diện" (themes.php), mà
+ * themes.php là màn đổi chủ đề — không được mở. Xoá cha thì mất luôn con, nên
+ * cha được giữ lại và hdtq_prune_admin_menu() hạ cap của nó xuống cap ở đây;
+ * _wp_menu_output() tự trỏ link của cha sang mục con đầu tiên còn lại.
+ *
+ * Cha chỉ sống khi còn ít nhất một con được phép — hết con thì xoá như thường,
+ * để không còn lại một mục bấm vào là 403.
+ */
+const HDTQ_MENU_PARENTS = array(
+	'themes.php' => 'edit_theme_options',
 );
 
 /** File wp-admin không cần tham số, luôn được phép. */
 const HDTQ_SCREENS = array(
 	'index.php',        // Bảng tin
 	'profile.php',      // Hồ sơ cá nhân
+	'nav-menus.php',    // Giao diện → Menu
 	'upload.php',       // Media
 	'media-new.php',
 	'media-upload.php', // iframe của popup chèn media
@@ -144,6 +161,18 @@ const HDTQ_CAPS = array(
 	'delete_others_pages',
 	'delete_published_pages',
 	'delete_private_pages',
+
+	/*
+	 * Giao diện → Menu.
+	 *
+	 * WordPress không có cap riêng cho menu điều hướng: edit_theme_options gác
+	 * chung cả Chủ đề, Customizer, Widget và Sửa file theme. Cấp nó là mở nguyên
+	 * cụm đó ở tầng cap, nên phải đi kèm ba thứ: nav-menus.php là màn duy nhất
+	 * được thêm vào HDTQ_SCREENS, HDTQ_MENU_PARENTS chỉ chở đúng mục "Menu", và
+	 * hdtq_prune_admin_bar() gỡ các mục Giao diện trên admin bar. Theme này
+	 * không đăng ký sidebar nào nên màn Widget cũng không có gì để sửa.
+	 */
+	'edit_theme_options',
 
 	// Hai trang cài đặt nội dung
 	HDTQ_CAP_SITE_SETTINGS,
@@ -362,6 +391,17 @@ function hdtq_prune_admin_menu() {
 	foreach ( (array) $menu as $i => $item ) {
 		$slug = isset( $item[2] ) ? (string) $item[2] : '';
 
+		if ( '' !== $slug && isset( HDTQ_MENU_PARENTS[ $slug ] ) && hdtq_submenu_has_allowed( $slug ) ) {
+			/*
+			 * Cap gốc của mục cha là cap của mục con đầu tiên — Giao diện là
+			 * switch_themes, thứ Biên tập viên không có. Để nguyên thì WordPress
+			 * tự gỡ mục cha ở bước lọc quyền sau `admin_menu`. Slug thì không
+			 * đổi: $submenu vẫn đánh khoá theo slug cũ.
+			 */
+			$menu[ $i ][1] = HDTQ_MENU_PARENTS[ $slug ];
+			continue;
+		}
+
 		if ( '' === $slug || ! hdtq_menu_slug_allowed( $slug ) ) {
 			unset( $menu[ $i ] );
 
@@ -384,6 +424,29 @@ function hdtq_prune_admin_menu() {
 			unset( $submenu[ $parent ] );
 		}
 	}
+}
+
+/**
+ * Menu cha này còn mục con nào được phép không.
+ *
+ * Chạy trước vòng lọc $submenu nên đọc $submenu lúc còn nguyên — đúng cái cần:
+ * câu hỏi là "sau khi lọc thì còn gì không".
+ *
+ * @param string $parent Slug menu cha.
+ * @return bool
+ */
+function hdtq_submenu_has_allowed( $parent ) {
+	global $submenu;
+
+	foreach ( (array) ( $submenu[ $parent ] ?? array() ) as $item ) {
+		$slug = isset( $item[2] ) ? (string) $item[2] : '';
+
+		if ( '' !== $slug && hdtq_menu_slug_allowed( $slug ) ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**
@@ -496,7 +559,12 @@ function hdtq_block_other_post_types( $caps, $cap, $user_id, $args ) {
 
 add_action( 'admin_bar_menu', 'hdtq_prune_admin_bar', 999 );
 /**
- * Bỏ bong bóng Bình luận trên thanh admin.
+ * Bỏ các mục trên thanh admin dẫn vào chỗ bị chặn.
+ *
+ * Bong bóng Bình luận chỉ là thứ không dùng. Customizer và Widget mới là thứ
+ * phải gỡ: edit_theme_options — cấp để sửa menu điều hướng — làm WordPress hiện
+ * chúng ở đây, mà hdtq_guard_admin_screens() trả 403 khi mở, nên để lại chỉ là
+ * link dẫn vào mặt tường. Mục "Menu" thì giữ.
  *
  * @param WP_Admin_Bar $bar Thanh admin.
  */
@@ -505,7 +573,19 @@ function hdtq_prune_admin_bar( $bar ) {
 		return;
 	}
 
-	$bar->remove_node( 'comments' );
+	$nodes = array(
+		'comments',
+		'customize',
+		'widgets',
+		'themes',
+		'background',
+		'header',
+		'site-editor',
+	);
+
+	foreach ( $nodes as $node ) {
+		$bar->remove_node( $node );
+	}
 }
 
 add_action( 'wp_dashboard_setup', 'hdtq_prune_dashboard_widgets' );
