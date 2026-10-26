@@ -8,19 +8,22 @@ add_action( 'add_meta_boxes', 'ci_register_meta_boxes' );
 function ci_register_meta_boxes() {
     $pt = 'citizenship_invest';
     $boxes = [
+        // Thứ tự hiển thị thật do hdtc_admin_layout() trong includes/admin-ui.php
+        // quyết định, không phải thứ tự ở đây — WordPress nhớ thứ tự kéo thả theo
+        // từng người dùng và nó đè lên thứ tự đăng ký.
         [ 'ci_carousel',     'Carousel – Slide ảnh',                'ci_mb_carousel'     ],
         [ 'ci_features',     'Đặc điểm nổi bật',                   'ci_mb_features'     ],
         [ 'ci_why_us',       'Why Us',                              'ci_mb_why_us'       ],
-        [ 'ci_du_an',        'Dự án bất động sản',                  'ci_mb_du_an'        ],
         [ 'ci_du_an',        'Danh mục dự án (BĐS)',               'ci_mb_du_an'        ],
-        [ 'ci_programs',     'Section Chương trình',                'ci_mb_programs'     ],
-        [ 'ci_news',         'Section Tin tức',                     'ci_mb_news'         ],
+        [ 'ci_programs',     'Chương trình',                        'ci_mb_programs'     ],
+        [ 'ci_news',         'Tin tức',                             'ci_mb_news'         ],
     ];
     foreach ( $boxes as $b ) {
         add_meta_box( $b[0], $b[1], $b[2], $pt, 'normal', 'high' );
     }
-    // Page icon + h2 overlay (fixed over carousel)
-    add_meta_box( 'ci_page_overlay', 'Tải lên cờ quốc gia', 'ci_mb_page_overlay', $pt, 'normal', 'high' );
+    // Icon + h2 đè lên carousel. Tên cũ là "Tải lên cờ quốc gia" nhưng ô này
+    // nhận mọi loại icon, và bên Golden Visa hộp tương đương đã tên như vậy.
+    add_meta_box( 'ci_page_overlay', 'Hero — Icon góc dưới trái', 'ci_mb_page_overlay', $pt, 'normal', 'high' );
 }
 
 /* ============================================================

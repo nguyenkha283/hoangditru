@@ -99,57 +99,22 @@ function lpb_mb_faqs( $post ) {
 }
 
 /**
- * Ép thứ tự meta box.
+ * Ép thứ tự meta box và hiện hộp "Mô tả ngắn".
  *
- * WordPress nhớ thứ tự kéo thả theo TỪNG người dùng trong user meta
- * meta-box-order_golden_visa, và thứ tự đó đè lên thứ tự đăng ký. Nên chỉ sắp
- * lại lúc đăng ký là không đủ: ai từng kéo một lần sẽ vẫn thấy thứ tự cũ.
+ * banner.php đọc mô tả ngắn qua get_the_excerpt() để in dưới tiêu đề, mà
+ * WordPress ẩn postexcerpt theo mặc định — ẩn thì người nhập không biết có ô đó.
  *
- * @param mixed $order Thứ tự đã lưu của người dùng.
- * @return array
+ * Chi tiết vì sao phải ép thứ tự, và vì sao bỏ ẩn không được trả mảng rỗng, xem
+ * hoangditru-core/includes/admin-layout.php.
  */
-add_filter( 'get_user_option_meta-box-order_golden_visa', 'lpb_force_meta_box_order' );
-function lpb_force_meta_box_order( $order ) {
-	return array(
-		'normal'   => implode( ',', LPB_ADMIN_BOX_ORDER ),
-		'side'     => implode( ',', LPB_ADMIN_SIDE_ORDER ),
-		'advanced' => '',
-	);
-}
-
-/**
- * Hiện hộp "Mô tả ngắn".
- *
- * WordPress ẩn postexcerpt theo mặc định, trong khi banner.php đọc nó qua
- * get_the_excerpt() để in mô tả dưới tiêu đề — ẩn thì người nhập không biết có
- * ô đó.
- *
- * Phải dựng lại danh sách ẩn mặc định khi người dùng chưa có tuỳ chọn riêng:
- * get_hidden_meta_boxes() chỉ dùng danh sách mặc định khi giá trị KHÔNG phải
- * mảng, nên trả về mảng rỗng sẽ bỏ ẩn tất cả, lôi cả Trường tuỳ biến và Thảo
- * luận ra màn hình.
- *
- * @param mixed $hidden Danh sách hộp đang ẩn.
- * @return string[]
- */
-add_filter( 'get_user_option_metaboxhidden_golden_visa', 'lpb_show_excerpt_box' );
-function lpb_show_excerpt_box( $hidden ) {
-	if ( ! is_array( $hidden ) ) {
-		// Đúng danh sách WordPress ẩn mặc định ở màn soạn bài.
-		$hidden = array(
-			'slugdiv',
-			'trackbacksdiv',
-			'postcustom',
-			'postexcerpt',
-			'commentstatusdiv',
-			'commentsdiv',
-			'authordiv',
-			'revisionsdiv',
-		);
-	}
-
-	return array_values( array_diff( $hidden, array( 'postexcerpt', 'postimagediv' ) ) );
-}
+hdtc_admin_layout(
+	'golden_visa',
+	array(
+		'normal' => LPB_ADMIN_BOX_ORDER,
+		'side'   => LPB_ADMIN_SIDE_ORDER,
+		'show'   => array( 'postexcerpt' ),
+	)
+);
 
 /**
  * Ẩn hai hộp không dùng ở cột phải.
