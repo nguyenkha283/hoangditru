@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Hoàng Di Trú Core
  * Description: Toàn bộ chức năng lõi của site, gộp từ 8 plugin rời. Đây là code của site, không phải tiện ích thêm vào — không thiết kế để bật/tắt từng phần.
- * Version:     1.0.1
+ * Version:     1.1.0
  * Author:      Hoàng Di Trú
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -39,7 +39,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'HDTC_VERSION', '1.0.1' );
+define( 'HDTC_VERSION', '1.1.0' );
 define( 'HDTC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HDTC_URL', plugin_dir_url( __FILE__ ) );
 
@@ -120,6 +120,10 @@ if ( $hdtc_conflict ) {
 
 // Hàm dùng chung cho template của mọi module: hdtc_img().
 require_once HDTC_DIR . 'includes/img.php';
+
+// Xếp màn soạn bài: hdtc_admin_layout(). Phải nạp TRƯỚC module vì module gọi nó
+// ngay lúc nạp.
+require_once HDTC_DIR . 'includes/admin-layout.php';
 
 foreach ( HDTC_MODULES as $hdtc_dir => $hdtc_entry ) {
 	$hdtc_file = HDTC_DIR . 'modules/' . $hdtc_dir . '/' . $hdtc_entry;

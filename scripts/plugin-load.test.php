@@ -20,13 +20,18 @@ define( 'ABSPATH', __DIR__ . '/../' );
 define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
 
 $GLOBALS['hooks']      = array();
+$GLOBALS['filters']    = array();
 $GLOBALS['shortcodes'] = array();
 $GLOBALS['post_types'] = array();
 $GLOBALS['taxonomies'] = array();
 
 // ── Hàm WordPress mà module gọi ở phạm vi file ───────────────────────────────
 function add_action( $hook, $cb = null, $pri = 10, $args = 1 ) { $GLOBALS['hooks'][] = $hook; }
-function add_filter( $hook, $cb = null, $pri = 10, $args = 1 ) { $GLOBALS['hooks'][] = $hook; }
+function add_filter( $hook, $cb = null, $pri = 10, $args = 1 ) {
+	$GLOBALS['hooks'][] = $hook;
+	// Giữ lại callback để test gọi thẳng, xem filter trả về gì.
+	$GLOBALS['filters'][ $hook ][] = $cb;
+}
 function remove_action( $hook, $cb = null, $pri = 10 ) {}
 function remove_filter( $hook, $cb = null, $pri = 10 ) {}
 function do_action( $hook ) {}
@@ -162,6 +167,74 @@ foreach ( $must_have_shortcodes as $sc ) {
 	if ( ! in_array( $sc, $GLOBALS['shortcodes'], true ) ) {
 		printf( "  LỖI   thiếu shortcode [%s]\n", $sc );
 		$errors[] = 'shortcode ' . $sc;
+	}
+}
+
+/*
+ * Thứ tự meta box ở màn soạn.
+ *
+ * Gọi thẳng filter đã đăng ký và so chuỗi. Gõ sai một id hộp thì hộp đó rơi
+ * xuống cuối màn hình mà không có dấu hiệu gì — test này bắt được.
+ */
+$layouts = array(
+	'golden_visa'        => array(
+		'normal' => 'lpb_hero_icon,postexcerpt,lpb_advantages,lpb_benefits,lpb_conditions,lpb_process,lpb_du_an,lpb_faqs',
+		'side'   => 'submitdiv,postimagediv',
+	),
+	'citizenship_invest' => array(
+		'normal' => 'ci_page_overlay,ci_carousel,postexcerpt,ci_features,ci_why_us,ci_du_an,ci_programs,ci_news',
+		'side'   => 'submitdiv,postimagediv',
+	),
+);
+
+foreach ( $layouts as $pt => $want ) {
+	$hook = "get_user_option_meta-box-order_{$pt}";
+
+	if ( empty( $GLOBALS['filters'][ $hook ] ) ) {
+		printf( "  LỖI   %s không đăng ký thứ tự meta box\n", $pt );
+		$errors[] = $hook;
+		continue;
+	}
+
+	$got = call_user_func( $GLOBALS['filters'][ $hook ][0], false );
+
+	foreach ( array( 'normal', 'side' ) as $col ) {
+		if ( ( $got[ $col ] ?? '' ) === $want[ $col ] ) {
+			printf( "  ok    %-20s %-6s %s\n", $pt, $col, $want[ $col ] );
+		} else {
+			printf( "  LỖI   %-20s %-6s\n        mong đợi: %s\n        nhận    : %s\n", $pt, $col, $want[ $col ], $got[ $col ] ?? '(rỗng)' );
+			$errors[] = $pt . '/' . $col;
+		}
+	}
+}
+
+/*
+ * Bỏ ẩn "Mô tả ngắn" mà KHÔNG bỏ ẩn những hộp WordPress vốn ẩn.
+ *
+ * get_hidden_meta_boxes() chỉ dùng danh sách mặc định khi giá trị không phải
+ * mảng, nên filter trả về mảng rỗng sẽ lôi cả Trường tuỳ biến, Thảo luận,
+ * Đường dẫn ra màn hình. Đây đúng là cái bẫy dễ dính nhất ở chỗ này.
+ */
+foreach ( array_keys( $layouts ) as $pt ) {
+	$hook = "get_user_option_metaboxhidden_{$pt}";
+
+	if ( empty( $GLOBALS['filters'][ $hook ] ) ) {
+		printf( "  LỖI   %s không đăng ký danh sách hộp ẩn\n", $pt );
+		$errors[] = $hook;
+		continue;
+	}
+
+	// false = người dùng chưa kéo thả bao giờ, chưa có tuỳ chọn riêng.
+	$hidden = call_user_func( $GLOBALS['filters'][ $hook ][0], false );
+
+	if ( in_array( 'postexcerpt', $hidden, true ) ) {
+		printf( "  LỖI   %s vẫn ẩn Mô tả ngắn\n", $pt );
+		$errors[] = $pt . '/postexcerpt';
+	} elseif ( ! in_array( 'postcustom', $hidden, true ) || ! in_array( 'commentsdiv', $hidden, true ) ) {
+		printf( "  LỖI   %s bỏ ẩn quá tay, Trường tuỳ biến hoặc Thảo luận sẽ hiện ra\n", $pt );
+		$errors[] = $pt . '/hidden';
+	} else {
+		printf( "  ok    %-20s hiện Mô tả ngắn, vẫn ẩn %d hộp mặc định\n", $pt, count( $hidden ) );
 	}
 }
 
