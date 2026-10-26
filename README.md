@@ -232,6 +232,36 @@ thì không thêm và cũng không đánh dấu, nên gán menu xong là lần x
 [`scripts/menu-tu-dong.test.php`](scripts/menu-tu-dong.test.php) dựng lại đúng cấu trúc menu đang
 chạy ngoài site rồi kiểm 37 trường hợp.
 
+## Thứ tự hộp trong màn soạn bài
+
+Ba màn soạn Golden Visa, Đầu tư quốc tịch, Bất động sản xếp hộp theo đúng thứ tự hiển thị ngoài
+trang. Việc đó do `hdtc_admin_layout()` trong `hoangditru-core/includes/admin-layout.php` làm, và có
+hai cái bẫy đã dính:
+
+**1. Thứ tự đăng ký không có tác dụng.** WordPress nhớ thứ tự kéo thả theo *từng người dùng* trong
+user meta `meta-box-order_<post_type>`, và thứ tự đó đè lên thứ tự `add_meta_box()`. Nên phải ép qua
+filter `get_user_option_meta-box-order_<post_type>`, không phải sắp lại lúc đăng ký.
+
+**2. Hộp priority `high` luôn nằm trên tất cả.** `do_meta_boxes()` render các priority theo thứ tự
+`high → sorted → core → default → low`, mà thứ tự ép ở trên nằm ở **`sorted`**. Nên câu "hộp không
+liệt kê thì xếp sau" chỉ đúng với `core`, `default`, `low`:
+
+| Plugin | Hộp | Đăng ký | Kết quả |
+|---|---|---|---|
+| LiteSpeed Cache | `litespeed_meta_boxes` | `side` / `core` | tự xuống dưới, không cần làm gì |
+| Rank Math SEO | `rank_math_metabox_link_suggestions` | `side` / `default` | tự xuống dưới |
+| Rank Math SEO | `rank_math_metabox` | `normal` / **`high`** | chen lên trên cùng |
+
+Cờ `'tail' => true` giải quyết hộp loại cuối: `hdtc_demote_unlisted_boxes()` hạ **mọi** hộp không
+liệt kê ở cột chính xuống `low`, nên không phải chép cứng id hộp nào và plugin cài thêm sau này cũng
+tự xuống dưới. Hiện bật cho **Bất động sản**; Golden Visa và Đầu tư quốc tịch chưa bật — thêm một
+dòng `'tail' => true` vào `hdtc_admin_layout()` của hai module đó là xong.
+
+Ô nội dung của WordPress thì không kéo thả được: `edit-form-advanced.php` render nó ngoài hệ thống
+meta box nên nó luôn ghim sát dưới tiêu đề. Ba màn này đều gỡ `editor` khỏi `supports` rồi dựng lại
+bằng `wp_editor()` trong một meta box — id trình soạn **phải** giữ đúng `content`, vì
+`_wp_translate_postdata()` đọc `$_POST['content']` để gán vào `post_content`.
+
 ## Vì sao tách được khỏi Flatsome
 
 Đo trên code và DB thật:

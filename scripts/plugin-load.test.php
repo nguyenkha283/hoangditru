@@ -21,12 +21,17 @@ define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
 
 $GLOBALS['hooks']      = array();
 $GLOBALS['filters']    = array();
+$GLOBALS['actions']    = array();
 $GLOBALS['shortcodes'] = array();
 $GLOBALS['post_types'] = array();
 $GLOBALS['taxonomies'] = array();
 
 // ── Hàm WordPress mà module gọi ở phạm vi file ───────────────────────────────
-function add_action( $hook, $cb = null, $pri = 10, $args = 1 ) { $GLOBALS['hooks'][] = $hook; }
+function add_action( $hook, $cb = null, $pri = 10, $args = 1 ) {
+	$GLOBALS['hooks'][] = $hook;
+	// Giữ callback để test chạy thẳng hook, xem nó làm gì.
+	$GLOBALS['actions'][ $hook ][] = $cb;
+}
 function add_filter( $hook, $cb = null, $pri = 10, $args = 1 ) {
 	$GLOBALS['hooks'][] = $hook;
 	// Giữ lại callback để test gọi thẳng, xem filter trả về gì.
@@ -44,6 +49,7 @@ function register_activation_hook( $file, $cb ) {}
 function register_deactivation_hook( $file, $cb ) {}
 function register_uninstall_hook( $file, $cb ) {}
 function add_meta_box() {}
+function remove_post_type_support() {}
 function add_menu_page() {}
 function add_submenu_page() {}
 function add_options_page() {}
@@ -245,6 +251,69 @@ foreach ( array( 'golden_visa', 'citizenship_invest' ) as $pt ) {
 	} else {
 		printf( "  ok    %-20s hiện Mô tả ngắn, vẫn ẩn %d hộp mặc định\n", $pt, count( $hidden ) );
 	}
+}
+
+/*
+ * Hộp lạ ở cột chính phải xuống cuối.
+ *
+ * Rank Math SEO đăng ký hộp ở normal/high, mà do_meta_boxes() render 'high'
+ * trước 'sorted' — chỗ chứa thứ tự ta ép — nên không hạ priority thì nó chen
+ * lên trên cả Hình ảnh carousel. Dựng lại $wp_meta_boxes y như WordPress rồi
+ * gọi thẳng hàm hạ.
+ */
+$GLOBALS['wp_meta_boxes'] = array(
+	'bat-dong-san' => array(
+		'normal' => array(
+			'high'    => array(
+				'rank_math_metabox' => array( 'id' => 'rank_math_metabox' ),
+			),
+			'core'    => array(
+				'bds_carousel'  => array( 'id' => 'bds_carousel' ),
+				'bds_thong_tin' => array( 'id' => 'bds_thong_tin' ),
+			),
+			'default' => array(
+				'bds_tong_quan' => array( 'id' => 'bds_tong_quan' ),
+				'bds_mo_ta'     => array( 'id' => 'bds_mo_ta' ),
+				'bds_mat_bang'  => array( 'id' => 'bds_mat_bang' ),
+				'hop_la_khac'   => array( 'id' => 'hop_la_khac' ),
+			),
+		),
+	),
+);
+
+/*
+ * Gọi qua hook đã đăng ký, không gọi thẳng hàm hạ priority: phải kiểm cả dây
+ * nối. Gọi thẳng thì tắt cờ 'tail' đi test vẫn xanh, tức test vô dụng.
+ *
+ * Giới hạn: stub không giữ priority nên callback chạy theo thứ tự đăng ký. Thực
+ * tế closure của hdtc_admin_layout() đăng ký ở priority 9999 nên chạy sau cùng,
+ * mà nó cũng là cái đăng ký sau cùng trong file — hai thứ tự trùng nhau.
+ */
+foreach ( (array) ( $GLOBALS['actions']['add_meta_boxes_bat-dong-san'] ?? array() ) as $cb ) {
+	call_user_func( $cb, null );
+}
+
+$cot  = $GLOBALS['wp_meta_boxes']['bat-dong-san']['normal'];
+$low  = array_keys( $cot['low'] ?? array() );
+$high = array_keys( $cot['high'] ?? array() );
+
+/*
+ * Năm hộp của mình phải NGUYÊN priority cũ. Hạ cả chúng xuống 'low' thì thứ tự
+ * ép mất tác dụng: mọi hộp cùng một priority, trật tự lại do thứ tự đăng ký.
+ */
+$cua_minh = array_merge( array_keys( $cot['core'] ?? array() ), array_keys( $cot['default'] ?? array() ) );
+
+if ( array( 'rank_math_metabox', 'hop_la_khac' ) !== $low ) {
+	printf( "  LỖI   hộp lạ chưa xuống 'low': %s\n", $low ? implode( ',', $low ) : '(rỗng)' );
+	$errors[] = 'tail/low';
+} elseif ( $high ) {
+	printf( "  LỖI   còn hộp ở 'high', nó sẽ nằm trên tất cả: %s\n", implode( ',', $high ) );
+	$errors[] = 'tail/high';
+} elseif ( BDS_ADMIN_BOX_ORDER !== $cua_minh ) {
+	printf( "  LỖI   hộp của mình bị đụng priority: %s\n", implode( ',', $cua_minh ) );
+	$errors[] = 'tail/keep';
+} else {
+	printf( "  ok    %-20s %d hộp lạ xuống sau Mặt bằng, 5 hộp của mình nguyên chỗ\n", 'bat-dong-san', count( $low ) );
 }
 
 printf(

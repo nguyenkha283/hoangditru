@@ -99,5 +99,16 @@ hdtc_admin_layout(
 	array(
 		'normal' => BDS_ADMIN_BOX_ORDER,
 		'side'   => BDS_ADMIN_SIDE_ORDER,
+
+		/*
+		 * Hộp của plugin khác xuống dưới Mặt bằng.
+		 *
+		 * Rank Math SEO đăng ký hộp ở normal/high (bản 1.0.280,
+		 * includes/admin/metabox/class-metabox.php), mà 'high' chạy trước
+		 * 'sorted' — chỗ chứa thứ tự ta ép — nên nó chen lên trên cả Hình ảnh
+		 * carousel. Cờ này hạ mọi hộp không liệt kê xuống 'low', không cần biết
+		 * id của hộp nào.
+		 */
+		'tail'   => true,
 	)
 );
