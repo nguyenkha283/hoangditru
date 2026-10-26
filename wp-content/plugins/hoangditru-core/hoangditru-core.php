@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Hoàng Di Trú Core
  * Description: Toàn bộ chức năng lõi của site, gộp từ 8 plugin rời. Đây là code của site, không phải tiện ích thêm vào — không thiết kế để bật/tắt từng phần.
- * Version:     1.3.1
+ * Version:     1.3.2
  * Author:      Hoàng Di Trú
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -40,7 +40,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'HDTC_VERSION', '1.3.1' );
+define( 'HDTC_VERSION', '1.3.2' );
 define( 'HDTC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HDTC_URL', plugin_dir_url( __FILE__ ) );
 

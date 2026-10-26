@@ -50,6 +50,34 @@ function register_deactivation_hook( $file, $cb ) {}
 function register_uninstall_hook( $file, $cb ) {}
 function add_meta_box() {}
 function remove_post_type_support() {}
+
+/**
+ * remove_meta_box() giả lập, giống bản thật: đặt false ở CẢ bốn priority.
+ *
+ * Giống thật mới kiểm được rằng hdtc_demote_unlisted_boxes() không dời dấu đó
+ * đi — dời là mất dấu và hộp đã gỡ sẽ bị dựng lại.
+ */
+function remove_meta_box( $id, $page, $context ) {
+	foreach ( array( 'high', 'core', 'default', 'low' ) as $priority ) {
+		$GLOBALS['wp_meta_boxes'][ $page ][ $context ][ $priority ][ $id ] = false;
+	}
+}
+
+/**
+ * Dựng mảng hộp giả cho $wp_meta_boxes: id => mảng khai báo.
+ *
+ * @param string[] $ids Id hộp.
+ * @return array
+ */
+function fake_boxes( array $ids ) {
+	$out = array();
+
+	foreach ( $ids as $id ) {
+		$out[ $id ] = array( 'id' => $id, 'title' => $id );
+	}
+
+	return $out;
+}
 function add_menu_page() {}
 function add_submenu_page() {}
 function add_options_page() {}
@@ -254,66 +282,99 @@ foreach ( array( 'golden_visa', 'citizenship_invest' ) as $pt ) {
 }
 
 /*
- * Hộp lạ ở cột chính phải xuống cuối.
+ * Hộp lạ ở cột chính phải xuống cuối, cả ba màn.
  *
  * Rank Math SEO đăng ký hộp ở normal/high, mà do_meta_boxes() render 'high'
  * trước 'sorted' — chỗ chứa thứ tự ta ép — nên không hạ priority thì nó chen
- * lên trên cả Hình ảnh carousel. Dựng lại $wp_meta_boxes y như WordPress rồi
- * gọi thẳng hàm hạ.
- */
-$GLOBALS['wp_meta_boxes'] = array(
-	'bat-dong-san' => array(
-		'normal' => array(
-			'high'    => array(
-				'rank_math_metabox' => array( 'id' => 'rank_math_metabox' ),
-			),
-			'core'    => array(
-				'bds_carousel'  => array( 'id' => 'bds_carousel' ),
-				'bds_thong_tin' => array( 'id' => 'bds_thong_tin' ),
-			),
-			'default' => array(
-				'bds_tong_quan' => array( 'id' => 'bds_tong_quan' ),
-				'bds_mo_ta'     => array( 'id' => 'bds_mo_ta' ),
-				'bds_mat_bang'  => array( 'id' => 'bds_mat_bang' ),
-				'hop_la_khac'   => array( 'id' => 'hop_la_khac' ),
-			),
-		),
-	),
-);
-
-/*
- * Gọi qua hook đã đăng ký, không gọi thẳng hàm hạ priority: phải kiểm cả dây
- * nối. Gọi thẳng thì tắt cờ 'tail' đi test vẫn xanh, tức test vô dụng.
+ * lên trên hộp đầu tiên của mình. Dựng lại $wp_meta_boxes y như WordPress rồi
+ * chạy qua chính hook đã đăng ký.
+ *
+ * Phải chạy qua hook, không gọi thẳng hdtc_demote_unlisted_boxes(): gọi thẳng
+ * thì tắt cờ 'tail' đi test vẫn xanh, tức test không kiểm được gì.
  *
  * Giới hạn: stub không giữ priority nên callback chạy theo thứ tự đăng ký. Thực
  * tế closure của hdtc_admin_layout() đăng ký ở priority 9999 nên chạy sau cùng,
- * mà nó cũng là cái đăng ký sau cùng trong file — hai thứ tự trùng nhau.
+ * mà nó cũng là cái đăng ký sau cùng trong mỗi file — hai thứ tự trùng nhau.
  */
-foreach ( (array) ( $GLOBALS['actions']['add_meta_boxes_bat-dong-san'] ?? array() ) as $cb ) {
-	call_user_func( $cb, null );
+/**
+ * Priority nào đã mất dấu false của một hộp đã gỡ.
+ *
+ * @param array  $cot Mảng priority => hộp của một cột.
+ * @param string $id  Id hộp đã gỡ.
+ * @return string[]
+ */
+function hdtc_test_thieu_dau( array $cot, $id ) {
+	$thieu = array();
+
+	foreach ( array( 'high', 'core', 'default', 'low' ) as $priority ) {
+		if ( false !== ( $cot[ $priority ][ $id ] ?? null ) ) {
+			$thieu[] = $priority;
+		}
+	}
+
+	return $thieu;
 }
 
-$cot  = $GLOBALS['wp_meta_boxes']['bat-dong-san']['normal'];
-$low  = array_keys( $cot['low'] ?? array() );
-$high = array_keys( $cot['high'] ?? array() );
+$tail_cases = array(
+	'golden_visa'        => LPB_ADMIN_BOX_ORDER,
+	'citizenship_invest' => CI_ADMIN_BOX_ORDER,
+	'bat-dong-san'       => BDS_ADMIN_BOX_ORDER,
+);
 
-/*
- * Năm hộp của mình phải NGUYÊN priority cũ. Hạ cả chúng xuống 'low' thì thứ tự
- * ép mất tác dụng: mọi hộp cùng một priority, trật tự lại do thứ tự đăng ký.
- */
-$cua_minh = array_merge( array_keys( $cot['core'] ?? array() ), array_keys( $cot['default'] ?? array() ) );
+foreach ( $tail_cases as $pt => $order ) {
+	// Chia hộp của mình ra hai priority khác nhau: hàm hạ phải chừa cả hai.
+	$half = (int) ceil( count( $order ) / 2 );
 
-if ( array( 'rank_math_metabox', 'hop_la_khac' ) !== $low ) {
-	printf( "  LỖI   hộp lạ chưa xuống 'low': %s\n", $low ? implode( ',', $low ) : '(rỗng)' );
-	$errors[] = 'tail/low';
-} elseif ( $high ) {
-	printf( "  LỖI   còn hộp ở 'high', nó sẽ nằm trên tất cả: %s\n", implode( ',', $high ) );
-	$errors[] = 'tail/high';
-} elseif ( BDS_ADMIN_BOX_ORDER !== $cua_minh ) {
-	printf( "  LỖI   hộp của mình bị đụng priority: %s\n", implode( ',', $cua_minh ) );
-	$errors[] = 'tail/keep';
-} else {
-	printf( "  ok    %-20s %d hộp lạ xuống sau Mặt bằng, 5 hộp của mình nguyên chỗ\n", 'bat-dong-san', count( $low ) );
+	$GLOBALS['wp_meta_boxes'] = array(
+		$pt => array(
+			'normal' => array(
+				'high'    => fake_boxes( array( 'rank_math_metabox' ) ),
+				'core'    => fake_boxes( array_slice( $order, 0, $half ) ),
+				'default' => fake_boxes( array_merge( array_slice( $order, $half ), array( 'hop_la_khac' ) ) ),
+			),
+		),
+	);
+
+	/*
+	 * Thêm một hộp đã bị remove_meta_box() gỡ. Dấu của nó là giá trị false đặt
+	 * ở CẢ bốn priority; hàm hạ không được dời dấu đi, vì mất dấu ở priority
+	 * gốc là một add_meta_box() sau đó dựng lại đúng hộp đáng ra đã gỡ.
+	 */
+	remove_meta_box( 'hop_da_go', $pt, 'normal' );
+
+	foreach ( (array) ( $GLOBALS['actions'][ "add_meta_boxes_{$pt}" ] ?? array() ) as $cb ) {
+		call_user_func( $cb, null );
+	}
+
+	$cot  = $GLOBALS['wp_meta_boxes'][ $pt ]['normal'];
+	$low  = array_keys( array_filter( $cot['low'] ?? array() ) );
+	$high = array_keys( array_filter( $cot['high'] ?? array() ) );
+
+	/*
+	 * Hộp của mình phải NGUYÊN priority cũ. Hạ cả chúng xuống 'low' thì thứ tự
+	 * ép mất tác dụng: mọi hộp cùng một priority, trật tự lại do thứ tự đăng ký.
+	 */
+	$cua_minh = array_merge(
+		array_keys( array_filter( $cot['core'] ?? array() ) ),
+		array_keys( array_filter( $cot['default'] ?? array() ) )
+	);
+
+	if ( array( 'rank_math_metabox', 'hop_la_khac' ) !== $low ) {
+		printf( "  LỖI   %-20s hộp lạ chưa xuống 'low': %s\n", $pt, $low ? implode( ',', $low ) : '(rỗng)' );
+		$errors[] = $pt . '/tail-low';
+	} elseif ( $high ) {
+		printf( "  LỖI   %-20s còn hộp ở 'high', nó sẽ nằm trên tất cả: %s\n", $pt, implode( ',', $high ) );
+		$errors[] = $pt . '/tail-high';
+	} elseif ( $thieu_dau = hdtc_test_thieu_dau( $cot, 'hop_da_go' ) ) {
+		printf( "  LỖI   %-20s mất dấu hộp đã gỡ ở priority: %s
+", $pt, implode( ',', $thieu_dau ) );
+		$errors[] = $pt . '/tail-da-go';
+	} elseif ( $order !== $cua_minh ) {
+		printf( "  LỖI   %-20s hộp của mình bị đụng priority: %s\n", $pt, implode( ',', $cua_minh ) );
+		$errors[] = $pt . '/tail-keep';
+	} else {
+		printf( "  ok    %-20s %d hộp lạ xuống sau %s\n", $pt, count( $low ), end( $order ) );
+	}
 }
 
 printf(

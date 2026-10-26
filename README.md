@@ -254,8 +254,11 @@ liệt kê thì xếp sau" chỉ đúng với `core`, `default`, `low`:
 
 Cờ `'tail' => true` giải quyết hộp loại cuối: `hdtc_demote_unlisted_boxes()` hạ **mọi** hộp không
 liệt kê ở cột chính xuống `low`, nên không phải chép cứng id hộp nào và plugin cài thêm sau này cũng
-tự xuống dưới. Hiện bật cho **Bất động sản**; Golden Visa và Đầu tư quốc tịch chưa bật — thêm một
-dòng `'tail' => true` vào `hdtc_admin_layout()` của hai module đó là xong.
+tự xuống dưới. Bật cho cả ba màn.
+
+Hàm đó **không** dời giá trị `false` — đó là dấu `remove_meta_box()` để lại ở cả bốn priority, dời đi
+là mất dấu rồi một `add_meta_box()` sau đó dựng lại đúng hộp đáng ra đã gỡ. Màn Golden Visa gỡ hai
+hộp ở cột phải theo cách đó nên chuyện này có thật, không phải phòng xa.
 
 Ô nội dung của WordPress thì không kéo thả được: `edit-form-advanced.php` render nó ngoài hệ thống
 meta box nên nó luôn ghim sát dưới tiêu đề. Ba màn này đều gỡ `editor` khỏi `supports` rồi dựng lại
