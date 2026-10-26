@@ -132,7 +132,12 @@ function hdtc_demote_unlisted_boxes( $post_type, $context, array $keep ) {
 		}
 
 		foreach ( (array) $boxes as $id => $box ) {
-			if ( in_array( $id, $keep, true ) ) {
+			/*
+			 * false là dấu remove_meta_box() để lại, và nó đặt dấu đó ở CẢ bốn
+			 * priority. Dời dấu đi là mất dấu ở priority gốc, rồi một
+			 * add_meta_box() sau đó sẽ dựng lại đúng hộp đáng ra đã bị gỡ.
+			 */
+			if ( false === $box || in_array( $id, $keep, true ) ) {
 				continue;
 			}
 

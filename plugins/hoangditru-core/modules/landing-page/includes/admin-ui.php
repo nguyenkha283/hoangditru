@@ -113,6 +113,10 @@ hdtc_admin_layout(
 		'normal' => LPB_ADMIN_BOX_ORDER,
 		'side'   => LPB_ADMIN_SIDE_ORDER,
 		'show'   => array( 'postexcerpt' ),
+
+		// Hộp Rank Math (normal/high) và hộp lạ khác xuống sau FAQs. Vì sao cần,
+		// xem hdtc_demote_unlisted_boxes() trong includes/admin-layout.php.
+		'tail'   => true,
 	)
 );
 
