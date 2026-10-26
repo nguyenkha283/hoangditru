@@ -88,3 +88,14 @@
     visibility: visible !important;
     background: #e8f0fe; border: 1px dashed #2271b1;
 }
+
+/* ── Ô "Mô tả ngắn" ────────────────────────────────────────────────
+   WordPress để mặc định height 4em, khoảng 4 dòng. Mô tả ngắn của các
+   bài Golden Visa hiện tại dài 215–835 ký tự (trung bình 555), tức
+   khoảng 3–12 dòng ở bề rộng này — nhìn qua ô 4 dòng phải cuộn liên tục.
+   20em với line-height 1.6 cho khoảng 12 dòng, đủ chứa bài dài nhất.
+   Ô vẫn kéo giãn được như mọi textarea. */
+body.post-type-golden_visa #excerpt {
+    height: 20em;
+    line-height: 1.6;
+}

@@ -2,14 +2,14 @@
 /**
  * Plugin Name:  Landing Page Builder
  * Description:  Custom Landing Page Template — không cần ACF. Tự quản lý meta boxes.
- * Version:      1.3.1
+ * Version:      1.3.2
  * Author:       Your Name
  * Text Domain:  landing-page-plugin
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'LPB_VERSION', '1.3.1' );
+define( 'LPB_VERSION', '1.3.2' );
 define( 'LPB_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'LPB_URL',     plugin_dir_url( __FILE__ ) );
 
