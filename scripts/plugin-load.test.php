@@ -133,6 +133,8 @@ if ( ! defined( 'HDTC_VERSION' ) ) {
 $expect = array(
 	'phan-quyen'             => 'hdtq_sync_role',
 	'bang-dieu-khien'        => 'hdtbd_dashboard',
+	'xoa-cache'              => 'hdtxc_purge',
+	'menu-tu-dong'           => 'hdtmenu_add',
 	'contact-info-manager'   => 'cim_activate',
 	'cim-footer'             => 'cimf_enqueue',
 	'trang-chu'              => 'tc_register_template',

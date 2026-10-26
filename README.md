@@ -33,12 +33,15 @@ push main ─────▶ GitHub Actions
 | `category.php`, `single.php` | giữ nguyên từ bản cũ, không sửa |
 | `template-parts/content-card.php` | thẻ bài dùng chung |
 
-**Plugin lõi `hoangditru-core`** — 8 plugin cũ gộp thành một, mỗi cái thành một module, cộng
-module `phan-quyen` viết mới
+**Plugin lõi `hoangditru-core`** — 8 plugin cũ gộp thành một, mỗi cái thành một module, cộng bốn
+module viết mới: `phan-quyen`, `bang-dieu-khien`, `menu-tu-dong`, `xoa-cache`
 
 | Module | Vai trò đáng chú ý |
 |---|---|
-| `phan-quyen` | **giới hạn role Biên tập viên** còn 8 mục nội dung — xem bên dưới |
+| `phan-quyen` | **giới hạn role Biên tập viên** còn 10 mục nội dung — xem bên dưới |
+| `bang-dieu-khien` | thay Trang quản trị bằng bốn ô lối tắt thêm mới nội dung |
+| `menu-tu-dong` | bài / danh mục mới tự vào đúng cụm trong menu — xem bên dưới |
+| `xoa-cache` | trang Xoá cache cho Biên tập viên, gọi `litespeed_purge_all` |
 | `trang-chu` | **dựng thanh nav của toàn site** + template trang chủ |
 | `cim-footer` | **dựng footer của toàn site** |
 | `bat-dong-san` | CPT bất động sản, slider + lightbox riêng (slick từ CDN) |
@@ -71,6 +74,7 @@ Những thứ này đang nằm trong database. Đổi là mất dữ liệu đan
 | page template | `tct-trang-chu` và `landing-page-plugin/page-templates/template-landing.php` |
 | shortcode | 16 cái: `cim_*`, `youtube_embed` — riêng `[cim_signature]` còn đăng ký nhưng không in gì: tính năng chữ ký đã gỡ, bỏ đăng ký thì bài cũ lộ nguyên chuỗi shortcode |
 | post meta | `_bds_*`, `s3_title_orange`, `s4_title_orange`, … |
+| post meta (menu tự động) | `_hdt_menu_da_them` — dấu "bài này đã được tự thêm vào menu", để mục bị xoá tay không mọc lại |
 | post meta (plugin WebP) | `_wsl_webp` — danh sách file đã có WebP của từng ảnh |
 | tên file WebP | `ảnh.jpg.webp` nằm cạnh `ảnh.jpg` trong `uploads/` — đổi quy ước là mọi file đã chuyển thành rác |
 
@@ -93,7 +97,7 @@ lập và kiểm đủ 9 module + các shortcode quan trọng. `php -l` chỉ ki
 Module `phan-quyen` đặt lại capabilities của role `editor` (WordPress tiếng Việt gọi là **Biên tập
 viên**). Áp dụng ngay cho mọi tài khoản đang mang role đó, không phải gán lại role cho từng người.
 
-**Được thêm / sửa / xoá nội dung của 8 mục:**
+**Được thêm / sửa / xoá nội dung của 10 mục:**
 
 | Mục | Màn hình |
 |---|---|
@@ -105,11 +109,14 @@ viên**). Áp dụng ngay cho mọi tài khoản đang mang role đó, không ph
 | Đầu tư quốc tịch | `edit.php?post_type=citizenship_invest` |
 | Trang chủ | `admin.php?page=trang-chu-settings` |
 | Thông tin liên hệ | `admin.php?page=contact-info-manager` |
+| Menu điều hướng | `nav-menus.php` — chỉ màn này trong cụm Giao diện |
+| Xoá cache | `admin.php?page=hdt-xoa-cache` |
 
 Cộng **Bảng tin** và **Hồ sơ cá nhân** (để tự đổi mật khẩu).
 
-**Bị chặn hoàn toàn:** Bình luận, Giao diện (theme, menu, widget, customizer), Plugin, Người dùng,
-Công cụ, Cài đặt — kể cả trang Smart Breadcrumb, và mọi menu do plugin cài thêm sau này.
+**Bị chặn hoàn toàn:** Bình luận, Plugin, Người dùng, Công cụ, Cài đặt — kể cả trang Smart
+Breadcrumb, và mọi menu do plugin cài thêm sau này. Trong cụm **Giao diện** chỉ mở màn Menu; Chủ đề,
+Customizer, Widget và Sửa file theme vẫn chặn.
 
 ### Mục Trang nằm trong danh sách, và đó là bắt buộc
 
@@ -137,6 +144,36 @@ Trang chủ và Thông tin liên hệ trước đây gác bằng `manage_options
 là mở luôn Cài đặt, Plugin, Người dùng, Giao diện. Nên hai trang đó chuyển sang cap riêng
 `hdt_manage_site_content`, cấp cho `administrator` và `editor`, không kéo theo gì khác.
 
+### Menu điều hướng: mở đúng một màn trong cụm Giao diện
+
+WordPress không có cap riêng cho menu điều hướng — `edit_theme_options` gác chung cả Chủ đề,
+Customizer, Widget và Sửa file theme. Không cấp thì không sửa được menu, cấp thẳng thì mở cả cụm.
+Nên cap đó đi kèm ba thứ chặn lại phần không cần:
+
+- `HDTQ_SCREENS` chỉ thêm `nav-menus.php`. `themes.php`, `customize.php`, `widgets.php`,
+  `theme-editor.php` vẫn bị tầng `wp_die` trả 403.
+- `HDTQ_MENU_PARENTS` giữ mục cha **Giao diện** trên sidebar để nó chở được mục con **Menu** — xoá
+  cha là mất luôn con. Cap của mục cha bị hạ xuống `edit_theme_options`; link của nó thì
+  `_wp_menu_output()` tự trỏ sang mục con đầu tiên còn lại. Hết con được phép thì mục cha cũng xoá,
+  để không còn lại một mục bấm vào là 403.
+- `hdtq_prune_admin_bar()` gỡ các mục Giao diện trên thanh admin, vì chúng dẫn vào màn bị 403.
+
+Theme này không đăng ký sidebar nào, nên màn Widget cũng không có gì để sửa.
+
+### LiteSpeed Cache: menu của nó không mở được cho editor
+
+LiteSpeed chốt cứng `manage_options` cho cả menu lẫn nút purge trên thanh admin, và không để lại
+filter nào đổi cap đó — bản 7.9.2, xem `src/admin.cls.php`, `src/admin-display.cls.php`,
+`src/gui.cls.php`. Cấp `manage_options` cho editor là mở Cài đặt, Plugin, Người dùng ở tầng REST và
+XML-RPC, tức phá đúng thứ bốn tầng trên tồn tại để chặn.
+
+Nên thay bằng module `xoa-cache`: trang **Xoá cache** gác bằng `hdt_manage_site_content`, gọi hook
+công khai `litespeed_purge_all` của LiteSpeed (khai ở `src/api.cls.php`). Biên tập viên xoá được
+cache sau khi sửa nội dung; phần cấu hình LiteSpeed vẫn là việc của administrator. Nút chỉ hiện cho
+người **không** có `manage_options` — ai có thì đã có nút purge của chính LiteSpeed.
+
+Hộp **LiteSpeed** trong màn sửa bài thì editor đã thấy sẵn từ trước: hộp đó không kiểm quyền.
+
 ### Vài điểm cần biết
 
 - **Người có `manage_options` không bị chặn**, kể cả khi họ mang thêm role editor — để không tự khoá
@@ -155,6 +192,41 @@ là mở luôn Cài đặt, Plugin, Người dùng, Giao diện. Nên hai trang 
   không được ghi lại. Giá trị đang lưu nằm ở option `hdt_phan_quyen_version`.
 - [`scripts/phan-quyen.test.php`](scripts/phan-quyen.test.php) kiểm 107 trường hợp của allowlist và
   chạy trong CI. Việc menu có thật sự biến mất trên site thật thì chưa kiểm được — xem mục dưới.
+
+## Menu: mục mới tự vào đúng cụm
+
+Menu chính xếp theo cụm: mục cha **Golden Visa** chở các bài `golden_visa`, **Đầu tư quốc tịch** chở
+các bài `citizenship_invest`, **Bất động sản** chở các term `bds_category`. WordPress chỉ tự thêm
+vào menu được với `page` (tuỳ chọn *Tự động thêm trang*), không có gì cho CPT và taxonomy — nên
+trước đây mỗi lần thêm nội dung lại phải vào Giao diện → Menu kéo tay, và quên là trang mới không ai
+vào được từ menu.
+
+Module `menu-tu-dong` làm việc đó:
+
+| Khi nào | Thêm gì |
+|---|---|
+| bài `golden_visa` xuất bản **lần đầu** | mục con dưới mục cha đang chở các bài `golden_visa` |
+| bài `citizenship_invest` xuất bản lần đầu | tương tự, dưới mục cha của loại đó |
+| term `bds_category` được tạo | mục con dưới mục cha đang chở các term `bds_category` |
+
+Mục cha **không chép cứng theo tên**: module xem chính menu đang có, lấy mục cha của các mục cùng
+loại (theo số đông, nên một mục bị kéo lệch ra ngoài cụm không lái cả nhóm theo). Đổi tên mục cha,
+dựng lại menu, hay thêm menu thứ hai cũng chạy đúng, không phải sửa code. Menu nào đang chở loại đó
+thì menu đó nhận mục mới — kể cả menu chân trang.
+
+Nhãn của mục để **rỗng**, nên WordPress lấy tiêu đề bài / tên term mỗi lần dựng menu: đổi tên nội
+dung là menu đổi theo. Điền sẵn tiêu đề thì nhãn đóng băng tại thời điểm thêm.
+
+**Không thêm khi:** sửa bài đã xuất bản, hạ bài xuống nháp, bài viết thường, bất động sản (vào menu
+qua danh mục chứ không từng bài), hoặc mục đó vốn đã có trong menu. Xoá mục khỏi menu bằng tay thì
+nó **không mọc lại**: post meta `_hdt_menu_da_them` ghi là đã làm xong việc với bài đó.
+
+Chưa menu nào chở loại đó — menu mới dựng — thì mục mới vào cấp 1 của menu ở vị trí `primary`: hiện
+sai chỗ thì còn sửa được, chứ không hiện thì không ai biết là thiếu. Chưa gán menu vào vị trí nào
+thì không thêm và cũng không đánh dấu, nên gán menu xong là lần xuất bản sau chạy đúng.
+
+[`scripts/menu-tu-dong.test.php`](scripts/menu-tu-dong.test.php) dựng lại đúng cấu trúc menu đang
+chạy ngoài site rồi kiểm 37 trường hợp.
 
 ## Vì sao tách được khỏi Flatsome
 

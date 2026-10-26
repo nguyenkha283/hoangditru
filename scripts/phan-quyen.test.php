@@ -46,6 +46,26 @@ const FAKE_PARENTS = array(
 );
 
 function get_post_type( $id ) { return FAKE_POSTS[ (int) $id ] ?? false; }
+
+/**
+ * $submenu của WordPress, dạng rút gọn: chỉ giữ ô [2] là slug.
+ *
+ * Giao diện giống trên site thật sau khi WordPress dựng menu — mục "Menu" nằm
+ * lẫn với Chủ đề, Customizer, Widget, Sửa file theme.
+ */
+$GLOBALS['submenu'] = array(
+	'themes.php' => array(
+		5  => array( 'Chủ đề', 'switch_themes', 'themes.php' ),
+		6  => array( 'Customize', 'customize', 'customize.php?return=x' ),
+		7  => array( 'Widget', 'edit_theme_options', 'widgets.php' ),
+		10 => array( 'Menu', 'edit_theme_options', 'nav-menus.php' ),
+		15 => array( 'Sửa file theme', 'edit_themes', 'theme-editor.php' ),
+	),
+	'tools.php' => array(
+		5 => array( 'Công cụ', 'edit_posts', 'tools.php' ),
+		10 => array( 'Nhập vào', 'import', 'import.php' ),
+	),
+);
 function wp_get_post_parent_id( $id ) { return FAKE_PARENTS[ (int) $id ] ?? 0; }
 
 require __DIR__ . '/../wp-content/plugins/hoangditru-core/modules/phan-quyen/phan-quyen.php';
@@ -112,7 +132,6 @@ screen( 'plugin-install.php', array(), false );
 screen( 'plugin-editor.php', array(), false );
 screen( 'themes.php', array(), false );
 screen( 'theme-editor.php', array(), false );
-screen( 'nav-menus.php', array(), false );
 screen( 'widgets.php', array(), false );
 screen( 'customize.php', array(), false );
 screen( 'users.php', array(), false );
@@ -199,6 +218,23 @@ foreach ( $menu_slugs as $slug => $want ) {
 	t( "menu $slug", hdtq_menu_slug_allowed( (string) $slug ), $want );
 }
 
+echo "\n── Màn Giao diện: chỉ mục Menu được mở ─────────────────────────────\n";
+
+screen( 'nav-menus.php', array(), true );
+screen( 'nav-menus.php', array( 'action' => 'edit', 'menu' => '12' ), true );
+t( 'trang Xoá cache', hdtq_screen_allowed( 'admin.php', array( 'page' => 'hdt-xoa-cache' ) ), true );
+
+/*
+ * themes.php là hai thứ khác nhau: màn đổi chủ đề thì chặn, còn mục cha trên
+ * sidebar thì giữ để chở mục "Menu". Lẫn hai cái là hoặc mất mục Menu, hoặc mở
+ * cả màn đổi chủ đề — nên kiểm cả hai chiều.
+ */
+t( 'màn themes.php vẫn chặn', hdtq_screen_allowed( 'themes.php', array() ), false );
+t( 'themes.php là menu cha được giữ', isset( HDTQ_MENU_PARENTS['themes.php'] ), true );
+t( 'themes.php còn con được phép', hdtq_submenu_has_allowed( 'themes.php' ), true );
+t( 'tools.php không còn con nào được phép', hdtq_submenu_has_allowed( 'tools.php' ), false );
+t( 'menu cha không có trong $submenu', hdtq_submenu_has_allowed( 'khong-co.php' ), false );
+
 echo "\n── Bộ capability ───────────────────────────────────────────────────\n";
 
 $must_have = array(
@@ -212,6 +248,9 @@ $must_have = array(
 	'delete_others_pages',
 	'publish_pages',
 	HDTQ_CAP_SITE_SETTINGS,
+
+	// Giao diện → Menu. Xem chú thích ở HDTQ_CAPS.
+	'edit_theme_options',
 );
 
 foreach ( $must_have as $cap ) {
@@ -222,7 +261,6 @@ $must_not_have = array(
 	'manage_options',
 	'moderate_comments',
 	'manage_links',
-	'edit_theme_options',
 	'activate_plugins',
 	'list_users',
 	'edit_users',

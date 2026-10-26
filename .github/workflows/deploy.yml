@@ -125,6 +125,11 @@ jobs:
       - name: Test phân quyền Biên tập viên
         run: php scripts/phan-quyen.test.php
 
+      # Module này ghi thẳng vào menu của site. Sai mục cha là mỗi bài mới lại
+      # mọc sai chỗ trong menu, mà menu sai thì phải vào Giao diện → Menu sửa tay.
+      - name: Test tự động thêm vào menu
+        run: php scripts/menu-tu-dong.test.php
+
       # Filter này quyết định URL của mọi asset khi plugin được nạp từ app/.
       # Sai một dấu gạch chéo là vỡ toàn bộ CSS/JS.
       - name: Test filter URL của loader

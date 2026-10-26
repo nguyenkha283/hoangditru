@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Hoàng Di Trú Core
  * Description: Toàn bộ chức năng lõi của site, gộp từ 8 plugin rời. Đây là code của site, không phải tiện ích thêm vào — không thiết kế để bật/tắt từng phần.
- * Version:     1.2.2
+ * Version:     1.3.0
  * Author:      Hoàng Di Trú
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -24,6 +24,7 @@
  *                  landing-page-plugin/page-templates/template-landing.php
  *   16 shortcode   cim_*, youtube_embed
  *   post meta      _bds_*, s3_title_orange, s4_title_orange, ...
+ *                  _hdt_menu_da_them  (dấu "đã tự thêm vào menu")
  *
  * Chuỗi template của landing page CÒN GIỮ TÊN THƯ MỤC CŨ. Đó là cố ý: nó là
  * khoá lưu trong _wp_page_template của các post golden_visa, không phải đường
@@ -39,7 +40,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'HDTC_VERSION', '1.2.2' );
+define( 'HDTC_VERSION', '1.3.0' );
 define( 'HDTC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HDTC_URL', plugin_dir_url( __FILE__ ) );
 
@@ -47,7 +48,7 @@ define( 'HDTC_URL', plugin_dir_url( __FILE__ ) );
  * Các module, nạp theo thứ tự này.
  *
  * phan-quyen đứng đầu vì nó định nghĩa hằng HDTQ_CAP_SITE_SETTINGS mà
- * contact-info-manager và trang-chu dùng để gác trang cài đặt của chúng.
+ * contact-info-manager, trang-chu và xoa-cache dùng để gác trang của chúng.
  *
  * contact-info-manager đứng trước trang-chu và cim-footer vì hai cái đó đọc dữ
  * liệu liên hệ của nó. Thực tế việc đọc diễn ra trong hook nên thứ tự không
@@ -58,6 +59,8 @@ define( 'HDTC_URL', plugin_dir_url( __FILE__ ) );
 const HDTC_MODULES = array(
 	'phan-quyen'             => 'phan-quyen.php',
 	'bang-dieu-khien'        => 'bang-dieu-khien.php',
+	'xoa-cache'              => 'xoa-cache.php',
+	'menu-tu-dong'           => 'menu-tu-dong.php',
 	'contact-info-manager'   => 'contact-info-manager.php',
 	'cim-footer'             => 'cim-footer.php',
 	'trang-chu'              => 'trang-chu.php',

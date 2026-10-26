@@ -19,6 +19,7 @@ tra, nên CI xanh trên PR không có nghĩa là site đã cập nhật.
 - `find wp-content -name '*.php' -print0 | xargs -0 -n1 php -l`
 - `php scripts/plugin-load.test.php`
 - `php scripts/phan-quyen.test.php`
+- `php scripts/menu-tu-dong.test.php`
 - `php scripts/loader-url.test.php`
 - `php scripts/template-scope.test.php`
 - `bash scripts/ftp-resolve.test.sh`
