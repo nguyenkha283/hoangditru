@@ -110,6 +110,22 @@ const HDTQ_MENU_PARENTS = array(
 	'themes.php' => 'edit_theme_options',
 );
 
+/**
+ * Cap bị từ chối thẳng, kể cả khi WordPress map ra từ cap đã cấp.
+ *
+ * `edit_theme_options` kéo theo `customize` và `edit_css`. Màn customize.php
+ * thì hdtq_guard_admin_screens() đã trả 403, nhưng phần lưu của Customizer đi
+ * qua admin-ajax.php — chỗ tầng đó buộc phải thoát sớm. Không chặn thêm ở tầng
+ * cap thì một request tự dựng vẫn đổi được logo site và Additional CSS. Tiêu đề
+ * và mô tả site không nằm trong số đó: hai setting ấy đòi `manage_options`.
+ *
+ * Màn Giao diện → Menu không dùng hai cap này nên chặn không ảnh hưởng gì.
+ */
+const HDTQ_BLOCKED_CAPS = array(
+	'customize',
+	'edit_css',
+);
+
 /** File wp-admin không cần tham số, luôn được phép. */
 const HDTQ_SCREENS = array(
 	'index.php',        // Bảng tin
@@ -515,6 +531,23 @@ function hdtq_guard_admin_screens() {
 		'Không có quyền truy cập',
 		array( 'response' => 403 )
 	);
+}
+
+add_filter( 'map_meta_cap', 'hdtq_block_customizer', 10, 3 );
+/**
+ * Từ chối các cap trong HDTQ_BLOCKED_CAPS.
+ *
+ * @param string[] $caps    Cap mà WordPress đã map ra.
+ * @param string   $cap     Cap gốc được hỏi.
+ * @param int      $user_id User đang bị kiểm.
+ * @return string[]
+ */
+function hdtq_block_customizer( $caps, $cap, $user_id ) {
+	if ( ! in_array( $cap, HDTQ_BLOCKED_CAPS, true ) ) {
+		return $caps;
+	}
+
+	return hdtq_is_restricted_user( $user_id ) ? array( 'do_not_allow' ) : $caps;
 }
 
 add_filter( 'map_meta_cap', 'hdtq_block_other_post_types', 10, 4 );
