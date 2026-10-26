@@ -157,6 +157,7 @@ function hdtbd_styles() {
 			display: grid;
 			grid-template-columns: repeat(4, 1fr);
 			gap: 1px;
+			width: 100%;
 			background: #dcdcde;
 			border-top: 1px solid #dcdcde;
 		}
@@ -166,8 +167,11 @@ function hdtbd_styles() {
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			gap: 6px;
-			padding: 22px 10px;
+			gap: 10px;
+			/* Ô cao hẳn cho dễ bấm; 1fr lo phần chiều ngang nên bốn ô luôn
+			   chia đều hết bề rộng hộp. */
+			min-height: 150px;
+			padding: 28px 14px;
 			background: #fff;
 			text-align: center;
 			text-decoration: none;
@@ -182,13 +186,13 @@ function hdtbd_styles() {
 		}
 
 		.hdtbd-tile .dashicons {
-			width: 32px; height: 32px;
-			font-size: 32px;
+			width: 44px; height: 44px;
+			font-size: 44px;
 			color: #2271b1;
 		}
 
-		.hdtbd-tile__label { font-size: 13px; font-weight: 600; line-height: 1.3; }
-		.hdtbd-tile__hint  { font-size: 11px; color: #646970; }
+		.hdtbd-tile__label { font-size: 15px; font-weight: 600; line-height: 1.3; }
+		.hdtbd-tile__hint  { font-size: 12px; color: #646970; }
 
 		@media screen and (max-width: 782px) {
 			.hdtbd-grid { grid-template-columns: repeat(2, 1fr); }

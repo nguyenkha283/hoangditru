@@ -186,6 +186,10 @@ $layouts = array(
 		'normal' => 'ci_page_overlay,ci_carousel,postexcerpt,ci_features,ci_why_us,ci_du_an,ci_programs,ci_news',
 		'side'   => 'submitdiv,postimagediv',
 	),
+	'bat-dong-san'       => array(
+		'normal' => 'bds_carousel,bds_thong_tin,bds_tong_quan,bds_mo_ta,bds_mat_bang',
+		'side'   => 'submitdiv,postimagediv',
+	),
 );
 
 foreach ( $layouts as $pt => $want ) {
@@ -216,7 +220,9 @@ foreach ( $layouts as $pt => $want ) {
  * mảng, nên filter trả về mảng rỗng sẽ lôi cả Trường tuỳ biến, Thảo luận,
  * Đường dẫn ra màn hình. Đây đúng là cái bẫy dễ dính nhất ở chỗ này.
  */
-foreach ( array_keys( $layouts ) as $pt ) {
+// Chỉ hai post type này cần hiện "Mô tả ngắn"; bat-dong-san không dùng excerpt
+// nên không đăng ký filter, kiểm nó ở đây sẽ báo sai.
+foreach ( array( 'golden_visa', 'citizenship_invest' ) as $pt ) {
 	$hook = "get_user_option_metaboxhidden_{$pt}";
 
 	if ( empty( $GLOBALS['filters'][ $hook ] ) ) {

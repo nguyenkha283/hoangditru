@@ -16,6 +16,7 @@ define( 'BDS_URL',  plugin_dir_url( __FILE__ ) );
 require_once BDS_PATH . 'includes/cpt.php';
 require_once BDS_PATH . 'includes/card-helper.php';
 require_once BDS_PATH . 'includes/meta-boxes.php';
+require_once BDS_PATH . 'includes/admin-ui.php';
 require_once BDS_PATH . 'includes/frontend.php';
 require_once BDS_PATH . 'includes/ajax-category.php';
 require_once BDS_PATH . 'includes/shortcodes.php';
