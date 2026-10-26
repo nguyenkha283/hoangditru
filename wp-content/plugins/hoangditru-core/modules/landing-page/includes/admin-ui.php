@@ -1,68 +1,109 @@
 <?php
 /**
- * Gọn lại màn soạn Golden Visa.
+ * Gọn lại màn soạn Golden Visa, và xếp nó theo đúng thứ tự trang hiển thị.
  *
- * Ba việc, đều chỉ tác động lên GIAO DIỆN quản trị, không đụng tới dữ liệu:
- *   1. Dán nhãn "Câu hỏi thường gặp" ngay trên ô nội dung, vì ô đó chính là
- *      mục FAQs chứ không phải phần mô tả chung — nhìn ô trống thì không ai đoán được.
- *   2. Ép thứ tự meta box khớp thứ tự hiển thị ngoài trang.
- *   3. Ẩn hai hộp không dùng ở cột phải.
+ * Tất cả đều chỉ tác động lên GIAO DIỆN quản trị. Không đổi định danh nào, không
+ * đụng tới dữ liệu.
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Thứ tự các mục ngoài trang, theo page-templates/template-landing.php:
+ * Thứ tự ngoài trang, theo page-templates/template-landing.php:
  *
- *   banner  ← tiêu đề + ảnh đại diện + mô tả ngắn + meta box "Hero — Icon"
- *   advantages, benefits, conditions, process, du-an  ← các meta box
- *   faqs    ← Ô NỘI DUNG
+ *   Tiêu đề + ảnh đại diện + mô tả ngắn + meta box Hero  → banner
+ *   advantages, benefits, conditions, process, du-an     → các meta box
+ *   Ô nội dung                                           → faqs, CUỐI trang
  *
- * Ô nội dung nằm cuối trang nhưng WordPress ghim nó ở đầu màn soạn và không cho
- * kéo thả — nó không phải meta box. Đó là lý do phải dán nhãn ở bước 1 thay vì
- * xếp nó xuống cuối.
+ * Ô nội dung vốn bị WordPress ghim ngay dưới tiêu đề và không kéo thả được, nên
+ * nó được chuyển thành meta box lpb_faqs để xếp xuống cuối cho khớp (xem
+ * lpb_move_editor_to_metabox bên dưới).
+ *
+ * @var string[]
  */
 const LPB_ADMIN_BOX_ORDER = array(
-	'lpb_hero_icon',
+	'lpb_hero_icon',   // Hero — Icon góc dưới trái
+	'postexcerpt',     // Mô tả ngắn, banner.php đọc qua get_the_excerpt()
 	'lpb_advantages',
 	'lpb_benefits',
 	'lpb_conditions',
 	'lpb_process',
 	'lpb_du_an',
+	'lpb_faqs',        // Ô nội dung
 );
 
 /**
- * 1. Nhãn trên ô nội dung.
+ * Cột phải. Hộp nào không liệt kê vẫn hiện, xếp sau — LiteSpeed nằm trong số đó,
+ * nên không cần biết id của nó để đẩy Ảnh đại diện lên trên.
  *
- * edit_form_after_title in ra đúng khoảng giữa dòng đường dẫn và ô soạn thảo.
- *
- * @param WP_Post $post Bài đang sửa.
+ * @var string[]
  */
-add_action( 'edit_form_after_title', 'lpb_admin_content_label' );
-function lpb_admin_content_label( $post ) {
-	if ( ! $post instanceof WP_Post || 'golden_visa' !== $post->post_type ) {
-		return;
-	}
-	?>
-	<div class="lpb-content-label">
-		<span class="lpb-content-label__title">Câu hỏi thường gặp</span>
-		<span class="lpb-content-label__hint">
-			Mỗi câu hỏi là một tiêu đề, câu trả lời là đoạn văn ngay dưới.
-			Phần này hiển thị ở mục <strong>FAQs</strong>, cuối trang.
-		</span>
-	</div>
-	<?php
+const LPB_ADMIN_SIDE_ORDER = array(
+	'submitdiv',    // Xuất bản
+	'postimagediv', // Ảnh đại diện
+);
+
+/**
+ * Ô nội dung thành meta box "Câu hỏi thường gặp", đặt cuối.
+ *
+ * WordPress render ô nội dung trong edit-form-advanced.php chứ không qua hệ
+ * thống meta box, nên nó luôn nằm sát dưới tiêu đề và không kéo thả được. Cách
+ * duy nhất để xếp nó xuống cuối là gỡ 'editor' khỏi supports rồi tự dựng lại
+ * bằng wp_editor() trong một meta box.
+ *
+ * Id của trình soạn phải giữ đúng là 'content': WordPress đọc $_POST['content']
+ * trong _wp_translate_postdata() rồi gán vào post_content. Đổi id là không lưu
+ * được nội dung.
+ *
+ * remove_post_type_support gọi trong add_meta_boxes_* là kịp: lúc đó
+ * edit-form-advanced.php mới gọi register_and_do_post_meta_boxes(), phần HTML
+ * kiểm tra post_type_supports('editor') chạy sau.
+ */
+add_action( 'add_meta_boxes_golden_visa', 'lpb_move_editor_to_metabox' );
+function lpb_move_editor_to_metabox() {
+	remove_post_type_support( 'golden_visa', 'editor' );
+
+	add_meta_box(
+		'lpb_faqs',
+		'Câu hỏi thường gặp',
+		'lpb_mb_faqs',
+		'golden_visa',
+		'normal',
+		'low'
+	);
 }
 
 /**
- * 2. Ép thứ tự meta box.
+ * Nội dung meta box FAQs.
+ *
+ * @param WP_Post $post Bài đang sửa.
+ */
+function lpb_mb_faqs( $post ) {
+	?>
+	<p class="description" style="margin:0 0 10px">
+		Mỗi câu hỏi là một tiêu đề, câu trả lời là đoạn văn ngay dưới.
+		Phần này hiển thị ở mục <strong>FAQs</strong>, cuối trang.
+	</p>
+	<?php
+	wp_editor(
+		$post->post_content,
+		'content',
+		array(
+			'textarea_name' => 'content',
+			'textarea_rows' => 20,
+			'media_buttons' => true,
+			'tinymce'       => true,
+			'quicktags'     => true,
+		)
+	);
+}
+
+/**
+ * Ép thứ tự meta box.
  *
  * WordPress nhớ thứ tự kéo thả theo TỪNG người dùng trong user meta
  * meta-box-order_golden_visa, và thứ tự đó đè lên thứ tự đăng ký. Nên chỉ sắp
- * lại trong meta-boxes.php là không đủ: ai từng kéo một lần sẽ vẫn thấy thứ tự
- * cũ. Filter này trả về thứ tự chuẩn cho mọi người.
- *
- * Hộp nào không có trong danh sách vẫn hiện, xếp sau các hộp đã liệt kê.
+ * lại lúc đăng ký là không đủ: ai từng kéo một lần sẽ vẫn thấy thứ tự cũ.
  *
  * @param mixed $order Thứ tự đã lưu của người dùng.
  * @return array
@@ -71,13 +112,47 @@ add_filter( 'get_user_option_meta-box-order_golden_visa', 'lpb_force_meta_box_or
 function lpb_force_meta_box_order( $order ) {
 	return array(
 		'normal'   => implode( ',', LPB_ADMIN_BOX_ORDER ),
-		'side'     => '',
+		'side'     => implode( ',', LPB_ADMIN_SIDE_ORDER ),
 		'advanced' => '',
 	);
 }
 
 /**
- * 3. Ẩn hai hộp ở cột phải.
+ * Hiện hộp "Mô tả ngắn".
+ *
+ * WordPress ẩn postexcerpt theo mặc định, trong khi banner.php đọc nó qua
+ * get_the_excerpt() để in mô tả dưới tiêu đề — ẩn thì người nhập không biết có
+ * ô đó.
+ *
+ * Phải dựng lại danh sách ẩn mặc định khi người dùng chưa có tuỳ chọn riêng:
+ * get_hidden_meta_boxes() chỉ dùng danh sách mặc định khi giá trị KHÔNG phải
+ * mảng, nên trả về mảng rỗng sẽ bỏ ẩn tất cả, lôi cả Trường tuỳ biến và Thảo
+ * luận ra màn hình.
+ *
+ * @param mixed $hidden Danh sách hộp đang ẩn.
+ * @return string[]
+ */
+add_filter( 'get_user_option_metaboxhidden_golden_visa', 'lpb_show_excerpt_box' );
+function lpb_show_excerpt_box( $hidden ) {
+	if ( ! is_array( $hidden ) ) {
+		// Đúng danh sách WordPress ẩn mặc định ở màn soạn bài.
+		$hidden = array(
+			'slugdiv',
+			'trackbacksdiv',
+			'postcustom',
+			'postexcerpt',
+			'commentstatusdiv',
+			'commentsdiv',
+			'authordiv',
+			'revisionsdiv',
+		);
+	}
+
+	return array_values( array_diff( $hidden, array( 'postexcerpt', 'postimagediv' ) ) );
+}
+
+/**
+ * Ẩn hai hộp không dùng ở cột phải.
  *
  *   golden_visa_categorydiv  "Danh mục Golden Visa" — taxonomy vẫn đăng ký như
  *                            cũ, không template nào dùng tới nó.
