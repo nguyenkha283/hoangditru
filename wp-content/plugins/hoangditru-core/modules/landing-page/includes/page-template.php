@@ -17,15 +17,26 @@ class LPB_Page_Template {
         return array_merge( $templates, $this->templates );
     }
 
+    /**
+     * Áp template cho MỌI bài golden_visa.
+     *
+     * Trước đây hàm này đòi _wp_page_template khớp khoá template. Nhưng ô chọn
+     * Mẫu trang đã bị ẩn khỏi màn soạn (xem includes/admin-ui.php) cho gọn, nên
+     * bài tạo mới sẽ không có meta đó và rơi về template mặc định — trang hỏng.
+     *
+     * CPT này chỉ có đúng một template, nên điều kiện kia không còn ý nghĩa gì
+     * ngoài việc tạo ra một cách để hỏng. Bài cũ đã lưu meta vẫn chạy bình
+     * thường, meta không bị xoá.
+     *
+     * $this->templates vẫn đăng ký qua filter theme_golden_visa_templates để
+     * khoá 'landing-page-plugin/page-templates/template-landing.php' còn hợp lệ
+     * với dữ liệu cũ — khoá đó nằm trong _wp_page_template của các bài hiện có.
+     *
+     * @param string $template Template WordPress đã chọn.
+     * @return string
+     */
     public function load( $template ) {
-        global $post;
-        if ( ! $post ) return $template;
-
-        // Chỉ xử lý CPT golden_visa
-        if ( $post->post_type !== 'golden_visa' ) return $template;
-
-        $selected = get_post_meta( $post->ID, '_wp_page_template', true );
-        if ( ! isset( $this->templates[ $selected ] ) ) return $template;
+        if ( ! is_singular( 'golden_visa' ) ) return $template;
 
         $file = LPB_DIR . 'page-templates/template-landing.php';
         return file_exists( $file ) ? $file : $template;
