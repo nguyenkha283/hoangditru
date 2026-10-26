@@ -132,6 +132,7 @@ if ( ! defined( 'HDTC_VERSION' ) ) {
 // Mỗi module phải thật sự được nạp — nhận biết qua hàm đặc trưng của nó.
 $expect = array(
 	'phan-quyen'             => 'hdtq_sync_role',
+	'bang-dieu-khien'        => 'hdtbd_dashboard',
 	'contact-info-manager'   => 'cim_activate',
 	'cim-footer'             => 'cimf_enqueue',
 	'trang-chu'              => 'tc_register_template',
