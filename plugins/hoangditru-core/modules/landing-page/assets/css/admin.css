@@ -88,25 +88,3 @@
     visibility: visible !important;
     background: #e8f0fe; border: 1px dashed #2271b1;
 }
-
-/* ── Nhãn trên ô nội dung ──────────────────────────────────────────
-   Ô nội dung của golden_visa chính là mục FAQs và hiển thị ở CUỐI trang,
-   nhưng WordPress ghim nó ở đầu màn soạn. Nhãn này nói rõ cần nhập gì. */
-.lpb-content-label {
-    margin: 12px 0 4px;
-    padding: 10px 12px;
-    background: #f0f6fc;
-    border-left: 4px solid #2271b1;
-    border-radius: 2px;
-}
-
-.lpb-content-label__title {
-    display: block;
-    font-size: 14px; font-weight: 600; color: #1d2327;
-    margin-bottom: 2px;
-}
-
-.lpb-content-label__hint {
-    display: block;
-    font-size: 12px; line-height: 1.5; color: #50575e;
-}

@@ -10,7 +10,7 @@ function lpb_register_meta_boxes() {
         [ 'lpb_advantages', 'Ưu điểm nổi bật',           'lpb_mb_advantages' ],
         [ 'lpb_benefits',   'Quyền lợi',                  'lpb_mb_benefits'   ],
         [ 'lpb_conditions', 'Điều kiện chương trình',     'lpb_mb_conditions' ],
-        [ 'lpb_process',    'Quy trình',                  'lpb_mb_process'    ],
+        [ 'lpb_process',    'Quy trình hồ sơ',            'lpb_mb_process'    ],
         [ 'lpb_du_an',      'Danh mục dự án (BĐS)',       'lpb_mb_du_an'      ],
     ];
     foreach ( $boxes as $b ) {
