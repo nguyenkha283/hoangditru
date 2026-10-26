@@ -1,10 +1,12 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-$post_id = get_the_ID();
-$slides  = get_post_meta( $post_id, '_ci_carousel_slides', true ) ?: [];
-$att_id  = (int) get_post_meta( $post_id, '_ci_overlay_icon', true );
-$title   = get_the_title();
+$post_id    = get_the_ID();
+$slides     = get_post_meta( $post_id, '_ci_carousel_slides', true ) ?: [];
+// Ảnh của hộp "Hero — Icon góc dưới trái". Tên biến đặt rõ để không bị vòng lặp
+// nào bên dưới vô tình ghi đè như đã từng xảy ra.
+$overlay_id = (int) get_post_meta( $post_id, '_ci_overlay_icon', true );
+$title      = get_the_title();
 
 if ( empty( $slides ) ) return;
 ?>
@@ -30,7 +32,10 @@ if ( empty( $slides ) ) return;
 
         <!-- Bullets -->
         <div class="ci-carousel__bullets" id="ci-carousel-bullets">
-            <?php foreach ( $slides as $i => $att_id ) : ?>
+            <?php // Chỉ cần chỉ số. Trước đây vòng này nhận id slide vào $att_id,
+                  // ghi đè mất id ảnh Hero lấy ở đầu file, nên overlay bên dưới
+                  // hiện ảnh slide cuối thay vì icon Hero.
+            foreach ( array_keys( $slides ) as $i ) : ?>
                 <button class="ci-bullet<?php echo $i === 0 ? ' is-active' : ''; ?>" data-idx="<?php echo $i; ?>" aria-label="Slide <?php echo $i + 1; ?>"></button>
             <?php endforeach; ?>
         </div>
@@ -43,7 +48,7 @@ if ( empty( $slides ) ) return;
     <!-- Fixed overlay: icon + h2 title -->
     <div class="ci-carousel-overlay">
         <div class="ci-carousel-overlay__inner">
-            <?php echo hdtc_img( $att_id, 'thumbnail', array(
+            <?php echo hdtc_img( $overlay_id, 'thumbnail', array(
                 'class'   => 'ci-overlay-icon',
                 'alt'     => $title,
                 'loading' => false,

@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Citizenship Investment
  * Description: Custom Post Type for Đầu tư quốc tịch with carousel, features, why us, programs & news sections.
- * Version:     1.1.0
+ * Version:     1.1.1
  * Text Domain: citizenship-investment
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CI_VERSION', '1.1.0' );
+define( 'CI_VERSION', '1.1.1' );
 define( 'CI_FILE',    __FILE__ );
 define( 'CI_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'CI_URL',     plugin_dir_url( __FILE__ ) );

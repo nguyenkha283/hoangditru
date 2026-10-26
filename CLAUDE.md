@@ -20,6 +20,7 @@ tra, nên CI xanh trên PR không có nghĩa là site đã cập nhật.
 - `php scripts/plugin-load.test.php`
 - `php scripts/phan-quyen.test.php`
 - `php scripts/loader-url.test.php`
+- `php scripts/template-scope.test.php`
 - `bash scripts/ftp-resolve.test.sh`
 - `php scripts/webp.test.php`
 

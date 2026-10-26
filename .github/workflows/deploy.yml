@@ -130,6 +130,12 @@ jobs:
       - name: Test filter URL của loader
         run: php scripts/loader-url.test.php
 
+      # Template chạy ở phạm vi file, nên một foreach dùng lại tên biến đã gán ở
+      # đầu file sẽ ghi đè biến đó. Không có lỗi PHP nào, chỉ sai dữ liệu hiển
+      # thị — đã xảy ra với ảnh overlay của carousel Đầu tư quốc tịch.
+      - name: Test phạm vi biến trong template
+        run: php scripts/template-scope.test.php
+
       # Plugin WebP đổi URL của mọi ảnh trên site. Hai bản của nó phải giống
       # hệt nhau ở phần dùng chung, và bộ lọc HTML không được làm hỏng thẻ.
       - name: Test plugin WebP
