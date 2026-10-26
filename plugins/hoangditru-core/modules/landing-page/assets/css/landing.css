@@ -497,29 +497,6 @@ body:has(#lpb-landing) .header-wrapper.stuck {
 }
 
 /* ================================================================
-   TIN TỨC
-   ================================================================ */
-.lpb-news { background: var(--lpb-bg-alt); }
-.lpb-news__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.25rem;
-}
-.lpb-news__item {
-    background: #fff; border-radius: var(--lpb-radius);
-    overflow: hidden; border: 1px solid var(--lpb-border);
-    transition: box-shadow var(--lpb-transition), transform var(--lpb-transition);
-}
-.lpb-news__item:hover { box-shadow: 0 6px 20px rgba(0,0,0,.1); transform: translateY(-3px); }
-.lpb-news__thumb img { width: 100%; height: 190px; object-fit: cover; display: block; }
-.lpb-news__body  { padding: 1rem; }
-.lpb-news__date  { font-size: .75rem; color: var(--lpb-muted); margin: 0 0 .35rem; }
-.lpb-news__title { font-size: .92rem; font-weight: 600; margin: 0 0 .35rem; line-height: 1.4; }
-.lpb-news__title a { color: var(--lpb-text); text-decoration: none; }
-.lpb-news__title a:hover { color: var(--lpb-orange); }
-.lpb-news__excerpt { font-size: .8rem; color: var(--lpb-muted); margin: 0; line-height: 1.6; }
-
-/* ================================================================
    [4] FAQs — tiêu đề "FAQs", không padding section
    ================================================================ */
 .lpb-faqs {

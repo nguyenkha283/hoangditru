@@ -44,12 +44,14 @@ function lpb_save_meta( $post_id, $post ) {
         update_post_meta( $post_id, $key, $data );
     }
 
-    /* ── Tin tức ── */
-    $news_ids = [];
-    if ( ! empty( $_POST['lpb_news_ids'] ) && is_array( $_POST['lpb_news_ids'] ) ) {
-        $news_ids = array_map( 'absint', $_POST['lpb_news_ids'] );
-    }
-    update_post_meta( $post_id, 'lpb_news_ids', $news_ids );
+    /*
+     * Mục "Tin tức" đã bỏ khỏi trang quản trị vì template landing không render
+     * nó (lpb_part('news') vốn đã bị comment). KHÔNG khôi phục phần lưu ở đây
+     * mà không khôi phục luôn meta box: không có ô tick thì $_POST['lpb_news_ids']
+     * luôn rỗng, và mỗi lần bấm Cập nhật sẽ ghi đè lpb_news_ids thành mảng rỗng.
+     *
+     * Meta lpb_news_ids cũ trong database vẫn giữ nguyên, không xoá.
+     */
 
     /* ── Danh mục BĐS ── */
     $bds_cat = absint( $_POST['lpb_bds_category'] ?? 0 );

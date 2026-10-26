@@ -17,7 +17,6 @@ get_header();
         <?php lpb_part( 'conditions' ); ?>
         <?php lpb_part( 'process' ); ?>
         <?php lpb_part( 'du-an' ); ?>
-        <?php //lpb_part( 'news' ); ?>
         <?php lpb_part( 'faqs' ); ?>
     <?php endwhile; endif; ?>
 </main>
