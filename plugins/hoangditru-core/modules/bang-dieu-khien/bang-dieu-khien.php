@@ -151,6 +151,22 @@ add_action( 'admin_head-index.php', 'hdtbd_styles' );
 function hdtbd_styles() {
 	?>
 	<style>
+		/*
+		 * Một cột, full width.
+		 *
+		 * Chỉ đặt filter get_user_option_screen_layout_dashboard là chưa đủ:
+		 * WordPress vẫn dựng đủ các khối .postbox-container và chia bề rộng
+		 * theo số cột, nên hộp bị bó lại còn một phần tư màn hình. Ép thẳng ở
+		 * CSS thì đúng bất kể bố cục cột đang đặt là mấy.
+		 */
+		#dashboard-widgets .postbox-container {
+			width: 100% !important;
+			float: none !important;
+		}
+
+		/* Cột rỗng là mấy ô "Kéo các mục vào đây" — bỏ đi cho sạch. */
+		#dashboard-widgets .empty-container { display: none !important; }
+
 		#hdtbd_shortcuts .inside { margin: 0; padding: 0; }
 
 		.hdtbd-grid {
