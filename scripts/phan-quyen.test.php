@@ -235,6 +235,16 @@ t( 'themes.php còn con được phép', hdtq_submenu_has_allowed( 'themes.php' 
 t( 'tools.php không còn con nào được phép', hdtq_submenu_has_allowed( 'tools.php' ), false );
 t( 'menu cha không có trong $submenu', hdtq_submenu_has_allowed( 'khong-co.php' ), false );
 
+/*
+ * edit_theme_options kéo theo `customize` và `edit_css`. Phần lưu của
+ * Customizer đi qua admin-ajax.php, chỗ tầng chặn màn hình phải thoát sớm, nên
+ * hai cap này phải bị từ chối ở tầng cap. Nhưng không được chặn chính
+ * edit_theme_options — chặn là mất luôn màn Menu.
+ */
+t( 'chặn cap customize', in_array( 'customize', HDTQ_BLOCKED_CAPS, true ), true );
+t( 'chặn cap edit_css', in_array( 'edit_css', HDTQ_BLOCKED_CAPS, true ), true );
+t( 'KHÔNG chặn edit_theme_options', in_array( 'edit_theme_options', HDTQ_BLOCKED_CAPS, true ), false );
+
 echo "\n── Bộ capability ───────────────────────────────────────────────────\n";
 
 $must_have = array(

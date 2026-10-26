@@ -157,6 +157,10 @@ Nên cap đó đi kèm ba thứ chặn lại phần không cần:
   `_wp_menu_output()` tự trỏ sang mục con đầu tiên còn lại. Hết con được phép thì mục cha cũng xoá,
   để không còn lại một mục bấm vào là 403.
 - `hdtq_prune_admin_bar()` gỡ các mục Giao diện trên thanh admin, vì chúng dẫn vào màn bị 403.
+- `HDTQ_BLOCKED_CAPS` từ chối thẳng `customize` và `edit_css` ở tầng `map_meta_cap`. Cần vì phần
+  lưu của Customizer đi qua `admin-ajax.php`, chỗ tầng `wp_die` buộc phải thoát sớm — không chặn
+  thì một request tự dựng vẫn đổi được logo site và Additional CSS. Tiêu đề và mô tả site thì
+  không: hai setting ấy đòi `manage_options`.
 
 Theme này không đăng ký sidebar nào, nên màn Widget cũng không có gì để sửa.
 
