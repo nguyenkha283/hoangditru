@@ -12,7 +12,6 @@ function lpb_register_meta_boxes() {
         [ 'lpb_conditions', 'Điều kiện chương trình',     'lpb_mb_conditions' ],
         [ 'lpb_process',    'Quy trình',                  'lpb_mb_process'    ],
         [ 'lpb_du_an',      'Danh mục dự án (BĐS)',       'lpb_mb_du_an'      ],
-        [ 'lpb_news',       'Tin tức',                    'lpb_mb_news'       ],
     ];
     foreach ( $boxes as $b ) {
         add_meta_box( $b[0], $b[1], $b[2], $screen, 'normal', 'default' );
@@ -172,34 +171,6 @@ function lpb_mb_process( $post ) {
         </div>
         <button type="button" class="button lpb-add-row"
                 data-group="lpb_process" data-template="process">+ Thêm bước</button>
-    </div>
-    <?php
-}
-
-/* ── TIN TỨC ───────────────────────────────────────────────────── */
-function lpb_mb_news( $post ) {
-    $selected_ids = get_post_meta( $post->ID, 'lpb_news_ids', true ) ?: [];
-    $posts = get_posts( [
-        'post_type'      => 'post',
-        'posts_per_page' => 50,
-        'post_status'    => 'publish',
-    ] );
-    ?>
-    <p class="description" style="margin-bottom:10px">
-        Chọn các bài viết muốn hiển thị. Để trống → tự động lấy 3 bài mới nhất.
-    </p>
-    <div class="lpb-news-list">
-        <?php foreach ( $posts as $p ) : ?>
-        <label class="lpb-news-item">
-            <input type="checkbox" name="lpb_news_ids[]" value="<?php echo $p->ID; ?>"
-                   <?php checked( in_array( $p->ID, (array) $selected_ids ) ); ?>>
-            <span><?php echo esc_html( $p->post_title ); ?></span>
-            <small><?php echo get_the_date( 'd/m/Y', $p ); ?></small>
-        </label>
-        <?php endforeach; ?>
-        <?php if ( empty( $posts ) ) : ?>
-            <p><em>Chưa có bài viết nào.</em></p>
-        <?php endif; ?>
     </div>
     <?php
 }

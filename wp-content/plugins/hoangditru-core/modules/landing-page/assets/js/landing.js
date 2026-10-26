@@ -18,7 +18,7 @@
     /* Scroll animation */
     if ('IntersectionObserver' in window) {
         var els = document.querySelectorAll(
-            '.lpb-advantages__item,.lpb-benefits__item,.lpb-milestone__item,.lpb-news__item,.lpb-accordion__item'
+            '.lpb-advantages__item,.lpb-benefits__item,.lpb-milestone__item,.lpb-accordion__item'
         );
         els.forEach(function (el) { el.classList.add('lpb-animate'); });
 
