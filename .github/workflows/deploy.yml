@@ -16,8 +16,11 @@
 #                 trong scripts/ftp-resolve.sh.
 #   FTP_USER      username FTP
 #   FTP_PASSWORD  password FTP
-#   FTP_PATH      nên đặt = /public_html/wp-content/ để mỗi lần chạy chỉ tốn
-#                 1 phiên FTP. Bỏ trống thì workflow tự dò, tốn 2-3 phiên.
+#   FTP_PATH      đang đặt = /domains/hoangditru.com/public_html/wp-content/
+#                 Có giá trị này thì mỗi lần chạy chỉ tốn 1 phiên FTP; bỏ trống
+#                 thì workflow phải tự dò, tốn 2-3 phiên. Script vẫn kiểm đường
+#                 dẫn có đúng là wp-content hay không trước khi đẩy, nên đặt sai
+#                 sẽ đỏ chứ không âm thầm đẩy nhầm chỗ.
 #
 # hPanel Git XOA SACH thư mục đích trước mỗi lần kéo code. Ngày 2026-10-23 nó
 # được trỏ vào public_html và đã xoá toàn bộ file PHP gốc của WordPress.
