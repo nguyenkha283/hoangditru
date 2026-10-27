@@ -7,9 +7,9 @@
  * khoảng cách dòng không đổi. Chỉ tên class đổi từ wpcf7-* sang cimf-*, và CSS
  * đổi selector theo — từng khai báo giữ y nguyên.
  *
- * Mail nhận là admin_email của site, đọc lúc gửi chứ không chép cứng. Thêm
- * được một địa chỉ thứ hai ở trang Thông tin liên hệ (khoá `form_email` trong
- * option cim_contact_info) — để trống thì chỉ gửi email quản trị.
+ * Mail nhận là admin_email của site, đọc lúc gửi chứ không chép cứng, cộng
+ * thêm ô Email ở trang Thông tin liên hệ nếu có đặt — cùng ô đang hiện cho
+ * khách xem ở chân trang.
  *
  * ── Vì sao KHÔNG có nonce ───────────────────────────────────────────────────
  * Trang chân trang nằm trong cache toàn trang của LiteSpeed. Nonce của
@@ -445,7 +445,8 @@ function cimf_form_send_mail( array $values, $from_url ) {
  * Danh sách người nhận.
  *
  * Email quản trị luôn có, đọc lúc gửi nên đổi ở Cài đặt → Tổng quan là theo
- * ngay. Địa chỉ thứ hai là tuỳ chọn, đặt ở trang Thông tin liên hệ.
+ * ngay. Địa chỉ thứ hai là ô Email ở trang Thông tin liên hệ, để trống cũng
+ * được.
  *
  * Trả mảng chứ không phải chuỗi nối dấu phẩy: wp_mail() nhận cả hai, nhưng
  * mảng thì không phải lo địa chỉ nào có dấu phẩy trong phần tên.
@@ -469,10 +470,15 @@ function cimf_form_recipients() {
 }
 
 /**
- * Địa chỉ nhận thêm, lấy từ trang Thông tin liên hệ.
+ * Địa chỉ nhận thêm: ô Email ở trang Thông tin liên hệ.
  *
- * Không chép cứng vào code: người quản trị đổi được mà không cần deploy. Khoá
- * `form_email` nằm trong option cim_contact_info.
+ * Dùng thẳng ô đó chứ không có ô riêng cho form. Đổi lại là một địa chỉ làm
+ * hai việc — vừa hiện cho khách xem ở chân trang, vừa nhận yêu cầu — nên trang
+ * cài đặt ghi rõ điều đó ngay dưới ô, không thì người đổi địa chỉ hiển thị sẽ
+ * vô tình chuyển luôn nơi nhận yêu cầu mà không biết.
+ *
+ * Kiểm lại dù contact-info-manager đã lọc bằng sanitize_email lúc lưu: giá trị
+ * cũ trong database có từ trước khi có lớp lọc đó.
  *
  * @return string Rỗng nếu chưa đặt hoặc đặt sai.
  */
@@ -482,7 +488,7 @@ function cimf_form_extra_recipient() {
 		return '';
 	}
 
-	$email = sanitize_email( (string) cim_get( 'form_email' ) );
+	$email = sanitize_email( (string) cim_get( 'email' ) );
 
 	return is_email( $email ) ? $email : '';
 }

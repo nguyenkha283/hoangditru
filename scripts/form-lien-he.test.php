@@ -398,20 +398,20 @@ t( 'JS ghi lại cimf_tu theo location', false !== strpos( $js_code, 'window.loc
 echo "\n── Địa chỉ nhận thêm ───────────────────────────────────────────────\n";
 
 /*
- * Email quản trị luôn có. Địa chỉ thứ hai lấy từ trang Thông tin liên hệ, nên
- * sai một chỗ là hoặc khách gửi mà không ai nhận được bản thứ hai, hoặc có
- * người lạ nhận được mọi yêu cầu của site.
+ * Email quản trị luôn có. Địa chỉ thứ hai là ô Email ở trang Thông tin liên hệ
+ * — cùng ô đang hiện cho khách xem ở chân trang. Sai một chỗ là hoặc khách gửi
+ * mà không ai nhận được bản thứ hai, hoặc có người lạ nhận mọi yêu cầu của site.
  */
 $GLOBALS['cim'] = array();
 t( 'chưa đặt thì chỉ email quản trị', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
 
-$GLOBALS['cim']['form_email'] = 'tuvan@gmail.com';
+$GLOBALS['cim']['email'] = 'tuvan@gmail.com';
 t( 'đặt rồi thì gửi cả hai', cimf_form_recipients(), array( 'chu@hoangditru.com', 'tuvan@gmail.com' ) );
 
-$GLOBALS['cim']['form_email'] = 'khong-phai-email';
+$GLOBALS['cim']['email'] = 'khong-phai-email';
 t( 'địa chỉ sai thì bỏ', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
 
-$GLOBALS['cim']['form_email'] = '';
+$GLOBALS['cim']['email'] = '';
 t( 'để trống thì bỏ', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
 
 /*
@@ -419,14 +419,14 @@ t( 'để trống thì bỏ', cimf_form_recipients(), array( 'chu@hoangditru.com
  * cùng một người nhận hai bản giống hệt cho mỗi yêu cầu, rồi tưởng form gửi
  * trùng. So sánh không phân biệt hoa thường vì email không phân biệt tên miền.
  */
-$GLOBALS['cim']['form_email'] = 'chu@hoangditru.com';
+$GLOBALS['cim']['email'] = 'chu@hoangditru.com';
 t( 'trùng email quản trị thì bỏ', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
 
-$GLOBALS['cim']['form_email'] = 'CHU@HoangDiTru.com';
+$GLOBALS['cim']['email'] = 'CHU@HoangDiTru.com';
 t( 'trùng kiểu hoa thường cũng bỏ', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
 
 // Người nhận phải đi vào đúng lượt wp_mail, không chỉ đúng ở hàm tính.
-$GLOBALS['cim']['form_email'] = 'tuvan@gmail.com';
+$GLOBALS['cim']['email'] = 'tuvan@gmail.com';
 $GLOBALS['mails']             = array();
 cimf_form_send_mail( cimf_form_clean( post_hop_le() ), 'https://hoangditru.com/' );
 t( 'wp_mail nhận đủ hai địa chỉ', $GLOBALS['mails'][0]['to'] ?? null, array( 'chu@hoangditru.com', 'tuvan@gmail.com' ) );

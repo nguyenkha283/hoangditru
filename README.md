@@ -277,9 +277,13 @@ là tự mở cửa cho người muốn vượt giới hạn.
 Người nhận là `admin_email` của site, đọc lúc gửi chứ không chép cứng — đổi mail admin trong
 **Cài đặt → Tổng quan** là form gửi theo.
 
-Gửi thêm được **một** địa chỉ nữa: **Thông tin liên hệ → Nhận Yêu Cầu Từ Form**. Để trống thì chỉ
-gửi email quản trị. Địa chỉ lưu ở khoá `form_email` trong option `cim_contact_info`, nên
-`cim-footer` đọc nó qua `cim_get()` — **đổi tên khoá đó là mất địa chỉ đang đặt**.
+Gửi thêm cho ô **Email** ở **Thông tin liên hệ** nữa — đúng cái ô đang hiện cho khách xem ở chân
+trang. Không có ô riêng cho form: một địa chỉ làm hai việc. Để trống thì chỉ email quản trị nhận.
+Địa chỉ lưu ở khoá `email` trong option `cim_contact_info`, `cim-footer` đọc qua `cim_get()`.
+
+Đánh đổi của cách này: **đổi địa chỉ hiển thị là đổi luôn nơi nhận yêu cầu**, mà nhìn cái ô thì
+không đoán ra. Nên ngay dưới ô đó trang cài đặt ghi rõ nó làm hai việc — không ghi thì người đổi
+địa chỉ cho khách xem sẽ vô tình chuyển cả luồng yêu cầu mà không biết.
 
 Hai chỗ dễ hỏng mà đã chặn sẵn:
 
