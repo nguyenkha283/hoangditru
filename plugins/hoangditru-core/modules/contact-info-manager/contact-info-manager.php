@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'CIM_VERSION', '1.2.1' );
+define( 'CIM_VERSION', '1.2.2' );
 define( 'CIM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CIM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CIM_OPTION_KEY', 'cim_contact_info' );
@@ -241,15 +241,7 @@ function cim_admin_page() {
                                        value="<?php echo esc_attr( $data['email'] ); ?>"
                                        placeholder="example@email.com" class="regular-text">
                             </div>
-                            <p class="description">
-                                Địa chỉ này làm <strong>hai việc</strong>: hiện ra cho khách xem ở chân trang, và
-                                nhận yêu cầu từ form <strong>Yêu Cầu Gọi Lại</strong>. Đổi ở đây là đổi cả hai.
-                            </p>
-                            <p class="description">
-                                Mỗi yêu cầu luôn gửi kèm về email quản trị
-                                (<code><?php echo esc_html( get_option( 'admin_email' ) ); ?></code> — đổi ở
-                                Cài đặt → Tổng quan). Để trống ô này thì chỉ còn email quản trị nhận.
-                            </p>
+
                         </div>
 
                         <!-- Số điện thoại -->
