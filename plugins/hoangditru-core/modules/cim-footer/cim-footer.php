@@ -2,8 +2,8 @@
 /**
  * Plugin Name: CIM Footer
  * Plugin URI:  #
- * Description: Footer toàn trang lấy dữ liệu từ plugin Contact Info Manager. Background ảnh nền, overlay, layout 2 cột — tích hợp CF7.
- * Version:     1.0.0
+ * Description: Footer toàn trang lấy dữ liệu từ plugin Contact Info Manager. Background ảnh nền, overlay, layout 2 cột, form liên hệ tự viết.
+ * Version:     1.1.0
  * Author:      Your Name
  * License:     GPL2
  * Text Domain: cim-footer
@@ -12,8 +12,11 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'CIMF_VERSION',    '1.0.0' );
+define( 'CIMF_VERSION',    '1.1.0' );
 define( 'CIMF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'CIMF_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+
+require_once CIMF_PLUGIN_DIR . 'includes/form-lien-he.php';
 
 // ──────────────────────────────────────────────
 // Enqueue styles
@@ -25,6 +28,15 @@ function cimf_enqueue() {
         CIMF_PLUGIN_URL . 'assets/cim-footer.css',
         [],
         CIMF_VERSION
+    );
+
+    // Form chân trang có mặt ở mọi trang nên nạp luôn, không dò theo điều kiện.
+    wp_enqueue_script(
+        'cim-footer-form',
+        CIMF_PLUGIN_URL . 'assets/form-lien-he.js',
+        [],
+        CIMF_VERSION,
+        true
     );
 }
 
@@ -123,10 +135,6 @@ function cimf_render() {
                       . '</a>';
     }
 
-    // ── CF7 shortcode ──
-    $cf7_shortcode = '[contact-form-7 id="cc8d593" title="Form liên hệ 2"]';
-    $cf7_html      = defined( 'WPCF7_VERSION' ) ? do_shortcode( $cf7_shortcode ) : '<p style="color:rgba(255,255,255,.6);font-size:14px;">Vui lòng kích hoạt plugin Contact Form 7.</p>';
-
     ?>
     <div id="cim-footer" class="cimf-footer<?php echo $bg_url ? ' has-bg' : ''; ?>" <?php echo $bg_style; ?>>
 
@@ -199,9 +207,7 @@ function cimf_render() {
                 <!-- ── Cột 2: Form ── -->
                 <div class="cimf-col cimf-col-form">
                     <h2 class="cimf-heading">Yêu Cầu Gọi Lại</h2>
-                    <div class="cimf-cf7-wrap">
-                        <?php echo $cf7_html; ?>
-                    </div>
+                    <?php cimf_form_render(); ?>
                 </div>
 
             </div><!-- .cimf-grid -->

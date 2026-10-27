@@ -179,19 +179,23 @@
     border-radius: 3px;
 }
 
-/* ── CF7 form ── */
+/* ── Form liên hệ ── */
 .cimf-col-form .cimf-heading {
     margin-bottom: 24px !important;
 }
 
-.cimf-cf7-wrap .wpcf7 {
+.cimf-form-wrap .cimf-form {
     margin: 0;
     padding: 0;
 }
 
+/* Trường bẫy chống spam: không được thấy, không được chiếm chỗ. */
+.cimf-form .cimf-honeypot {
+    display: none !important;
+}
+
 /* Labels */
-.cimf-cf7-wrap .wpcf7 label,
-.cimf-cf7-wrap .wpcf7 .wpcf7-form-control-wrap label {
+.cimf-form-wrap .cimf-form label {
     color: rgba(255, 255, 255, 0.85) !important;
     font-size: 0.875rem;
     font-weight: 500;
@@ -200,9 +204,9 @@
 }
 
 /* Inputs & Textarea */
-.cimf-cf7-wrap .wpcf7 input:not([type="submit"]),
-.cimf-cf7-wrap .wpcf7 textarea,
-.cimf-cf7-wrap .wpcf7 select {
+.cimf-form-wrap .cimf-form input:not([type="submit"]),
+.cimf-form-wrap .cimf-form textarea,
+.cimf-form-wrap .cimf-form select {
     background: rgba(255, 255, 255, 0.10) !important;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
     border-radius: 6px !important;
@@ -217,19 +221,19 @@
     appearance: none;
 }
 
-.cimf-cf7-wrap .wpcf7 input::placeholder,
-.cimf-cf7-wrap .wpcf7 textarea::placeholder {
+.cimf-form-wrap .cimf-form input::placeholder,
+.cimf-form-wrap .cimf-form textarea::placeholder {
     color: rgba(255, 255, 255, 0.45) !important;
 }
 
-.cimf-cf7-wrap .wpcf7 input:focus:not([type="submit"]),
-.cimf-cf7-wrap .wpcf7 textarea:focus {
+.cimf-form-wrap .cimf-form input:focus:not([type="submit"]),
+.cimf-form-wrap .cimf-form textarea:focus {
     border-color: rgba(255, 255, 255, 0.6) !important;
     background: rgba(255, 255, 255, 0.15) !important;
 }
 
 /* Submit button */
-.cimf-cf7-wrap .wpcf7 input[type="submit"] {
+.cimf-form-wrap .cimf-form input[type="submit"] {
     background: #ffffff !important;
     color: #111111 !important;
     border: none !important;
@@ -244,19 +248,31 @@
     letter-spacing: 0.03em;
 }
 
-.cimf-cf7-wrap .wpcf7 input[type="submit"]:hover {
+.cimf-form-wrap .cimf-form input[type="submit"]:hover {
     background: rgba(255, 255, 255, 0.88) !important;
     transform: translateY(-1px);
 }
 
-/* CF7 validation messages */
-.cimf-cf7-wrap .wpcf7 .wpcf7-not-valid-tip {
+/* Lúc đang gửi: nút mờ đi, con trỏ báo không bấm được. */
+.cimf-form-wrap .cimf-form input[type="submit"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+}
+
+/* Lỗi từng trường. display:block trước đây do CSS của CF7 đặt, nay tự đặt. */
+.cimf-form-wrap .cimf-form .cimf-loi {
     color: #fca5a5 !important;
     font-size: 0.8125rem;
     margin-top: 4px;
+    display: block;
 }
 
-.cimf-cf7-wrap .wpcf7 .wpcf7-response-output {
+/*
+ * Thông báo chung. CF7 ẩn ô này ở trạng thái init bằng CSS của chính nó; nay
+ * dùng :empty, nên không có thông báo là không thấy khung rỗng.
+ */
+.cimf-form-wrap .cimf-form .cimf-response {
     border-radius: 6px !important;
     padding: 10px 14px !important;
     font-size: 0.875rem !important;
@@ -264,6 +280,10 @@
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     color: #ffffff !important;
     background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.cimf-form-wrap .cimf-form .cimf-response:empty {
+    display: none;
 }
 
 /* ── Responsive ── */
