@@ -345,6 +345,34 @@ $GLOBALS['mails'] = array();
 cimf_form_send_mail( $values, 'https://evil.example/x' );
 t( 'URL lạ không vào mail', false === strpos( $GLOBALS['mails'][0]['message'], 'evil.example' ), true );
 
+echo "\n── JS gửi form ────────────────────────────────────────────────────\n";
+
+/*
+ * Form có <input name="action"> vì admin-post.php bắt buộc tham số tên đúng
+ * như vậy. Mà HTMLFormElement khai báo [LegacyOverrideBuiltIns], nghĩa là
+ * control trùng tên ĐÈ LÊN thuộc tính dựng sẵn: form.action trả về chính cái
+ * input đó chứ không phải URL. fetch() ép nó thành "[object HTMLInputElement]"
+ * rồi POST vào URL đó và nhận 404 — đã xảy ra thật trên site, mà khách chỉ
+ * thấy "Không gửi được, vui lòng thử lại".
+ *
+ * Test PHP đọc file JS bằng chuỗi thì thô, nhưng đây là lỗi im lặng, chỉ lộ ra
+ * khi bấm thử trên trình duyệt thật. Một dòng grep đáng giá hơn là không có gì.
+ */
+$js = file_get_contents( __DIR__ . '/../wp-content/plugins/hoangditru-core/modules/cim-footer/assets/form-lien-he.js' );
+
+/*
+ * Bỏ comment trước khi tìm. Chính cái bẫy trên được giải thích bằng chữ
+ * "form.action" ngay trong file JS, nên tìm thẳng trong file là test đỏ vì một
+ * lời giải thích đúng — kiểu test dạy người ta xoá chú thích cho qua bài.
+ */
+$js_code = preg_replace( '~/\*.*?\*/~s', '', $js );
+$js_code = preg_replace( '~^\s*//.*$~m', '', $js_code );
+
+t( 'JS đọc action bằng getAttribute', false !== strpos( $js_code, "getAttribute( 'action' )" ), true );
+t( 'JS KHÔNG dùng form.action', false === strpos( $js_code, 'form.action' ), true );
+t( 'JS gửi kèm cờ cimf_ajax', false !== strpos( $js_code, 'cimf_ajax' ), true );
+t( 'JS ghi lại cimf_tu theo location', false !== strpos( $js_code, 'window.location.href' ), true );
+
 printf( "\n  %d ok, %d lỗi\n", $pass, $fail );
 
 if ( $fail ) {
