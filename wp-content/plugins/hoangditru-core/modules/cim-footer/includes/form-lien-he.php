@@ -473,9 +473,9 @@ function cimf_form_recipients() {
  * Địa chỉ nhận thêm: ô Email ở trang Thông tin liên hệ.
  *
  * Dùng thẳng ô đó chứ không có ô riêng cho form. Đổi lại là một địa chỉ làm
- * hai việc — vừa hiện cho khách xem ở chân trang, vừa nhận yêu cầu — nên trang
- * cài đặt ghi rõ điều đó ngay dưới ô, không thì người đổi địa chỉ hiển thị sẽ
- * vô tình chuyển luôn nơi nhận yêu cầu mà không biết.
+ * hai việc — vừa hiện cho khách xem ở chân trang, vừa nhận yêu cầu — và trang
+ * cài đặt KHÔNG ghi gì về việc đó. Nên ai sửa địa chỉ hiển thị cho khách xem là
+ * đang chuyển cả luồng yêu cầu, mà nhìn ô nhập thì không đoán ra.
  *
  * Kiểm lại dù contact-info-manager đã lọc bằng sanitize_email lúc lưu: giá trị
  * cũ trong database có từ trước khi có lớp lọc đó.

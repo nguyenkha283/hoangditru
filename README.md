@@ -281,9 +281,9 @@ Gửi thêm cho ô **Email** ở **Thông tin liên hệ** nữa — đúng cái
 trang. Không có ô riêng cho form: một địa chỉ làm hai việc. Để trống thì chỉ email quản trị nhận.
 Địa chỉ lưu ở khoá `email` trong option `cim_contact_info`, `cim-footer` đọc qua `cim_get()`.
 
-Đánh đổi của cách này: **đổi địa chỉ hiển thị là đổi luôn nơi nhận yêu cầu**, mà nhìn cái ô thì
-không đoán ra. Nên ngay dưới ô đó trang cài đặt ghi rõ nó làm hai việc — không ghi thì người đổi
-địa chỉ cho khách xem sẽ vô tình chuyển cả luồng yêu cầu mà không biết.
+Đánh đổi của cách này: **đổi địa chỉ hiển thị là đổi luôn nơi nhận yêu cầu**, mà ô nhập trong trang
+cài đặt không ghi gì về điều đó. Ai sửa địa chỉ hiển thị cho khách xem cần biết mình đang chuyển cả
+luồng yêu cầu — chỗ duy nhất nói ra là mục này.
 
 Hai chỗ dễ hỏng mà đã chặn sẵn:
 
