@@ -57,6 +57,28 @@ $GLOBALS['transients'] = array();
 $GLOBALS['mails']      = array();
 $GLOBALS['referer']    = '';
 
+/** Dữ liệu của module contact-info-manager, nơi lưu địa chỉ nhận thêm. */
+$GLOBALS['cim'] = array();
+
+function cim_get( $key ) { return $GLOBALS['cim'][ $key ] ?? ''; }
+
+/**
+ * sanitize_email() giả lập.
+ *
+ * Bản thật trả CHUỖI RỖNG khi địa chỉ không dùng được, chứ không trả nguyên
+ * chuỗi vào. Stub phải giữ đúng chỗ đó: toàn bộ cách xử lý địa chỉ sai của
+ * module dựa vào tính chất này.
+ */
+function sanitize_email( $email ) {
+	$email = trim( (string) $email );
+
+	return filter_var( $email, FILTER_VALIDATE_EMAIL ) ? $email : '';
+}
+
+function is_email( $email ) {
+	return (bool) filter_var( (string) $email, FILTER_VALIDATE_EMAIL );
+}
+
 /**
  * wp_get_referer() giả lập.
  *
@@ -321,7 +343,7 @@ t( 'gửi đúng 1 mail', count( $GLOBALS['mails'] ), 1 );
 $mail = $GLOBALS['mails'][0] ?? array();
 
 // Mail nhận là admin_email, đọc lúc gửi — không chép cứng địa chỉ nào.
-t( 'người nhận là admin_email', $mail['to'] ?? '', 'chu@hoangditru.com' );
+t( 'người nhận là admin_email', $mail['to'] ?? null, array( 'chu@hoangditru.com' ) );
 t( 'tiêu đề có tên site', false !== strpos( $mail['subject'] ?? '', 'Hoàng Di Trú' ), true );
 t( 'tiêu đề có tiêu đề khách nhập', false !== strpos( $mail['subject'] ?? '', 'Tư vấn định cư Malta' ), true );
 
@@ -372,6 +394,45 @@ t( 'JS đọc action bằng getAttribute', false !== strpos( $js_code, "getAttri
 t( 'JS KHÔNG dùng form.action', false === strpos( $js_code, 'form.action' ), true );
 t( 'JS gửi kèm cờ cimf_ajax', false !== strpos( $js_code, 'cimf_ajax' ), true );
 t( 'JS ghi lại cimf_tu theo location', false !== strpos( $js_code, 'window.location.href' ), true );
+
+echo "\n── Địa chỉ nhận thêm ───────────────────────────────────────────────\n";
+
+/*
+ * Email quản trị luôn có. Địa chỉ thứ hai lấy từ trang Thông tin liên hệ, nên
+ * sai một chỗ là hoặc khách gửi mà không ai nhận được bản thứ hai, hoặc có
+ * người lạ nhận được mọi yêu cầu của site.
+ */
+$GLOBALS['cim'] = array();
+t( 'chưa đặt thì chỉ email quản trị', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
+
+$GLOBALS['cim']['form_email'] = 'tuvan@gmail.com';
+t( 'đặt rồi thì gửi cả hai', cimf_form_recipients(), array( 'chu@hoangditru.com', 'tuvan@gmail.com' ) );
+
+$GLOBALS['cim']['form_email'] = 'khong-phai-email';
+t( 'địa chỉ sai thì bỏ', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
+
+$GLOBALS['cim']['form_email'] = '';
+t( 'để trống thì bỏ', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
+
+/*
+ * Điền đúng email quản trị vào ô thứ hai là chuyện sẽ xảy ra. Không lọc thì
+ * cùng một người nhận hai bản giống hệt cho mỗi yêu cầu, rồi tưởng form gửi
+ * trùng. So sánh không phân biệt hoa thường vì email không phân biệt tên miền.
+ */
+$GLOBALS['cim']['form_email'] = 'chu@hoangditru.com';
+t( 'trùng email quản trị thì bỏ', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
+
+$GLOBALS['cim']['form_email'] = 'CHU@HoangDiTru.com';
+t( 'trùng kiểu hoa thường cũng bỏ', cimf_form_recipients(), array( 'chu@hoangditru.com' ) );
+
+// Người nhận phải đi vào đúng lượt wp_mail, không chỉ đúng ở hàm tính.
+$GLOBALS['cim']['form_email'] = 'tuvan@gmail.com';
+$GLOBALS['mails']             = array();
+cimf_form_send_mail( cimf_form_clean( post_hop_le() ), 'https://hoangditru.com/' );
+t( 'wp_mail nhận đủ hai địa chỉ', $GLOBALS['mails'][0]['to'] ?? null, array( 'chu@hoangditru.com', 'tuvan@gmail.com' ) );
+t( 'vẫn chỉ gửi 1 lượt', count( $GLOBALS['mails'] ), 1 );
+
+$GLOBALS['cim'] = array();
 
 printf( "\n  %d ok, %d lỗi\n", $pass, $fail );
 

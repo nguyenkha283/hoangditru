@@ -275,7 +275,20 @@ là tự mở cửa cho người muốn vượt giới hạn.
 ### Mail
 
 Người nhận là `admin_email` của site, đọc lúc gửi chứ không chép cứng — đổi mail admin trong
-**Cài đặt → Tổng quan** là form gửi theo. Nội dung mail ghi thêm trang khách gửi từ đó, thời gian và
+**Cài đặt → Tổng quan** là form gửi theo.
+
+Gửi thêm được **một** địa chỉ nữa: **Thông tin liên hệ → Nhận Yêu Cầu Từ Form**. Để trống thì chỉ
+gửi email quản trị. Địa chỉ lưu ở khoá `form_email` trong option `cim_contact_info`, nên
+`cim-footer` đọc nó qua `cim_get()` — **đổi tên khoá đó là mất địa chỉ đang đặt**.
+
+Hai chỗ dễ hỏng mà đã chặn sẵn:
+
+- Điền đúng email quản trị vào ô thứ hai thì bị bỏ, không thì cùng một người nhận hai bản giống hệt
+  cho mỗi yêu cầu rồi tưởng form gửi trùng. So sánh không phân biệt hoa thường.
+- Gõ sai địa chỉ thì `sanitize_email()` trả chuỗi rỗng, tức âm thầm thành "không gửi thêm cho ai".
+  Nên trang cài đặt hiện cảnh báo vàng ngay khi lưu, thay vì để im.
+
+Ô này **không phải** ô **Email** ở trên cùng trang: ô đó là địa chỉ hiện ra cho khách xem trên site. Nội dung mail ghi thêm trang khách gửi từ đó, thời gian và
 IP; URL đó do khách gửi lên nên được kiểm là cùng host trước khi in, nếu không thì chỉ là một dòng
 URL lạ ai cũng chèn được vào hộp thư admin.
 

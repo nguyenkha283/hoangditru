@@ -7,7 +7,9 @@
  * khoảng cách dòng không đổi. Chỉ tên class đổi từ wpcf7-* sang cimf-*, và CSS
  * đổi selector theo — từng khai báo giữ y nguyên.
  *
- * Mail nhận là admin_email của site, đọc lúc gửi chứ không chép cứng.
+ * Mail nhận là admin_email của site, đọc lúc gửi chứ không chép cứng. Thêm
+ * được một địa chỉ thứ hai ở trang Thông tin liên hệ (khoá `form_email` trong
+ * option cim_contact_info) — để trống thì chỉ gửi email quản trị.
  *
  * ── Vì sao KHÔNG có nonce ───────────────────────────────────────────────────
  * Trang chân trang nằm trong cache toàn trang của LiteSpeed. Nonce của
@@ -433,10 +435,56 @@ function cimf_form_send_mail( array $values, $from_url ) {
 	 * form này còn chẳng hỏi — là cách nhanh nhất để thư rơi vào spam.
 	 */
 	return (bool) wp_mail(
-		get_option( 'admin_email' ),
+		cimf_form_recipients(),
 		$subject,
 		implode( "\n", $lines )
 	);
+}
+
+/**
+ * Danh sách người nhận.
+ *
+ * Email quản trị luôn có, đọc lúc gửi nên đổi ở Cài đặt → Tổng quan là theo
+ * ngay. Địa chỉ thứ hai là tuỳ chọn, đặt ở trang Thông tin liên hệ.
+ *
+ * Trả mảng chứ không phải chuỗi nối dấu phẩy: wp_mail() nhận cả hai, nhưng
+ * mảng thì không phải lo địa chỉ nào có dấu phẩy trong phần tên.
+ *
+ * @return string[]
+ */
+function cimf_form_recipients() {
+	$admin = (string) get_option( 'admin_email' );
+	$to    = array( $admin );
+	$them  = cimf_form_extra_recipient();
+
+	/*
+	 * Trùng email quản trị thì bỏ. Không bỏ thì cùng một người nhận hai bản
+	 * giống hệt nhau cho mỗi yêu cầu, và nghĩ là form gửi trùng.
+	 */
+	if ( '' !== $them && strtolower( $them ) !== strtolower( $admin ) ) {
+		$to[] = $them;
+	}
+
+	return $to;
+}
+
+/**
+ * Địa chỉ nhận thêm, lấy từ trang Thông tin liên hệ.
+ *
+ * Không chép cứng vào code: người quản trị đổi được mà không cần deploy. Khoá
+ * `form_email` nằm trong option cim_contact_info.
+ *
+ * @return string Rỗng nếu chưa đặt hoặc đặt sai.
+ */
+function cimf_form_extra_recipient() {
+	// Module contact-info-manager nạp trước cim-footer, nhưng test thì không.
+	if ( ! function_exists( 'cim_get' ) ) {
+		return '';
+	}
+
+	$email = sanitize_email( (string) cim_get( 'form_email' ) );
+
+	return is_email( $email ) ? $email : '';
 }
 
 /**
