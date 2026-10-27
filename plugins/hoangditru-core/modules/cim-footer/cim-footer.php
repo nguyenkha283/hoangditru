@@ -3,7 +3,7 @@
  * Plugin Name: CIM Footer
  * Plugin URI:  #
  * Description: Footer toàn trang lấy dữ liệu từ plugin Contact Info Manager. Background ảnh nền, overlay, layout 2 cột, form liên hệ tự viết.
- * Version:     1.1.0
+ * Version:     1.1.1
  * Author:      Your Name
  * License:     GPL2
  * Text Domain: cim-footer
@@ -12,7 +12,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'CIMF_VERSION',    '1.1.0' );
+define( 'CIMF_VERSION',    '1.1.1' );
 define( 'CIMF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CIMF_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 

@@ -26,6 +26,18 @@
 		var btn = form.querySelector( '.cimf-submit' );
 		var nhan = btn ? btn.value : 'Gửi';
 
+		/*
+		 * PHẢI đọc bằng getAttribute, không được dùng form.action.
+		 *
+		 * Form có <input name="action"> — admin-post.php bắt buộc tham số tên
+		 * đúng như vậy. Mà HTMLFormElement khai báo [LegacyOverrideBuiltIns],
+		 * nghĩa là control trùng tên ĐÈ LÊN thuộc tính dựng sẵn: form.action
+		 * trả về chính cái input đó chứ không phải URL. fetch() ép nó thành
+		 * chuỗi "[object HTMLInputElement]" rồi POST vào URL đó, nhận 404, và
+		 * khách chỉ thấy "Không gửi được, vui lòng thử lại".
+		 */
+		var url = form.getAttribute( 'action' ) || window.location.href;
+
 		form.addEventListener( 'submit', function ( e ) {
 			e.preventDefault();
 
@@ -47,7 +59,7 @@
 				btn.value = 'Đang gửi…';
 			}
 
-			fetch( form.action, {
+			fetch( url, {
 				method: 'POST',
 				body: data,
 				credentials: 'same-origin'
