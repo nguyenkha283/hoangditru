@@ -232,6 +232,65 @@ thì không thêm và cũng không đánh dấu, nên gán menu xong là lần x
 [`scripts/menu-tu-dong.test.php`](scripts/menu-tu-dong.test.php) dựng lại đúng cấu trúc menu đang
 chạy ngoài site rồi kiểm 37 trường hợp.
 
+## Form liên hệ ở chân trang
+
+Form **Yêu Cầu Gọi Lại** ở chân trang trước đây là Contact Form 7 (form id `cc8d593`, post 542), giờ
+là code của site: `cim-footer/includes/form-lien-he.php` + `assets/form-lien-he.js`.
+
+Bốn trường, nhãn và thứ tự giữ y nguyên form cũ, và giữ nguyên cả cấu trúc DOM
+`p > label > br > span > input` — khoảng cách dòng của form phụ thuộc lề mặc định của `p` và cái
+`br`, nên đổi cấu trúc là đổi dáng dù CSS không đổi. Tên class đổi từ `wpcf7-*` sang `cimf-*` và CSS
+đổi selector theo, từng khai báo giữ nguyên.
+
+Tên trường thì đổi: `your-name` → `ten`, `tel-781` → `dien_thoai`, `your-subject` → `tieu_de`,
+`your-message` → `tin_nhan`. Tên trường CF7 không nằm trong database nên đổi không mất gì, mà
+`tel-781` thì không ai đọc ra là gì.
+
+### Đường đi của một lượt gửi
+
+Form là `<form method="post">` thật, action là `admin-post.php`. JS chỉ **thêm** phần gửi bằng
+`fetch` để khỏi tải lại trang — đúng như CF7 cũ làm — và in lỗi ngay dưới từng trường. Tắt JS thì
+form vẫn gửi được: POST như thường rồi được chuyển về đúng trang cũ, neo `#cim-footer`, kèm
+`?cimf=ok|loi` để in lại thông báo. Một đường kiểm dữ liệu duy nhất cho cả hai lối.
+
+### Vì sao không có nonce
+
+Chân trang có ở mọi trang, và mọi trang đều nằm trong cache toàn trang của LiteSpeed. Nonce của
+WordPress hết hạn sau 12–24 giờ, nên một trang cache lâu hơn thế sẽ mang nonce chết và **form lặng
+lẽ không gửi được** — không lỗi, không log, không ai biết cho tới khi khách gọi điện hỏi. Mà nonce ở
+đây không bảo vệ gì: kịch bản CSRF tệ nhất là dụ trình duyệt ai đó gửi cho chính chúng ta một cái
+email. CF7 cũng bỏ nonce với khách chưa đăng nhập, đúng vì lý do này.
+
+Chống spam thay thế, ba lớp, không captcha:
+
+| Lớp | Cách làm | Ghi chú |
+|---|---|---|
+| Trường bẫy | input `website` ẩn bằng CSS, có giá trị là bot | bot điền mọi input |
+| Thời gian điền | JS đặt `cimf_giay`, dưới 3 giây thì chặn | đo từ lúc script chạy, **không** lấy giờ máy chủ in trong HTML — giờ đó là giờ nạp cache |
+| Giới hạn theo IP | 5 lần / 10 phút, lưu bằng transient | chỉ đếm lượt đã qua kiểm, nên điền sai rồi sửa lại không bị tính |
+
+Chỉ dùng `REMOTE_ADDR`, **không** đọc `X-Forwarded-For`: header đó khách tự đặt được nên tin vào nó
+là tự mở cửa cho người muốn vượt giới hạn.
+
+### Mail
+
+Người nhận là `admin_email` của site, đọc lúc gửi chứ không chép cứng — đổi mail admin trong
+**Cài đặt → Tổng quan** là form gửi theo. Nội dung mail ghi thêm trang khách gửi từ đó, thời gian và
+IP; URL đó do khách gửi lên nên được kiểm là cùng host trước khi in, nếu không thì chỉ là một dòng
+URL lạ ai cũng chèn được vào hộp thư admin.
+
+Không đặt header `From`. `wp_mail()` để mặc định là `wordpress@<domain>`, đúng domain đang gửi nên
+qua được SPF; đặt `From` thành địa chỉ domain khác là cách nhanh nhất để thư rơi vào spam.
+
+Số điện thoại cố ý **không** dùng mẫu số Việt Nam `^(\+?84|0)\d{9,10}$`: khách của site là người đi
+định cư, một phần đang ở nước ngoài và để số nước đó, nên mẫu VN sẽ từ chối đúng nhóm khách đáng giá
+nhất. Chỉ đếm chữ số sau khi bỏ dấu phân cách, nhận 9–15 chữ số — đủ để loại `abc` và `123`.
+
+[`scripts/form-lien-he.test.php`](scripts/form-lien-he.test.php) kiểm 76 trường hợp: nhãn từng
+trường, HTML dựng ra, phần lọc (kể cả gửi mảng thay cho chuỗi, và cắt chuỗi theo ký tự chứ không
+theo byte), ba lớp chống spam, URL quay lại, và nội dung mail. Nó **không** chứng minh mail đến được
+hộp thư — phần đó phụ thuộc WP Mail SMTP, phải thử trên site thật.
+
 ## Thứ tự hộp trong màn soạn bài
 
 Ba màn soạn Golden Visa, Đầu tư quốc tịch, Bất động sản xếp hộp theo đúng thứ tự hiển thị ngoài
@@ -408,8 +467,12 @@ Thiếu secret thì job `ftp` chỉ in cảnh báo rồi bỏ qua — workflow v
 
 1. **Giao diện → Giao diện** → kích hoạt **Hoangditru**
 2. **Plugin** → kích hoạt *Hoàng Di Trú Core* và *Hoàng Di Trú WebP* (xem mục WebP để chuyển ảnh cũ)
-3. **Plugin → Cài mới** → cài và bật: Advanced Custom Fields, Classic Editor, Contact Form 7,
-   LiteSpeed Cache, Really Simple SSL, Rank Math SEO, WP Mail SMTP, WPForms Lite
+3. **Plugin → Cài mới** → cài và bật: Advanced Custom Fields, Classic Editor, LiteSpeed Cache,
+   Really Simple SSL, Rank Math SEO, WP Mail SMTP, WPForms Lite
+
+   **Contact Form 7 không còn cần**: form chân trang đã tự viết, xem
+   [*Form liên hệ ở chân trang*](#form-liên-hệ-ở-chân-trang). **WP Mail SMTP thì cần** — form gọi
+   `wp_mail()`, không cấu hình SMTP thì Hostinger gửi bằng PHP mail và thư hay rơi vào spam.
 4. **Cài đặt → Đường dẫn tĩnh** → chọn lại cấu trúc rồi Lưu (để flush rewrite)
 
 ### 6. Gán menu — bước dễ quên nhất
