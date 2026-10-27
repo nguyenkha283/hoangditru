@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'CIM_VERSION', '1.1.2' );
+define( 'CIM_VERSION', '1.2.0' );
 define( 'CIM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CIM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CIM_OPTION_KEY', 'cim_contact_info' );
@@ -42,6 +42,7 @@ function cim_default_data() {
         'facebook_icon'     => '',
         'tiktok'            => '',
         'tiktok_icon'       => '',
+        'form_email'        => '',
         'mailchimp_api_key' => '',
         'footer_bg'         => '',
         'footer_desc'       => '',
@@ -102,13 +103,29 @@ function cim_save_settings() {
             $data[ $field ] = esc_url_raw( $_POST[ 'cim_' . $field ] ?? '' );
         } elseif ( in_array( $field, ['youtube_icon', 'facebook_icon', 'tiktok_icon', 'avatar', 'cover_image', 'footer_bg'], true ) ) {
             $data[ $field ] = absint( $_POST[ 'cim_' . $field ] ?? 0 );
-        } elseif ( $field === 'email' ) {
+        } elseif ( in_array( $field, ['email', 'form_email'], true ) ) {
             $data[ $field ] = sanitize_email( $_POST[ 'cim_' . $field ] ?? '' );
         } elseif ( $field === 'mailchimp_api_key' ) {
             $data[ $field ] = sanitize_text_field( $_POST[ 'cim_' . $field ] ?? '' );
         } else {
             $data[ $field ] = sanitize_text_field( $_POST[ 'cim_' . $field ] ?? '' );
         }
+    }
+
+    /*
+     * sanitize_email() trả chuỗi rỗng khi địa chỉ sai, nên một lỗi gõ nhầm sẽ
+     * âm thầm thành "không gửi thêm cho ai" — kiểu hỏng không ai phát hiện cho
+     * tới lúc hỏi nhau vì sao lâu rồi không thấy yêu cầu nào.
+     */
+    $form_email_raw = trim( (string) ( $_POST['cim_form_email'] ?? '' ) );
+
+    if ( '' !== $form_email_raw && '' === $data['form_email'] ) {
+        add_action( 'admin_notices', function () use ( $form_email_raw ) {
+            printf(
+                '<div class="notice notice-warning is-dismissible"><p>⚠️ Địa chỉ <code>%s</code> không hợp lệ nên chưa lưu. Yêu cầu từ form vẫn gửi về email quản trị.</p></div>',
+                esc_html( $form_email_raw )
+            );
+        } );
     }
 
     // Chữ ký đã bị gỡ khỏi plugin; lần lưu đầu tiên xoá luôn giá trị cũ.
@@ -248,6 +265,29 @@ function cim_admin_page() {
                                        placeholder="0901 234 567" class="regular-text">
                             </div>
 
+                        </div>
+                    </div>
+
+                    <div class="cim-card">
+                        <h2 class="cim-card-title">📨 Nhận Yêu Cầu Từ Form</h2>
+
+                        <div class="cim-field">
+                            <label for="cim_form_email">Gửi thêm tới email</label>
+                            <div class="cim-input-icon-wrap">
+                                <span class="cim-input-icon dashicons dashicons-email-alt"></span>
+                                <input type="email" id="cim_form_email" name="cim_form_email"
+                                       value="<?php echo esc_attr( $data['form_email'] ?? '' ); ?>"
+                                       placeholder="nguoinhan@gmail.com" class="regular-text">
+                            </div>
+                            <p class="description">
+                                Form <strong>Yêu Cầu Gọi Lại</strong> ở chân trang luôn gửi về email quản trị
+                                (<code><?php echo esc_html( get_option( 'admin_email' ) ); ?></code> — đổi ở
+                                Cài đặt → Tổng quan). Điền thêm một địa chỉ ở đây thì mỗi yêu cầu gửi cho cả hai.
+                                Để trống là chỉ gửi email quản trị.
+                            </p>
+                            <p class="description">
+                                Đây <strong>không phải</strong> ô Email ở trên: ô đó là địa chỉ hiện ra cho khách xem.
+                            </p>
                         </div>
                     </div>
 
