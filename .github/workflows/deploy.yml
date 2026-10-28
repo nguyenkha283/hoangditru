@@ -125,6 +125,12 @@ jobs:
       - name: Test phân quyền Biên tập viên
         run: php scripts/phan-quyen.test.php
 
+      # Hai thứ này hỏng mà không có lỗi PHP nào: thẻ bài trang chương trình
+      # hiện lại ngày đăng, và tiêu đề màn lưu trữ in nguyên chuỗi "<span>" ra
+      # cho khách đọc. Không ai thấy cho tới khi mở đúng trang đó bằng mắt.
+      - name: Test template của theme
+        run: php scripts/theme-template.test.php
+
       # Form này nhận dữ liệu từ người lạ trên internet rồi gửi mail về hộp thư
       # admin. Sai phần lọc là mail mang theo thứ người gửi muốn; sai phần kiểm là
       # hoặc spam tràn vào, hoặc khách thật bị chặn oan mà không ai biết.
