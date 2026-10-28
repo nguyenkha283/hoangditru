@@ -40,10 +40,19 @@ trong `functions.php`, và luật áp theo **post type** chứ không theo màn 
 Visa lọt vào trang tìm kiếm cũng không có ngày. Tin tức và Kiến thức thì ngày vẫn có nghĩa nên
 `category.php` giữ nguyên.
 
-Màn lưu trữ của hai mục đó cũng **không in tiêu đề**: ngay trên nó đã có breadcrumb và menu. Các màn
-lưu trữ còn lại in bình thường, nhưng phải dùng `the_archive_title()` chứ **không** bọc `esc_html()`
-— hàm đó trả về HTML có sẵn và đã tự escape phần chữ, bọc thêm lần nữa là in nguyên chuỗi `<span>`
-ra cho khách đọc. Lỗi đó đã có thật trên `/golden-visa/`.
+Màn lưu trữ của hai mục đó in **tên mục thôi** — `Golden Visa`, `Đầu tư quốc tịch` — không có tiền
+tố `Lưu trữ:`.
+
+Chỗ này có một cái bẫy escape, và hai dòng nằm cạnh nhau trong `archive.php` lại có luật **ngược
+nhau**:
+
+| Hàm | Trả về | Phải làm gì |
+|---|---|---|
+| `post_type_archive_title( '', false )` | chữ thuần (`Golden Visa`) | **tự bọc** `esc_html()` |
+| `the_archive_title()` | HTML có sẵn (`Lưu trữ: <span>…</span>`), đã tự escape phần chữ | **không** bọc `esc_html()` |
+
+Bọc nhầm cái thứ hai là in nguyên chuỗi `<span>` ra cho khách đọc — lỗi đó đã có thật trên
+`/golden-visa/`.
 
 **Plugin lõi `hoangditru-core`** — 8 plugin cũ gộp thành một, mỗi cái thành một module, cộng bốn
 module viết mới: `phan-quyen`, `bang-dieu-khien`, `menu-tu-dong`, `xoa-cache`

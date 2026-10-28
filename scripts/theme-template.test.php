@@ -129,8 +129,25 @@ t(
 	true
 );
 t(
-	'có chặn tiêu đề ở màn chương trình',
+	'có tách riêng màn chương trình',
 	false !== strpos( $archive, 'is_post_type_archive( HDT_PROGRAM_POST_TYPES )' ),
+	true
+);
+
+/*
+ * Màn chương trình in tên mục thôi, không tiền tố "Lưu trữ:".
+ * post_type_archive_title(…, false) trả về CHỮ THUẦN nên chỗ này BẮT BUỘC phải
+ * bọc esc_html — ngược hẳn với the_archive_title() ngay bên dưới nó. Hai dòng
+ * nằm cạnh nhau mà luật escape ngược nhau, nên canh cả hai.
+ */
+t(
+	'dùng post_type_archive_title cho màn chương trình',
+	false !== strpos( $archive, "post_type_archive_title( '', false )" ),
+	true
+);
+t(
+	'và CÓ bọc esc_html quanh nó',
+	false !== strpos( $archive, "esc_html( post_type_archive_title( '', false ) )" ),
 	true
 );
 
