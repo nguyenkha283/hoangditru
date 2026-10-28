@@ -13,16 +13,26 @@ get_header();
 
         <?php
         /*
-         * Golden Visa và Đầu tư quốc tịch không in tiêu đề lưu trữ: ngay trên
-         * nó đã có breadcrumb và menu nói rõ đang ở mục nào.
+         * Hai cách in tiêu đề, khác nhau ở chỗ escape. Đọc kỹ trước khi gộp
+         * lại cho gọn, vì gộp sai là lỗi hiện ra tận mặt khách:
          *
-         * Các màn lưu trữ còn lại in bình thường, và KHÔNG bọc esc_html:
-         * get_the_archive_title() trả về HTML có sẵn (dạng `Lưu trữ:
-         * <span>…</span>`) và đã tự escape phần chữ bên trong. Bọc thêm một lần
-         * nữa là in ra nguyên chuỗi "<span>" cho khách đọc — đúng lỗi đang
-         * thấy trên /golden-visa/ trước khi sửa.
+         *   post_type_archive_title( '', false ) trả về CHỮ THUẦN — nhãn của
+         *   post type, ví dụ "Golden Visa" — nên phải tự bọc esc_html.
+         *
+         *   the_archive_title() in ra HTML có sẵn dạng `Lưu trữ: <span>…</span>`
+         *   và đã tự escape phần chữ bên trong. Bọc esc_html quanh nó là in
+         *   nguyên chuỗi "<span>" cho khách đọc — đúng lỗi đã có thật trên
+         *   /golden-visa/ trước đây.
+         *
+         * Golden Visa và Đầu tư quốc tịch chỉ lấy tên mục, bỏ tiền tố
+         * "Lưu trữ:" cho sạch.
          */
-        if ( ! is_post_type_archive( HDT_PROGRAM_POST_TYPES ) ) {
+        if ( is_post_type_archive( HDT_PROGRAM_POST_TYPES ) ) {
+            printf(
+                '<h1 class="hdt-page-title">%s</h1>',
+                esc_html( post_type_archive_title( '', false ) )
+            );
+        } else {
             the_archive_title( '<h1 class="hdt-page-title">', '</h1>' );
         }
         ?>
