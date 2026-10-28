@@ -14,7 +14,9 @@
         <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
     </h2>
 
-    <div class="hdt-card__meta">
-        <?php echo esc_html( get_the_date( 'd/m/Y' ) ); ?>
-    </div>
+    <?php if ( ! hdt_is_program_post_type() ) : ?>
+        <div class="hdt-card__meta">
+            <?php echo esc_html( get_the_date( 'd/m/Y' ) ); ?>
+        </div>
+    <?php endif; ?>
 </li>

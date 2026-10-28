@@ -356,3 +356,31 @@ if ( ! function_exists( 'catpin_get_pinned_post' ) ) {
     }
 }
 
+
+// ------------------------------------------------------------------
+// 5. Trang chương trình: Golden Visa và Đầu tư quốc tịch
+//
+// Hai post type này là trang giới thiệu chương trình, sống nhiều năm và được
+// sửa dần chứ không phải tin bài. In ngày đăng lên đó là nói với khách rằng
+// nội dung có từ 2026 và từ đó chưa ai đụng vào — ngược hẳn ý muốn. Tin tức và
+// Kiến thức thì ngày đăng vẫn có nghĩa, nên category.php giữ nguyên.
+// ------------------------------------------------------------------
+const HDT_PROGRAM_POST_TYPES = array( 'golden_visa', 'citizenship_invest' );
+
+/**
+ * Post type này có phải trang chương trình không.
+ *
+ * Quyết định theo POST TYPE chứ không theo màn đang xem: một bài Golden Visa
+ * lọt vào trang kết quả tìm kiếm cũng không nên có ngày đăng. Theo màn thì hai
+ * chỗ hiển thị khác nhau cho cùng một bài.
+ *
+ * @param string|null $post_type Bỏ trống thì lấy post type của bài đang lặp.
+ * @return bool
+ */
+function hdt_is_program_post_type( $post_type = null ) {
+    if ( null === $post_type ) {
+        $post_type = get_post_type();
+    }
+
+    return in_array( $post_type, HDT_PROGRAM_POST_TYPES, true );
+}

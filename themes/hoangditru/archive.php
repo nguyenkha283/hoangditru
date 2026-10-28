@@ -11,7 +11,21 @@ get_header();
 <main class="hdt-main">
     <div class="hdt-wrap">
 
-        <h1 class="hdt-page-title"><?php echo esc_html( get_the_archive_title() ); ?></h1>
+        <?php
+        /*
+         * Golden Visa và Đầu tư quốc tịch không in tiêu đề lưu trữ: ngay trên
+         * nó đã có breadcrumb và menu nói rõ đang ở mục nào.
+         *
+         * Các màn lưu trữ còn lại in bình thường, và KHÔNG bọc esc_html:
+         * get_the_archive_title() trả về HTML có sẵn (dạng `Lưu trữ:
+         * <span>…</span>`) và đã tự escape phần chữ bên trong. Bọc thêm một lần
+         * nữa là in ra nguyên chuỗi "<span>" cho khách đọc — đúng lỗi đang
+         * thấy trên /golden-visa/ trước khi sửa.
+         */
+        if ( ! is_post_type_archive( HDT_PROGRAM_POST_TYPES ) ) {
+            the_archive_title( '<h1 class="hdt-page-title">', '</h1>' );
+        }
+        ?>
 
         <?php
         $hdt_description = get_the_archive_description();
