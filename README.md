@@ -329,6 +329,23 @@ trường, HTML dựng ra, phần lọc (kể cả gửi mảng thay cho chuỗi
 theo byte), ba lớp chống spam, URL quay lại, và nội dung mail. Nó **không** chứng minh mail đến được
 hộp thư — phần đó phụ thuộc WP Mail SMTP, phải thử trên site thật.
 
+## Phân trang danh mục: 9 bài mỗi trang, đặt ở query chính
+
+`category.php` xếp bài ghim riêng một khu rồi liệt kê **9 bài** còn lại bên dưới. Con số 9 đó phải
+đặt lên **query chính** bằng `pre_get_posts` (`hdt_category_query()` trong `functions.php`), không
+được để template tự dựng `WP_Query` thứ hai.
+
+Lý do, bằng đúng con số đã xảy ra: Kiến thức có 20 bài. Query chính chạy mặc định 10 bài/trang nên
+WordPress coi danh mục đó có **2 trang** — và nó dùng chính con số này để quyết định trả 404. Template
+lại đếm phân trang theo query riêng 9 bài/trang, loại bài ghim, ra **3 trang**. Kết quả: trang 1 và
+trang 2 in ra link `/kien-thuc/page/3/`, mà mở link đó lên thì **404**.
+
+Một truy vấn thì hai con số không còn đường lệch nhau. Đổi `HDT_CATEGORY_PER_PAGE` là phân trang và
+404 tự đi theo.
+
+Cái bẫy này không lộ ra ở danh mục ít bài: Tin tức có 4 bài nên chỉ 1 trang, không có link phân
+trang nào để sai.
+
 ## Thứ tự hộp trong màn soạn bài
 
 Ba màn soạn Golden Visa, Đầu tư quốc tịch, Bất động sản xếp hộp theo đúng thứ tự hiển thị ngoài

@@ -35,6 +35,12 @@ function the_post_thumbnail( $size = null ) { echo '<img src="anh.jpg" alt="">';
 function the_title() { echo 'Định cư Malta'; }
 function get_the_date( $format = '' ) { return '27/04/2026'; }
 
+$GLOBALS['term_meta'] = array();
+function is_admin() { return false; }
+function get_term_meta( $term_id, $key = '', $single = false ) {
+	return $GLOBALS['term_meta'][ "$term_id:$key" ] ?? '';
+}
+
 require __DIR__ . '/../wp-content/themes/hoangditru/functions.php';
 
 $pass = 0;
@@ -148,6 +154,85 @@ t(
 t(
 	'và CÓ bọc esc_html quanh nó',
 	false !== strpos( $archive, "esc_html( post_type_archive_title( '', false ) )" ),
+	true
+);
+
+echo "\n── Truy vấn danh mục ───────────────────────────────────────────────\n";
+
+/**
+ * WP_Query giả lập, chỉ đủ phần hdt_category_query() đụng tới.
+ */
+class Fake_Query {
+	public $vars      = array();
+	public $main      = true;
+	public $category  = true;
+	public $feed      = false;
+	public $object_id = 3;
+
+	public function is_main_query() { return $this->main; }
+	public function is_category() { return $this->category; }
+	public function is_feed() { return $this->feed; }
+	public function get_queried_object_id() { return $this->object_id; }
+	public function set( $key, $value ) { $this->vars[ $key ] = $value; }
+}
+
+/** Danh mục 3 ("Kiến thức") đang ghim bài 101. */
+$GLOBALS['term_meta'] = array( '3:_pinned_post_id' => '101' );
+
+$q = new Fake_Query();
+hdt_category_query( $q );
+
+/*
+ * 9 bài mỗi trang phải đặt lên CHÍNH query này. Để WordPress chạy 10 bài/trang
+ * mặc định rồi template tự đếm 9 là ra hai con số trang khác nhau: Kiến thức 20
+ * bài thì query chính ra 2 trang, phân trang in ra 3 trang, và /page/3/ trả 404
+ * dù có link dẫn tới. Đó đúng là lỗi đã xảy ra trên site.
+ */
+t( 'đặt 9 bài mỗi trang', $q->vars['posts_per_page'] ?? null, 9 );
+t( 'loại bài ghim khỏi danh sách', $q->vars['post__not_in'] ?? null, array( 101 ) );
+
+// Danh mục không ghim bài nào thì không được đặt post__not_in rỗng vô nghĩa.
+$GLOBALS['term_meta'] = array();
+$q                    = new Fake_Query();
+hdt_category_query( $q );
+
+t( 'không ghim thì vẫn 9 bài/trang', $q->vars['posts_per_page'] ?? null, 9 );
+t( 'không ghim thì không loại gì', isset( $q->vars['post__not_in'] ), false );
+
+/*
+ * Ba trường hợp phải để yên. Đụng vào là sửa nhầm chỗ khác: feed có số bài
+ * riêng trong Cài đặt → Đọc, còn query phụ thì template nào cũng dựng.
+ */
+$GLOBALS['term_meta'] = array( '3:_pinned_post_id' => '101' );
+
+$q       = new Fake_Query();
+$q->feed = true;
+hdt_category_query( $q );
+t( 'feed để yên', $q->vars, array() );
+
+$q       = new Fake_Query();
+$q->main = false;
+hdt_category_query( $q );
+t( 'query phụ để yên', $q->vars, array() );
+
+$q           = new Fake_Query();
+$q->category = false;
+hdt_category_query( $q );
+t( 'không phải danh mục thì để yên', $q->vars, array() );
+
+echo "\n── category.php chỉ dùng một truy vấn ──────────────────────────────\n";
+
+$cat_tpl = file_get_contents( __DIR__ . '/../wp-content/themes/hoangditru/category.php' );
+
+/*
+ * Dựng query thứ hai cho danh sách là mở lại đúng cái lỗi vừa sửa, nên canh
+ * bằng chuỗi: phân trang và 404 chỉ khớp nhau khi cả hai đọc cùng một query.
+ */
+t( 'không dựng WP_Query cho danh sách', false === strpos( $cat_tpl, 'new WP_Query' ), true );
+t( 'vòng lặp dùng have_posts() chính', false !== strpos( $cat_tpl, 'while ( have_posts() )' ), true );
+t(
+	'phân trang đếm theo query chính',
+	false !== strpos( $cat_tpl, "\$GLOBALS['wp_query']->max_num_pages" ),
 	true
 );
 
