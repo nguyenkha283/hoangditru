@@ -384,3 +384,38 @@ function hdt_is_program_post_type( $post_type = null ) {
 
     return in_array( $post_type, HDT_PROGRAM_POST_TYPES, true );
 }
+
+// ------------------------------------------------------------------
+// 6. Truy vấn danh mục: 9 bài mỗi trang, trừ bài ghim
+//
+// category.php xếp bài ghim riêng một khu rồi liệt kê 9 bài còn lại bên dưới.
+// Trước đây nó tự dựng một WP_Query thứ hai để làm việc đó, và phân trang đếm
+// theo query thứ hai ấy — trong khi WordPress quyết định 404 theo query CHÍNH.
+// Hai bên lệch nhau là ra link dẫn vào trang 404: Kiến thức có 20 bài, query
+// chính 10 bài/trang ra 2 trang, còn phân trang đếm 9 bài/trang ra 3 trang nên
+// in ra link /page/3/ mà mở lên là "không tìm thấy".
+//
+// Nắn thẳng query chính ở đây thì chỉ còn MỘT truy vấn, hai con số không còn
+// đường lệch nhau nữa. Đổi số 9 ở đây là phân trang và 404 tự đi theo.
+// ------------------------------------------------------------------
+const HDT_CATEGORY_PER_PAGE = 9;
+
+add_action( 'pre_get_posts', 'hdt_category_query' );
+function hdt_category_query( $query ) {
+    if ( is_admin() || ! $query->is_main_query() || ! $query->is_category() ) {
+        return;
+    }
+
+    // Feed có số bài riêng trong Cài đặt → Đọc, không đụng vào.
+    if ( $query->is_feed() ) {
+        return;
+    }
+
+    $query->set( 'posts_per_page', HDT_CATEGORY_PER_PAGE );
+
+    $pinned_id = (int) get_term_meta( $query->get_queried_object_id(), '_pinned_post_id', true );
+
+    if ( $pinned_id ) {
+        $query->set( 'post__not_in', array( $pinned_id ) );
+    }
+}

@@ -11,14 +11,14 @@ $cat_id   = $category->term_id;
 $pinned_post_id = get_term_meta( $cat_id, '_pinned_post_id', true );
 $pinned_post    = $pinned_post_id ? get_post( $pinned_post_id ) : null;
 
-$exclude_ids = $pinned_post ? array( $pinned_post_id ) : array();
-
-$latest_posts_query = new WP_Query( array(
-    'cat'            => $cat_id,
-    'posts_per_page' => 9,
-    'post__not_in'   => $exclude_ids,
-    'paged'          => get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1,
-) );
+/*
+ * Danh sách bên dưới dùng thẳng QUERY CHÍNH, không dựng query thứ hai.
+ *
+ * hdt_category_query() trong functions.php đã nắn query chính thành 9 bài mỗi
+ * trang và loại bài ghim. Dựng thêm một query nữa ở đây là tạo ra hai con số
+ * trang khác nhau: phân trang đếm theo query của template, còn WordPress quyết
+ * định 404 theo query chính — lệch nhau là ra link dẫn vào trang 404.
+ */
 ?>
 
 <style>
@@ -344,9 +344,9 @@ $latest_posts_query = new WP_Query( array(
 
             <div class="posts-grid">
 
-                <?php if ( $latest_posts_query->have_posts() ) :
-                    while ( $latest_posts_query->have_posts() ) :
-                        $latest_posts_query->the_post();
+                <?php if ( have_posts() ) :
+                    while ( have_posts() ) :
+                        the_post();
                         $thumb     = get_post_thumbnail_id();
                         $post_cats = get_the_category();
                         $post_tag  = $post_cats ? $post_cats[0]->name : $category->name;
@@ -390,7 +390,7 @@ $latest_posts_query = new WP_Query( array(
                     </div>
                 </article>
 
-                <?php endwhile; wp_reset_postdata();
+                <?php endwhile;
                 else : ?>
                 <div class="no-posts-msg">Chưa có bài viết nào trong danh mục này.</div>
                 <?php endif; ?>
@@ -403,7 +403,7 @@ $latest_posts_query = new WP_Query( array(
                 'base'      => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
                 'format'    => '?paged=%#%',
                 'current'   => max( 1, get_query_var( 'paged' ) ),
-                'total'     => $latest_posts_query->max_num_pages,
+                'total'     => $GLOBALS['wp_query']->max_num_pages,
                 'type'      => 'array',
                 'prev_text' => '‹',
                 'next_text' => '›',
