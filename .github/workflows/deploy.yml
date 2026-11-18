@@ -158,6 +158,12 @@ jobs:
       - name: Test plugin WebP
         run: php scripts/webp.test.php
 
+      # Module này ghi thẳng vào database của site thật, không có hoàn tác. Sai
+      # một luật là vỡ ảnh (đổi tên file), hỏng dữ liệu serialize, hoặc đổi nhầm
+      # chữ không liên quan.
+      - name: Test đổi tên thương hiệu và mô tả ngắn
+        run: php scripts/doi-thuong-hieu.test.php
+
       # Script dò wp-content quyết định file được đẩy đi đâu, nên nó phải có
       # test và test phải chạy trước mỗi lần deploy.
       - name: Test scripts/ftp-resolve.sh

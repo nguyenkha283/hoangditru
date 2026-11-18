@@ -10,7 +10,7 @@ Khi làm việc trên một nhánh mới (`claude/*` hoặc nhánh tính năng n
 3. Báo lại khi CI xanh, hoặc khi failure **không phải** do thay đổi trong PR (nêu rõ check nào và
    vì sao).
 
-Workflow `.github/workflows/deploy.yml` chạy `php -l`, 5 test script trong `scripts/`, rồi đẩy
+Workflow `.github/workflows/deploy.yml` chạy `php -l`, các test script trong `scripts/`, rồi đẩy
 `wp-content` lên Hostinger qua FTPS. **Job deploy chỉ chạy trên `main`** — PR chỉ chạy phần kiểm
 tra, nên CI xanh trên PR không có nghĩa là site đã cập nhật.
 
@@ -26,6 +26,7 @@ tra, nên CI xanh trên PR không có nghĩa là site đã cập nhật.
 - `php scripts/template-scope.test.php`
 - `bash scripts/ftp-resolve.test.sh`
 - `php scripts/webp.test.php`
+- `php scripts/doi-thuong-hieu.test.php`
 
 ## Đụng vào đâu thì đọc README trước
 

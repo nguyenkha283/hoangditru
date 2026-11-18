@@ -7,7 +7,7 @@ loader hay symlink.
 
 ```
 pull request ──▶ GitHub Actions
-                 └─ lint          php -l + 5 test script; CHỈ kiểm tra, không deploy
+                 └─ lint          php -l + các test script; CHỈ kiểm tra, không deploy
 
 push main ─────▶ GitHub Actions
                  ├─ lint          php -l mọi file; lỗi cú pháp thì DỪNG, không deploy
@@ -54,8 +54,8 @@ nhau**:
 Bọc nhầm cái thứ hai là in nguyên chuỗi `<span>` ra cho khách đọc — lỗi đó đã có thật trên
 `/golden-visa/`.
 
-**Plugin lõi `hoangditru-core`** — 8 plugin cũ gộp thành một, mỗi cái thành một module, cộng bốn
-module viết mới: `phan-quyen`, `bang-dieu-khien`, `menu-tu-dong`, `xoa-cache`
+**Plugin lõi `hoangditru-core`** — 8 plugin cũ gộp thành một, mỗi cái thành một module, cộng năm
+module viết mới: `phan-quyen`, `bang-dieu-khien`, `menu-tu-dong`, `xoa-cache`, `doi-thuong-hieu`
 
 | Module | Vai trò đáng chú ý |
 |---|---|
@@ -63,6 +63,7 @@ module viết mới: `phan-quyen`, `bang-dieu-khien`, `menu-tu-dong`, `xoa-cache
 | `bang-dieu-khien` | thay Trang quản trị bằng bốn ô lối tắt thêm mới nội dung |
 | `menu-tu-dong` | bài / danh mục mới tự vào đúng cụm trong menu — xem bên dưới |
 | `xoa-cache` | trang Xoá cache cho Biên tập viên, gọi `litespeed_purge_all` |
+| `doi-thuong-hieu` | thay *Khải Di Trú* / số cũ trong database, 301 từ slug cũ — xem bên dưới |
 | `trang-chu` | **dựng thanh nav của toàn site** + template trang chủ |
 | `cim-footer` | **dựng footer của toàn site** |
 | `bat-dong-san` | CPT bất động sản, slider + lightbox riêng (slick từ CDN) |
@@ -97,6 +98,7 @@ Những thứ này đang nằm trong database. Đổi là mất dữ liệu đan
 | post meta | `_bds_*`, `s3_title_orange`, `s4_title_orange`, … |
 | post meta (menu tự động) | `_hdt_menu_da_them` — dấu "bài này đã được tự thêm vào menu", để mục bị xoá tay không mọc lại |
 | post meta (plugin WebP) | `_wsl_webp` — danh sách file đã có WebP của từng ảnh |
+| term meta (đổi thương hiệu) | `_hdt_old_slug` — slug cũ của term, để link cũ 301 về slug mới |
 | tên file WebP | `ảnh.jpg.webp` nằm cạnh `ảnh.jpg` trong `uploads/` — đổi quy ước là mọi file đã chuyển thành rác |
 
 Chuỗi template của landing page **còn giữ tên thư mục cũ** `landing-page-plugin/…`. Đó là cố ý: nó
@@ -328,6 +330,63 @@ nhất. Chỉ đếm chữ số sau khi bỏ dấu phân cách, nhận 9–15 ch
 trường, HTML dựng ra, phần lọc (kể cả gửi mảng thay cho chuỗi, và cắt chuỗi theo ký tự chứ không
 theo byte), ba lớp chống spam, URL quay lại, và nội dung mail. Nó **không** chứng minh mail đến được
 hộp thư — phần đó phụ thuộc WP Mail SMTP, phải thử trên site thật.
+
+## Đổi tên thương hiệu: Khải Di Trú → Hoàng Di Trú
+
+Nội dung site chép (có cho phép) từ site khác nên còn tên **Khải Di Trú** và số **0906.225.610** của
+site gốc. Module `doi-thuong-hieu` thay một lần, ở **Công cụ → Đổi tên thương hiệu** (chỉ
+administrator):
+
+1. Backup database (phpMyAdmin → Export). **Không có nút hoàn tác.**
+2. Nhập số mới ở **Thông tin liên hệ → Số điện thoại**. Ô trống hoặc vẫn là số cũ thì trang không
+   cho chạy.
+3. Mở trang: nó quét database và hiện từng chỗ *trước → sau*. Đọc qua, nhất là mục **Bỏ qua**.
+4. Tick *Tôi đã backup database* → **Thay thế**. Xong tự xoá object cache và cache LiteSpeed.
+   Mở lại trang phải ra *Không còn chỗ nào cần thay*.
+
+| | Luật |
+|---|---|
+| Tên | Chỉ âm *Khải* đổi thành *Hoàng*, phần *di trú* giữ nguyên. Hoa thường, dấu theo bản gốc: `KHẢI DI TRÚ` → `HOÀNG DI TRÚ`, `Khai di tru` → `Hoang di tru`, `khaiditru` → `hoangditru`, `KhaiDiTru` → `HoangDiTru`, `khai-di-tru` → `hoang-di-tru`. Nhận cả dấu tổ hợp (NFD). Không đụng *Khai di trung*, *Khải di trừ* |
+| Số điện thoại | Mọi cách viết của 0906225610 (chấm, cách, gạch, `+84`, `(+84)`) → **số đúng như cấu hình**. Sau `tel:`, `zalo.me/`, `sms:` ghi chỉ chữ số; sau `wa.me/` ghi dạng `84…` |
+| Tên file | **Không đổi**: `…/uploads/2026/05/khaiditru-logo.jpg` giữ nguyên tên file, chỉ đổi tên miền ở đầu URL. Đổi chuỗi trong DB thì file trên đĩa vẫn tên cũ, ảnh vỡ |
+| Slug | Đổi. Bài đã xuất bản được ghi `_wp_old_slug`, term được ghi `_hdt_old_slug`, và link cũ **301** sang slug mới |
+| Serialize | Giải ra, thay, đóng gói lại — số độ dài `s:N:` luôn đúng. Dữ liệu có object thì **bỏ qua** và liệt kê để sửa tay |
+
+Quét `wp_posts` (tiêu đề, nội dung, mô tả, slug; không quét revision), `wp_postmeta`, `wp_options`,
+`wp_terms`, `wp_term_taxonomy`, `wp_termmeta`. Không đụng: user, bình luận, `guid`, transient,
+`siteurl`/`home`, và các meta là đường dẫn file (`_wp_attached_file`, `_wp_attachment_metadata`,
+`_wsl_webp`…, danh sách ở `HDTTH_BO_META`).
+
+Số mới được **ghi cứng** vào nội dung. Sau này đổi số ở Thông tin liên hệ thì chỗ đã thay không đổi
+theo — chạy lại trang này không giúp được vì nó chỉ tìm số cũ.
+
+**Redirect slug cũ phải giữ mãi.** WordPress tự 301 từ `_wp_old_slug` nhưng chỉ với post type không
+phân cấp; Trang và Bất động sản là phân cấp, term thì không có gì. `includes/chuyen-huong.php` lấp
+chỗ đó, chạy khi 404 và chỉ truy vấn khi đoạn cuối URL có dạng tên cũ. Thay xong có thể gỡ
+`includes/admin.php`, nhưng giữ `chuyen-huong.php` và `thay-the.php`.
+
+[`scripts/doi-thuong-hieu.test.php`](scripts/doi-thuong-hieu.test.php) kiểm luật thay, serialize,
+slug, và phần quét/ghi với `$wpdb` giả. Câu SQL thật chưa chạy trên MySQL — trang xem trước là bước
+kiểm trên site thật.
+
+## Mô tả ngắn không in shortcode
+
+Thẻ bài ở mục **Chương trình** / **Tin tức** của Đầu tư quốc tịch lấy mô tả bằng
+`wp_trim_words( post_excerpt ?: post_content )`. `wp_trim_words()` bỏ HTML nhưng **không** bỏ
+shortcode, nên khách đọc nguyên chuỗi `[youtube_embed url=…]`. Mô tả viết tay đi qua
+`get_the_excerpt()` cũng thế: WordPress chỉ bỏ shortcode khi *tự sinh* mô tả từ nội dung.
+
+`hdtc_clean_excerpt()` ([`hoangditru-core/includes/excerpt.php`](wp-content/plugins/hoangditru-core/includes/excerpt.php))
+gắn vào filter `get_the_excerpt`, nên mọi chỗ gọi `get_the_excerpt()` — trang chủ, danh mục của
+theme, mô tả đầu trang Golden Visa / Đầu tư quốc tịch — đều sạch, với mọi post type. Chỗ đọc thẳng
+`post_excerpt`/`post_content` thì gọi hàm trực tiếp.
+
+- `youtube_embed`, `embed`, `video`, `audio`, `gallery`, `caption`… bỏ **cả** phần bọc bên trong.
+- Shortcode khác chỉ bỏ thẻ, giữ chữ: `[ux_text]Chữ[/ux_text]` còn `Chữ`.
+- Chỉ bỏ thứ chắc là shortcode (đã đăng ký, có thuộc tính, hoặc thẻ đóng) — `[Hot]` còn nguyên.
+- Link YouTube dán trần bị bỏ; link trong `href="…"` thì không.
+
+Nội dung bài không bị đụng: video vẫn hiện trong bài.
 
 ## Phân trang danh mục: 9 bài mỗi trang, đặt ở query chính
 
