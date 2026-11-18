@@ -169,6 +169,7 @@ $expect = array(
 	'bang-dieu-khien'        => 'hdtbd_dashboard',
 	'xoa-cache'              => 'hdtxc_purge',
 	'menu-tu-dong'           => 'hdtmenu_add',
+	'doi-thuong-hieu'        => 'hdtth_thay_chuoi',
 	'contact-info-manager'   => 'cim_activate',
 	'cim-footer'             => 'cimf_enqueue',
 	'trang-chu'              => 'tc_register_template',

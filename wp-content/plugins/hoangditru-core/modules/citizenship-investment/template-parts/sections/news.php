@@ -21,7 +21,7 @@ if ( empty( $ids ) ) return;
                         <h3 class="ci-post-card__title">
                             <a href="<?php echo get_permalink( $p->ID ); ?>"><?php echo esc_html( $p->post_title ); ?></a>
                         </h3>
-                        <p class="ci-post-card__excerpt"><?php echo wp_trim_words( $p->post_excerpt ?: $p->post_content, 20 ); ?></p>
+                        <p class="ci-post-card__excerpt"><?php echo wp_trim_words( hdtc_clean_excerpt( $p->post_excerpt ?: $p->post_content ), 20 ); ?></p>
                         <span class="ci-post-card__date"><?php echo get_the_date( 'd/m/Y', $p ); ?></span>
                     </div>
                 </article>
